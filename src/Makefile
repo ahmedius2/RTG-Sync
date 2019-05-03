@@ -3,7 +3,7 @@ TGT := shell
 all: ${TGT}
 
 ${TGT}: ${TGT}.c
-	@gcc $^ -o $@
+	@gcc $^ -o $@ -lpthread
 	@echo "Shell has been built!"
 
 clean:
