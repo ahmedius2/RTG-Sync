@@ -1,7 +1,7 @@
 #ifndef __RTG_DAEMON_H__
 #define __RTG_DAEMON_H__
 
-#include "../include/rtg_common.h"
+#include "rtg_common.h"
 
 static int rtg_log_level = 0;
 static int handshake_sockfd;

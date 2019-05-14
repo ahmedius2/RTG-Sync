@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 
-#include "../include/rtg_lib.h"
+#include "rtg_lib.h"
 
 #define QSIZE 			5
 #define BSIZE			256

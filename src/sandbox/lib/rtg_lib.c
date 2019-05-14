@@ -4,7 +4,7 @@ static int open_shared_file (char* shared_file, int flags)
 {
 	int fd;
 
-	fd = open (SHARED_FILE, flags);
+	fd = open (shared_file, flags);
 	rtg_assert (fd >= 0, "Failed to Open Shared File");
 
 	return fd;
@@ -65,7 +65,7 @@ static void init_shmem_barrier (pthread_barrier_t* barrier,
 	return;
 }
 
-pthread_barrier_t* rtg_daemon_setup (char* shared_file, int waiter_count)
+void rtg_daemon_setup (char* shared_file, int waiter_count)
 {
 	int fd;
 	pthread_barrierattr_t attr;
@@ -77,12 +77,13 @@ pthread_barrier_t* rtg_daemon_setup (char* shared_file, int waiter_count)
 	shmem_barrier = map_pthread_barrier (fd);
 	init_shmem_barrier (shmem_barrier, &attr, waiter_count);
 
-	return shmem_barrier;
+	return;
 }
 
-pthread_barrier_t* rtg_member_setup (char* shared_file);
+pthread_barrier_t* rtg_member_setup (char* shared_file)
 {
 	int fd;
+	pthread_barrier_t *shmem_barrier;
 
 	fd = open_shared_file (shared_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
