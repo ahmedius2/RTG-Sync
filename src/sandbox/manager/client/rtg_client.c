@@ -1,5 +1,18 @@
+/******************************************************************************
+ * File:	rtg_client.c
+ * Description:	Helper program for communicating with the RT-Gang daemon at
+ * 		runtime. Provides interface for issuing command(s) to the
+ * 		daemon and displaying their status.
+ * Author:	wali@ku.edu
+ *****************************************************************************/
 #include "rtg_client.h"
 
+/*
+ * setup_socket: Helper function to create a socket for communication with
+ * RT-Gang daemon.
+ *
+ * @return		Integer indicating socket file descriptor
+ */
 static int setup_socket (void)
 {
 	int ret;
@@ -18,6 +31,13 @@ static int setup_socket (void)
 	return sockfd;
 }
 
+/*
+ * send_command: Helper function to send command to RT-Gang daemon via provided
+ * socket.
+ *
+ * @sockfd:		Socket file descriptor
+ * @cmd:		A character string of command
+ */
 static void send_command (int sockfd, char* cmd)
 {
 	char buf [BSIZE];

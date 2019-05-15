@@ -1,5 +1,16 @@
+/******************************************************************************
+ * File:	rtg_daemon.c
+ * Description:	RT-Gang daemon program. Receives commands from RT-Gang
+ * 		client(s) via sockets and performs necessary actions related to
+ * 		virtual gang management
+ * Author:	wali@ku.edu
+ *****************************************************************************/
 #include "rtg_daemon.h"
 
+/*
+ * setup_handshake_socket: Create socket for handshake with an RT-Gang client
+ * at a predefined location.
+ */
 static void setup_handshake_socket (void)
 {
 	int ret;
@@ -18,6 +29,12 @@ static void setup_handshake_socket (void)
 	return;
 }
 
+/*
+ * wait_for_handshake: Block on handshake socket until a client requests
+ * connection. Create a session socket upon connection.
+ *
+ * @return		Integer file descriptor for session socket
+ */
 static int wait_for_handshake (void)
 {
 	int ret;
@@ -32,6 +49,13 @@ static int wait_for_handshake (void)
 	return session_sockfd;
 }
 
+/*
+ * wait_for_command: Block on session socket until a command is received from
+ * client.
+ *
+ * @session_sockfd	Integer file descriptor of session socket
+ * @return		Command string received from client
+ */
 static char* wait_for_command (int session_sockfd)
 {
 	int ret;
@@ -47,6 +71,14 @@ static char* wait_for_command (int session_sockfd)
 	return buf;
 }
 
+/*
+ * parse_command: Perform the necessary action for the command received from
+ * client.
+ *
+ * @cmd			Character string denoting command
+ * @session_sockfd	Integer file descriptor of session socket
+ * @return		Boolean value indicating status
+ */
 static bool parse_command (char* cmd, int session_sockfd)
 {
 	bool ret = true;
@@ -77,6 +109,12 @@ static bool parse_command (char* cmd, int session_sockfd)
 	return ret;
 }
 
+/*
+ * manage_session: Receive commands from client until the session end
+ * (indicated by a special command from client).
+ *
+ * @session_sockfd	Integer file descriptor of session socket
+ */
 static void manage_session (int session_sockfd)
 {
 	bool ret;

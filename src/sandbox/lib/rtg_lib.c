@@ -1,34 +1,55 @@
+/******************************************************************************
+ * File:	rtg_lib.c
+ * Description:	Shared library which provides various virtual gang related
+ * 		utilities including registering a virtual gang member with the
+ * 		kernel, synchronization between virtual gang members etc.
+ * Author:	wali@ku.edu
+ *****************************************************************************/
 #include "rtg_lib.h"
 
+/*
+ * open_shared_file: Helper function for opening a given file with the provided
+ * access permissions.
+ *
+ * @shared_file:	Full (path) name of the file
+ * @flags:		Access permissions
+ */
 static int open_shared_file (char* shared_file, int flags)
 {
 	int fd;
 
 	fd = open (shared_file, flags);
-	rtg_assert (fd >= 0, "Failed to Open Shared File");
+	rtg_assert (fd >= 0, "Failed to open shared file");
 
 	return fd;
 }
 
+/*
+ * seek_and_set_file: Helper function for adjusting the seek in the provided
+ * file to a certain offset.
+ *
+ * @fd:			File descriptor of the shared file
+ * @offset:		Seek offset
+ */
 static void seek_and_set_file (int fd, size_t offset)
 {
 	int ret;
 
 	ret = lseek (fd, offset - 1, SEEK_SET);
-	if (ret < 0) {
-		perror ("[ERROR] Failed to reposition the file");
-		exit (-1);
-	}
+	rtg_assert (ret >= 0, "Failed to set seek in the file");
 
 	ret = write (fd, "", 1);
-	if (ret < 0) {
-		perror ("[ERROR] Failed to write to the shared file");
-		exit (-1);
-	}
+	rtg_assert (ret >= 0, "Failed to write to the file");
 
 	return;
 }
 
+/*
+ * map_pthread_barrier: Helper function to map pthread barrier in the given
+ * shared file into the calling process' address space.
+ *
+ * @fd:			File descriptor of the shared file
+ */
 static pthread_barrier_t* map_pthread_barrier (int fd)
 {
 	pthread_barrier_t *shmem_barrier;
@@ -43,6 +64,12 @@ static pthread_barrier_t* map_pthread_barrier (int fd)
 	return shmem_barrier;
 }
 
+/*
+ * set_pthread_attr_shared: Helper function for marking a pthread barrier as
+ * shared between processes.
+ *
+ * @attr:		Pthread barrier attribute structure
+ */
 static void set_pthread_attr_shared (pthread_barrierattr_t* attr)
 {
 	int ret;
@@ -53,6 +80,15 @@ static void set_pthread_attr_shared (pthread_barrierattr_t* attr)
 	return;
 }
 
+/*
+ * init_shmem_barrier: Helper function to initialize a pthread barrier with a
+ * desired waiter count.
+ *
+ * @barrier:		Pthread barrier structure
+ * @attr:		Pthread barrier attribute structure
+ * @waiter_count:	Number of processes which will synchronize on the
+ * 			barrier
+ */
 static void init_shmem_barrier (pthread_barrier_t* barrier,
 				pthread_barrierattr_t* attr,
 				int waiter_count)
@@ -65,6 +101,15 @@ static void init_shmem_barrier (pthread_barrier_t* barrier,
 	return;
 }
 
+/*
+ * rtg_daemon_setup: Interface function for creating a shared memory barrier on
+ * behalf of RT-Gang daemon process.
+ *
+ * @shared_file:	Full (path) name of the file which will be used for
+ *			memory-mapping the barrier
+ * @waiter_count:	Number of processes which will synchronize on the
+ * 			barrier
+ */
 void rtg_daemon_setup (char* shared_file, int waiter_count)
 {
 	int fd;
@@ -80,6 +125,13 @@ void rtg_daemon_setup (char* shared_file, int waiter_count)
 	return;
 }
 
+/*
+ * rtg_member_setup: Interface function for mapping a shared memory based
+ * barrier to the calling process' address space.
+ *
+ * @shared_file:	Full (path) name of the file which was used for
+ *			memory-mapping the barrier by the RT-Gang daemon
+ */
 pthread_barrier_t* rtg_member_setup (char* shared_file)
 {
 	int fd;
@@ -91,6 +143,12 @@ pthread_barrier_t* rtg_member_setup (char* shared_file)
 	return shmem_barrier;
 }
 
+/*
+ * rtg_member_sync: Interface function for synchronizing on barrier between
+ * virtual gang members.
+ *
+ * @barrier:		Data structure of shared memory based barrier object
+ */
 void rtg_member_sync (pthread_barrier_t* barrier)
 {
 	pthread_barrier_wait (barrier);
