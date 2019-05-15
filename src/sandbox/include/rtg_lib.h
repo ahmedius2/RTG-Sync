@@ -20,6 +20,7 @@ static inline void rtg_assert (bool assertion, char* msg)
 
 void rtg_member_sync (pthread_barrier_t* barrier);
 pthread_barrier_t* rtg_member_setup (char* shared_file);
-void rtg_daemon_setup (char* shared_file, int waiter_count);
+pthread_barrier_t* rtg_daemon_setup (char* shared_file, int waiter_count);
+void rtg_daemon_cleanup (pthread_barrier_t* barrier, char* shared_file);
 
 #endif /* __RTG_LIB_H__ */

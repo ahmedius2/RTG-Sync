@@ -81,13 +81,15 @@ static char* wait_for_command (int session_sockfd)
  */
 static bool parse_command (char* cmd, int session_sockfd)
 {
+	int generic;
 	bool ret = true;
+	static pthread_barrier_t *barrier;
 
 	RTG_LOG (RTG_DEBUG, "Command: %s\n", cmd);
 	write (session_sockfd, RTG_SUCCESS, strlen (RTG_SUCCESS));
 
 	if (RTG_CMD_IS (RTG_EXIT_DAEMON)) {
-		RTG_LOG (RTG_CRITICAL, "Terminating!!n");
+		RTG_LOG (RTG_CRITICAL, "Terminating!!\n");
 		close (session_sockfd);
 		close (handshake_sockfd);
 		exit (EXIT_SUCCESS);
@@ -96,12 +98,19 @@ static bool parse_command (char* cmd, int session_sockfd)
 		ret = false;
 		close (session_sockfd);
 	} else if (RTG_CMD_IS (RTG_CREATE_GANG)) {
-		RTG_LOG (RTG_STATUS, "Creating Virtual Gang\n");
-		rtg_daemon_setup ("/tmp/rtg.barrier", 2);
+		RTG_GET_ARG (RTG_CREATE_GANG, &generic);
+		RTG_LOG (RTG_STATUS,
+			"Creating barrier with count = %d\n", generic);
+		barrier = rtg_daemon_setup ("/tmp/rtg.barrier", generic);
 	} else if (RTG_CMD_IS (RTG_FINISH_GANG)) {
 		RTG_LOG (RTG_STATUS, "Destroying Virtual Gang\n");
+		rtg_daemon_cleanup (barrier, "/tmp/rtg.barrier");
 	} else if (RTG_CMD_IS (RTG_CHANGE_LLVL)) {
-		RTG_LOG (RTG_STATUS, "Changing Log Level\n");
+		RTG_GET_ARG (RTG_CHANGE_LLVL, &generic);
+		RTG_LOG (RTG_STATUS,
+			"Changing log level. prev = %d | new = %d\n",
+			rtg_log_level, generic);
+		rtg_log_level = generic;
 	} else {
 		RTG_LOG (RTG_WARNING, "Unknown Command: %s\n", cmd);
 	}
