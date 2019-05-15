@@ -27,6 +27,8 @@
 #include <sys/syscall.h>
 #include <sys/resource.h>
 
+#include "rtg_lib.h"
+
 /**************************************************************************
  * Public Definitions
  **************************************************************************/
@@ -36,8 +38,6 @@
 #else
 #  define DEFAULT_ALLOC_SIZE_KB 	16384
 #endif
-
-#define SHARED_FILE	"/tmp/barrier.bin"
 
 /**************************************************************************
  * Public Types
@@ -235,46 +235,6 @@ static inline void perform_memory_accesses(void)
 	return;
 }
 
-int open_shared_file (int flags)
-{
-	int fd;
-
-	fd = open (SHARED_FILE, flags);
-	if (fd < 0) {
-		perror ("[ERROR] Failed to open file");
-		exit (-1);
-	}
-
-	return fd;
-}
-
-pthread_barrier_t* map_pthread_barrier (int fd)
-{
-	pthread_barrier_t *shmem_barrier;
-	
-	shmem_barrier = (pthread_barrier_t *) mmap(NULL,
-						   sizeof (pthread_barrier_t),
-						   PROT_READ | PROT_WRITE,
-						   MAP_SHARED, fd, 0);
-
-	if (shmem_barrier == MAP_FAILED) {
-		perror ("[ERROR] Failed to mmap pthread barrier");
-		exit (-1);
-	}
-
-	return shmem_barrier;
-}
-
-void setup_barrier (void)
-{
-	int fd;
-
-	fd = open_shared_file (O_RDWR);
-	globals.sched.barrier = map_pthread_barrier (fd);
-
-	return;
-}
-
 void setup_experiment(void)
 {
 	allocate_memory();
@@ -285,21 +245,11 @@ void setup_experiment(void)
 	return;
 }
 
-void rtgang_sync(void)
-{
-	if (globals.sched.virtual) {
-		setup_barrier();
-		pthread_barrier_wait(globals.sched.barrier);
-	}
-
-	return;
-}
-
 static inline void parse_cmd_args(int argc, char* argv[])
 {
 	int opt;
 
-	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:vh")) != -1) {
+	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:h")) != -1) {
 		switch (opt) {
 			case 'm':
 				globals.memory.size = 1024 * strtol(optarg, NULL, 0);
@@ -334,6 +284,7 @@ static inline void parse_cmd_args(int argc, char* argv[])
 
 			case 'v':
 				globals.sched.virtual = true;
+				globals.sched.barrier = rtg_member_setup(optarg);
 				break;
 
 			case 'h':
@@ -403,7 +354,7 @@ int main(int argc, char* argv[])
 	setup_experiment();
 
 	/* This will start the actual memory access experiment */
-	rtgang_sync();
+	if (globals.sched.virtual) rtg_member_sync(globals.sched.barrier);
 	perform_memory_accesses();
 
 	return 0;

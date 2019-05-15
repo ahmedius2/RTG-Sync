@@ -61,6 +61,7 @@ static void print_usage (char* exec_name)
 	printf ("  -c <count>    Create a synchronization barrier with the given count.\n");
 	printf ("                Print name of the file where the barrier is created.\n");
 	printf ("  -l <level>    Change log level of the RT-Gang daemon.\n");
+	printf ("  -f            Mark a virtual gang as finished.\n");
 	printf ("  -t            Terminate the RT-Gang daemon.\n");
 	printf ("  -h            Show this help message.\n");
 	printf ("\n");
@@ -87,21 +88,24 @@ static void handle_commands (int argc, char* argv [])
 	char cmd [BSIZE];
 	bzero (&cmd, BSIZE);
 
-	while ((opt = getopt (argc, argv, "c:l:th")) != -1) {
+	while ((opt = getopt (argc, argv, "c:l:fth")) != -1) {
 		switch (opt) {
 		case 'c':
 			generic = strtol (optarg, NULL, 0);
 			sprintf (cmd, "%s %d", RTG_CREATE_GANG, generic);
 			send_command (cmd);
 			break;
-		case 't':
-			send_command (RTG_EXIT_DAEMON);
-			exit (EXIT_SUCCESS);
 		case 'l':
 			generic = strtol (optarg, NULL, 0);
 			sprintf (cmd, "%s %d", RTG_CHANGE_LLVL, generic);
 			send_command (cmd);
 			break;
+		case 'f':
+			send_command (RTG_FINISH_GANG);
+			break;
+		case 't':
+			send_command (RTG_EXIT_DAEMON);
+			exit (EXIT_SUCCESS);
 		case 'h':
 			print_usage (argv [0]);
 			break;
