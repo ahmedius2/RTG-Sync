@@ -1,10 +1,16 @@
-/******************************************************************************
- * File:	rtg_daemon.c
- * Description:	RT-Gang daemon program. Receives commands from RT-Gang
- * 		client(s) via sockets and performs necessary actions related to
- * 		virtual gang management
- * Author:	wali@ku.edu
- *****************************************************************************/
+/*
+ * manager/daemon/rtg_daemon.c
+ *
+ * RT-Gang daemon program. Receives commands from RT-Gang client(s) via sockets
+ * and performs necessary actions related to virtual gang management
+ *
+ * Copyright (C) 2019 CSL-KU
+ *
+ * 2019-05-17	Create barrier in a specific file upon request
+ * 2019-05-18	Issue a unique token for every new virtual gang
+ * 2019-05-19	Keep track of active gangs
+ * TODO 	Output log messages to a dedicated file
+ */
 #include "rtg_daemon.h"
 
 /*
@@ -72,6 +78,43 @@ static char* wait_for_command (int session_sockfd)
 }
 
 /*
+ * rtg_create_gang: Create shared memory barrier and generate a unique ID for a
+ * new virtual gang.
+ *
+ * @member_count	Max. members of the virtual gang
+ * @return		Pointer of the virtual gang tracker node
+ */
+static rtg_vgang_node_t* rtg_create_gang (int member_count)
+{
+	int id = ++next_id;
+	rtg_vgang_node_t *node;
+
+	node = allocate_node ();
+	node->id = id;
+	node->barrier = rtg_daemon_setup (id, member_count);
+	rtg_hash_add (node);
+
+	return node;
+}
+
+/*
+ * rtg_destroy_gang: Perform cleanup for the virtual gang with the given ID.
+ *
+ * @id			Integer ID value of the finished virtual gang
+ */
+static void rtg_destroy_gang (int id)
+{
+	rtg_vgang_node_t *node;
+
+	node = rtg_hash_get (id);
+	rtg_daemon_cleanup (node->barrier, id);
+	rtg_hash_del (node);
+	free (node);
+
+	return;
+}
+
+/*
  * parse_command: Perform the necessary action for the command received from
  * client.
  *
@@ -83,10 +126,11 @@ static bool parse_command (char* cmd, int session_sockfd)
 {
 	int generic;
 	bool ret = true;
-	static pthread_barrier_t *barrier;
+	char buf [BSIZE];
+	rtg_vgang_node_t *node;
 
 	RTG_LOG (RTG_DEBUG, "Command: %s\n", cmd);
-	write (session_sockfd, RTG_SUCCESS, strlen (RTG_SUCCESS));
+	bzero (buf, BSIZE);
 
 	if (RTG_CMD_IS (RTG_EXIT_DAEMON)) {
 		RTG_LOG (RTG_CRITICAL, "Terminating!!\n");
@@ -95,16 +139,21 @@ static bool parse_command (char* cmd, int session_sockfd)
 		exit (EXIT_SUCCESS);
 	} else if (RTG_CMD_IS (RTG_END_SESSION)) {
 		RTG_LOG (RTG_WARNING, "Ending Session!\n");
-		ret = false;
+		write (session_sockfd, RTG_SUCCESS, sizeof (RTG_SUCCESS));
 		close (session_sockfd);
+		return false;
 	} else if (RTG_CMD_IS (RTG_CREATE_GANG)) {
 		RTG_GET_ARG (RTG_CREATE_GANG, &generic);
+		node = rtg_create_gang (generic);
 		RTG_LOG (RTG_STATUS,
 			"Creating barrier with count = %d\n", generic);
-		barrier = rtg_daemon_setup ("/tmp/rtg.barrier", generic);
+		sprintf (buf, "%s %d", RTG_CREATE_GANG, node->id);
+		write (session_sockfd, buf, BSIZE);
+		return true;
 	} else if (RTG_CMD_IS (RTG_FINISH_GANG)) {
+		RTG_GET_ARG (RTG_FINISH_GANG, &generic);
 		RTG_LOG (RTG_STATUS, "Destroying Virtual Gang\n");
-		rtg_daemon_cleanup (barrier, "/tmp/rtg.barrier");
+		rtg_destroy_gang (generic);
 	} else if (RTG_CMD_IS (RTG_CHANGE_LLVL)) {
 		RTG_GET_ARG (RTG_CHANGE_LLVL, &generic);
 		RTG_LOG (RTG_STATUS,
@@ -115,7 +164,8 @@ static bool parse_command (char* cmd, int session_sockfd)
 		RTG_LOG (RTG_WARNING, "Unknown Command: %s\n", cmd);
 	}
 
-	return ret;
+	write (session_sockfd, RTG_SUCCESS, sizeof (RTG_SUCCESS));
+	return true;
 }
 
 /*

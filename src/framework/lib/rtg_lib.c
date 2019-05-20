@@ -1,10 +1,15 @@
-/******************************************************************************
- * File:	rtg_lib.c
- * Description:	Shared library which provides various virtual gang related
- * 		utilities including registering a virtual gang member with the
- * 		kernel, synchronization between virtual gang members etc.
- * Author:	wali@ku.edu
- *****************************************************************************/
+/*
+ * lib/rtg_lib.c
+ *
+ * Shared library which provides various virtual gang related utilities
+ * including registering a virtual gang member with the kernel, synchronization
+ * between virtual gang members etc.
+ *
+ * Copyright (C) 2019 CSL-KU
+ *
+ * 2019-05-15	Create shared library for RT-Gang runtime calls
+ * 2019-05-20	Use virtual gang ID value for managing runtime resources
+ */
 #include "rtg_lib.h"
 
 /*
@@ -156,14 +161,14 @@ static void delete_shared_file (char* shared_file)
  * objects created on behalf of a client by RT-Gang daemon.
  *
  * @barrier		Address of pthread barrier object in shared memory
- * @shared_file		Name of the file used for memory mapping
+ * @id			Integer id issued by RT-Gang daemon
  */
-void rtg_daemon_cleanup (pthread_barrier_t* barrier,
-			 char* shared_file)
+void rtg_daemon_cleanup (pthread_barrier_t* barrier, int id)
 {
+	PRINT_BARRIER_FILENAME (barrier_file, id);
 	destroy_shmem_barrier (barrier);
 	release_shared_memory ((void *)barrier, sizeof (pthread_barrier_t));
-	delete_shared_file (shared_file);
+	delete_shared_file (barrier_file);
 
 	return;
 }
@@ -172,19 +177,19 @@ void rtg_daemon_cleanup (pthread_barrier_t* barrier,
  * rtg_daemon_setup: Interface function for creating a shared memory barrier on
  * behalf of RT-Gang daemon process.
  *
- * @shared_file		Full (path) name of the file which will be used for
- *			memory-mapping the barrier
+ * @id			Integer id issued by RT-Gang daemon
  * @waiter_count	Number of processes which will synchronize on the
  * 			barrier
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_daemon_setup (char* shared_file, int waiter_count)
+pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count)
 {
 	int fd;
 	pthread_barrierattr_t attr;
 	pthread_barrier_t *shmem_barrier;
+	PRINT_BARRIER_FILENAME (barrier_file, id);
 
-	fd = open_shared_file (shared_file, O_RDWR | O_CREAT | O_TRUNC);
+	fd = open_shared_file (barrier_file, O_RDWR | O_CREAT | O_TRUNC);
 	seek_and_set_file (fd, sizeof (pthread_attr_t));
 	set_pthread_attr_shared (&attr);
 	shmem_barrier = map_pthread_barrier (fd);
@@ -197,16 +202,16 @@ pthread_barrier_t* rtg_daemon_setup (char* shared_file, int waiter_count)
  * rtg_member_setup: Interface function for mapping a shared memory based
  * barrier to the calling process' address space.
  *
- * @shared_file		Full (path) name of the file which was used for
- *			memory-mapping the barrier by the RT-Gang daemon
+ * @id			Integer id issued by RT-Gang daemon
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_member_setup (char* shared_file)
+pthread_barrier_t* rtg_member_setup (int id)
 {
 	int fd;
 	pthread_barrier_t *shmem_barrier;
+	PRINT_BARRIER_FILENAME (barrier_file, id);
 
-	fd = open_shared_file (shared_file, O_RDWR);
+	fd = open_shared_file (barrier_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
 
 	return shmem_barrier;

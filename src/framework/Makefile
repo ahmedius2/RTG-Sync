@@ -1,13 +1,15 @@
-#*****************************************************************************
-# File:		Makefile
-# Description:	Contains rules for building RT-Gang shared library, daemon and
-# 		client executables. Executables are placed in the 'build'
-# 		directory. Symbolic link is created under '/usr/lib' for the
-# 		RT-Gang shared library hence user must have write permission
-# 		for that path (e.g., root access)
-# Author:	wali@ku.edu
-#*****************************************************************************
-
+##
+ # Makefile
+ #
+ # Contains rules for building RT-Gang shared library, daemon and client
+ # executables. Executables are placed in the 'build' directory. Symbolic link
+ # is created under '/usr/lib' for the RT-Gang shared library hence user must
+ # have write permission for that path (e.g., root access)
+ #
+ # Copyright (C) 2019 CSL-KU
+ #
+ # 2019-05-15	Create makefile for building RT-Gang management framework
+ ##
 CC := gcc
 
 # Options for RT-Gang shared library

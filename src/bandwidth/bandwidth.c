@@ -248,6 +248,7 @@ void setup_experiment(void)
 static inline void parse_cmd_args(int argc, char* argv[])
 {
 	int opt;
+	int id;
 
 	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:h")) != -1) {
 		switch (opt) {
@@ -284,7 +285,8 @@ static inline void parse_cmd_args(int argc, char* argv[])
 
 			case 'v':
 				globals.sched.virtual = true;
-				globals.sched.barrier = rtg_member_setup(optarg);
+				id = strtol(optarg, NULL, 0);
+				globals.sched.barrier = rtg_member_setup(id);
 				break;
 
 			case 'h':
