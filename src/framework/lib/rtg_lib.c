@@ -9,6 +9,7 @@
  *
  * 2019-05-15	Create shared library for RT-Gang runtime calls
  * 2019-05-20	Use virtual gang ID value for managing runtime resources
+ * 2019-05-21	Add kernel interface management during virtual gang setup
  */
 #include "rtg_lib.h"
 
@@ -157,6 +158,57 @@ static void delete_shared_file (char* shared_file)
 }
 
 /*
+ * budget_to_events: Helper function to convert given budget (in MB/sec) to LLC
+ * miss events for the platform at hand.
+ *
+ * @budget		Memory usage budget in MB/sec
+ * @return		LLC miss events for the given budget
+ */
+static inline uint64_t budget_to_events (int budget)
+{
+	uint64_t events;
+
+	/*
+	 * Given budget is in MB/sec. We want to convert it into number of LLC
+	 * miss events for THIS platform. The following steps explain the
+	 * calculation involved:
+	 *
+	 * budget_in_bps         = budget_in_mbps * 1024 * 1024
+	 * llc_misses_per_sec    = budget_in_bps / llc_line_size
+	 * llc_misses_per_period = llc_misses_per_sec *
+	 *				regulation_period_in_sec
+	 *
+	 * Hence we end up with the following short formula.
+	 */
+	events = ((budget << 20) >> LLC_LINE_SIZE_SHIFT) *
+					REGULATION_PERIOD_SEC;
+
+	return events;
+}
+
+/*
+ * register_gang_with_kernel: Helper function to make the system call for
+ * registering a virtual gang with the given parameters with the kernel.
+ *
+ * @id			Integer id issued by RT-Gang daemon
+ * @budget		Memory usage budget for corunning best-effort processes
+ * 			in MBytes/sec
+ */
+static void register_gang_with_kernel (int id, int budget)
+{
+	int ret;
+	uint64_t events;
+
+	events = budget_to_events (budget);
+	ret = syscall (NR_RTG_SYSCALL, -1, id, events);
+	rtg_assert (ret >= 0, "Failed to register virtual gang. Make sure "
+			"that the process is real-time (FIFO or Deadline)");
+
+	return;
+}
+
+
+/*
  * rtg_daemon_cleanup: Interface function for deleting shared memory based
  * objects created on behalf of a client by RT-Gang daemon.
  *
@@ -199,18 +251,24 @@ pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count)
 }
 
 /*
- * rtg_member_setup: Interface function for mapping a shared memory based
- * barrier to the calling process' address space.
+ * rtg_member_setup: Interface function for setting up virtual gang parameters
+ * for the caller. This includes registering the given virtual gang ID in the
+ * caller's task structure and mapping a shared memory based synchronization
+ * barrier into the caller's address space.
  *
  * @id			Integer id issued by RT-Gang daemon
+ * @budget		Memory usage budget for corunning best-effort processes
+ * 			in MBytes/sec
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_member_setup (int id)
+pthread_barrier_t* rtg_member_setup (int id, int budget)
 {
 	int fd;
 	pthread_barrier_t *shmem_barrier;
 	PRINT_BARRIER_FILENAME (barrier_file, id);
 
+	rtg_assert (CHECK_BUDGET (budget), BUDGET_ERROR_MSG);
+	register_gang_with_kernel (id, budget);
 	fd = open_shared_file (barrier_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
 
