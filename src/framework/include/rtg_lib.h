@@ -49,11 +49,14 @@
  * requested by a virtual gang. A budget greater than the max below does not
  * make sense for the platform at hand and that less than the min-defined below
  * cannot be guaranteed (enforced) by our regulation framework.
+ *
+ * Note that negative budget value is also allowed. It means that the caller
+ * does not want to change the currently set budget.
  */
 #define MAX_BUDGET_MBPS		(100000)
 #define MIN_BUDGET_MBPS		(1)
 #define CHECK_BUDGET(x)						\
-	((x <= MAX_BUDGET_MBPS) && (x >= MIN_BUDGET_MBPS))
+	((x < 0) || ((x <= MAX_BUDGET_MBPS) && (x >= MIN_BUDGET_MBPS)))
 #define BUDGET_ERROR_MSG					\
 	("Given budget is out of bounds for this platform")
 #else

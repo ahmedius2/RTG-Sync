@@ -39,6 +39,9 @@
 #  define DEFAULT_ALLOC_SIZE_KB 	16384
 #endif
 
+#define IS_VIRTUAL_GANG()			\
+	(globals.sched.vid >= 0)
+
 /**************************************************************************
  * Public Types
  **************************************************************************/
@@ -60,8 +63,9 @@ typedef struct {
 
 typedef struct {
 	int			cpu;
+	int			vid;
 	int			prio;
-	bool			virtual;
+	int			budget;
 	pthread_barrier_t 	*barrier;
 } sched_t;
 
@@ -235,6 +239,14 @@ static inline void perform_memory_accesses(void)
 	return;
 }
 
+static inline void setup_virtual_gang (void)
+{
+	globals.sched.barrier = rtg_member_setup(globals.sched.vid,
+					globals.sched.budget);
+
+	return;
+}
+
 void setup_experiment(void)
 {
 	allocate_memory();
@@ -242,13 +254,15 @@ void setup_experiment(void)
 	print_setup();
 	setup_signals();
 
+	if (IS_VIRTUAL_GANG())
+		setup_virtual_gang();
+
 	return;
 }
 
 static inline void parse_cmd_args(int argc, char* argv[])
 {
 	int opt;
-	int id;
 
 	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:h")) != -1) {
 		switch (opt) {
@@ -284,9 +298,11 @@ static inline void parse_cmd_args(int argc, char* argv[])
 				break;
 
 			case 'v':
-				globals.sched.virtual = true;
-				id = strtol(optarg, NULL, 0);
-				globals.sched.barrier = rtg_member_setup(id);
+				globals.sched.vid = strtol(optarg, NULL, 0);
+				break;
+
+			case 'b':
+				globals.sched.budget = strtol (optarg, NULL, 0);
 				break;
 
 			case 'h':
@@ -311,8 +327,9 @@ static inline void initialize_globals(void)
 	globals.max_iterations = 0;
 	globals.sched.cpu = -1;
 	globals.sched.prio = -1;
-	globals.sched.virtual = false;
+	globals.sched.vid = -1;
 	globals.sched.barrier = NULL;
+	globals.sched.budget = -1;
 
 	return;
 }
@@ -345,6 +362,7 @@ static inline void usage(char* argv[])
 	printf("-c: cpu to execute on. If not specified, let the kernel decide\n");
 	printf("-p: priority under SCHED_FIFO. If not specified, run as fair task\n");
 	printf("-v: sync virtual gang process. If not specified, run independently\n");
+	printf("-b: set budget for the virtual gang. If not specified, do nothing\n");
 	printf("\nExamples: \n$ bandwidth -m 8192 -c 3 -p 5 -a read -t 1\n  <- 8MB read for 1 secon on core 3 with SCHED_FIFO priority 5\n");
 	exit(1);
 }
@@ -355,8 +373,10 @@ int main(int argc, char* argv[])
 	parse_cmd_args(argc, argv);
 	setup_experiment();
 
+	if (IS_VIRTUAL_GANG())
+		rtg_member_sync(globals.sched.barrier);
+
 	/* This will start the actual memory access experiment */
-	if (globals.sched.virtual) rtg_member_sync(globals.sched.barrier);
 	perform_memory_accesses();
 
 	return 0;

@@ -199,7 +199,7 @@ static void register_gang_with_kernel (int id, int budget)
 	int ret;
 	uint64_t events;
 
-	events = budget_to_events (budget);
+	events = (budget < 0)? 0 : budget_to_events (budget);
 	ret = syscall (NR_RTG_SYSCALL, -1, id, events);
 	rtg_assert (ret >= 0, "Failed to register virtual gang. Make sure "
 			"that the process is real-time (FIFO or Deadline)");

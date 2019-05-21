@@ -24,6 +24,10 @@
 #include <pthread.h>
 #include <sys/syscall.h>
 
+/* For RT-Gang management framework */
+#include "rtg_lib.h"
+pthread_barrier_t *barrier;
+
 /**************************************************************************
  * Public Definitions
  **************************************************************************/
@@ -93,8 +97,6 @@ volatile int g_njoin = 0;
 volatile uint64_t g_nread = 0;
 volatile unsigned int g_start;
 int g_mem_size = DEFAULT_ALLOC_SIZE_KB * 1024;
-
-pthread_barrier_t barrier;
 
 /**************************************************************************
  * Public Functions
@@ -250,7 +252,7 @@ void worker(void *param)
 	if (period > 0) make_periodic(period * 1000, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
-		pthread_barrier_wait (&barrier);
+		rtg_member_sync (barrier);
 		l_start = get_usecs();
 
 		for (i = 0;; i++) {
@@ -270,7 +272,6 @@ void worker(void *param)
 		}
 
 		l_end = get_usecs();
-		pthread_barrier_wait (&barrier);
 		l_duration = l_end - l_start;
 		if (verbose) fprintf(stderr, "\nJob %d Took %d us", j, l_duration);
 		if (period > 0) wait_period (info);
@@ -430,6 +431,14 @@ int main(int argc, char *argv[])
 	signal(SIGINT, &quit);
 	signal(SIGTERM, &quit);
 	signal(SIGHUP, &quit);
+
+	/*
+	 * Set virtual gang parameters (hard-coded)
+	 *   ID = 1001
+	 *   Budget = 10 MB/sec
+         */
+	barrier = rtg_member_setup (1001, 10);
+
 	if (finish > 0) {
 		signal(SIGALRM, &quit);
 		alarm(finish);
@@ -438,7 +447,6 @@ int main(int argc, char *argv[])
 	g_start = get_usecs();
 
 	/* thread affinity set */
-	pthread_barrier_init (&barrier, NULL, g_nthreads);
 	for (i = 0; i < MIN(g_nthreads, num_processors); i++) {
 		pthread_create(&tid[i], &attr, (void *)worker, &info[i]);
 

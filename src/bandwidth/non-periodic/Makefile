@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS := -I../framework/include
-LFLAGS := -lrtg -lpthread
+CFLAGS := -I../../framework/include
+LIBS := -lrtg -lpthread
 
 TGT := tau_1 tau_2
 SRC := bandwidth.c
@@ -8,7 +8,7 @@ SRC := bandwidth.c
 all: $(TGT)
 
 tau_1: $(SRC)
-	@$(CC) $(CFLAGS) $^ -o $@ $(LFLAGS)
+	@$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 tau_2: tau_1
 	@cp tau_1 tau_2
