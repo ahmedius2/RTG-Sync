@@ -26,7 +26,7 @@
 
 /* For RT-Gang management framework */
 #include "rtg_lib.h"
-pthread_barrier_t *barrier;
+pthread_barrier_t *barrier = NULL;
 
 /**************************************************************************
  * Public Definitions
@@ -252,7 +252,7 @@ void worker(void *param)
 	if (period > 0) make_periodic(period * 1000, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
-		rtg_member_sync (barrier);
+		if (barrier) rtg_member_sync (barrier);
 		l_start = get_usecs();
 
 		for (i = 0;; i++) {
@@ -321,12 +321,13 @@ int main(int argc, char *argv[])
 	struct periodic_info info[32];
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
+	int vgang_id;
 
 	static struct option long_options[] = {
 		{"threads", required_argument, 0,  'n' },
 		{"period",  required_argument, 0,  'l' },
 		{"jobs",    required_argument, 0,  'j' },
-		{"verbose", required_argument, 0,  'v' },
+		{"verbose", required_argument, 0,  's' },
 		{"local",   no_argument,       0,  'o' },
 		{0,         0,                 0,  0 }
 	};
@@ -337,7 +338,7 @@ int main(int argc, char *argv[])
 	/*
 	 * get command line options
 	 */
-	while ((opt = getopt_long(argc, argv, "m:n:a:t:c:r:p:i:j:l:d:u:hv:o",
+	while ((opt = getopt_long(argc, argv, "m:n:a:t:c:r:p:i:j:l:d:u::o:v:s:h",
 				  long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'm': /* set memory size */
@@ -401,6 +402,10 @@ int main(int argc, char *argv[])
 			usage(argc, argv);
 			break;
 		case 'v':
+			vgang_id = strtol(optarg, NULL, 0);
+			barrier = rtg_member_setup(vgang_id, 10);
+			break;
+		case 's':
 			verbose = strtol(optarg, NULL, 0);
 			break;
 		case 'o':
@@ -431,13 +436,6 @@ int main(int argc, char *argv[])
 	signal(SIGINT, &quit);
 	signal(SIGTERM, &quit);
 	signal(SIGHUP, &quit);
-
-	/*
-	 * Set virtual gang parameters (hard-coded)
-	 *   ID = 1001
-	 *   Budget = 10 MB/sec
-         */
-	barrier = rtg_member_setup (1001, 10);
 
 	if (finish > 0) {
 		signal(SIGALRM, &quit);
