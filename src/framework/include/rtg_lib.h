@@ -38,7 +38,7 @@
 /* PLATFORM DEPENDENT DECLARATIONS */
 #if (THIS_PLATFORM_ID == ID_TX2)
 #define NR_RTG_SYSCALL		(245)
-#define REGULATION_PERIOD_SEC	(1/1000)
+#define REGULATION_PERIOD_MSEC	(1)
 
 /* LLC_LINE_SIZE_SHIFT = log2 (LLC_LINE_SIZE_IN_BYTES) */
 #define LLC_LINE_SIZE_BYTES	(64)
@@ -47,16 +47,13 @@
 /*
  * These values are defined to sanity check the (corun) memory usage budget
  * requested by a virtual gang. A budget greater than the max below does not
- * make sense for the platform at hand and that less than the min-defined below
- * cannot be guaranteed (enforced) by our regulation framework.
+ * make sense for the platform at hand.
  *
- * Note that negative budget value is also allowed. It means that the caller
+ * Note that budget value = 0 is also allowed. It means that the caller
  * does not want to change the currently set budget.
  */
 #define MAX_BUDGET_MBPS		(100000)
-#define MIN_BUDGET_MBPS		(1)
-#define CHECK_BUDGET(x)						\
-	((x < 0) || ((x <= MAX_BUDGET_MBPS) && (x >= MIN_BUDGET_MBPS)))
+#define CHECK_BUDGET(x)		(x <= MAX_BUDGET_MBPS)
 #define BUDGET_ERROR_MSG					\
 	("Given budget is out of bounds for this platform")
 #else
@@ -77,7 +74,8 @@ static inline void rtg_assert (bool assertion, char* msg)
  * The functions declared below are meant to be called by other programs (which
  * link this library) that want to use this library's services
  */
-pthread_barrier_t* rtg_member_setup (int id, int budget);
+pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
+				unsigned int mem_write_budget);
 void rtg_member_sync (pthread_barrier_t* barrier);
 pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count);
 void rtg_daemon_cleanup (pthread_barrier_t* barrier, int id);

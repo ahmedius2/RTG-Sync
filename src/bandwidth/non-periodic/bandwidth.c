@@ -65,7 +65,8 @@ typedef struct {
 	int			cpu;
 	int			vid;
 	int			prio;
-	int			budget;
+	unsigned int		mem_read_budget;
+	unsigned int		mem_write_budget;
 	pthread_barrier_t 	*barrier;
 } sched_t;
 
@@ -242,7 +243,8 @@ static inline void perform_memory_accesses(void)
 static inline void setup_virtual_gang (void)
 {
 	globals.sched.barrier = rtg_member_setup(globals.sched.vid,
-					globals.sched.budget);
+					globals.sched.mem_read_budget,
+					globals.sched.mem_write_budget);
 
 	return;
 }
@@ -264,7 +266,7 @@ static inline void parse_cmd_args(int argc, char* argv[])
 {
 	int opt;
 
-	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:h")) != -1) {
+	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:r:w:h")) != -1) {
 		switch (opt) {
 			case 'm':
 				globals.memory.size = 1024 * strtol(optarg, NULL, 0);
@@ -301,8 +303,12 @@ static inline void parse_cmd_args(int argc, char* argv[])
 				globals.sched.vid = strtol(optarg, NULL, 0);
 				break;
 
-			case 'b':
-				globals.sched.budget = strtol (optarg, NULL, 0);
+			case 'r':
+				globals.sched.mem_read_budget = strtol (optarg, NULL, 0);
+				break;
+
+			case 'w':
+				globals.sched.mem_write_budget = strtol (optarg, NULL, 0);
 				break;
 
 			case 'h':
@@ -329,7 +335,8 @@ static inline void initialize_globals(void)
 	globals.sched.prio = -1;
 	globals.sched.vid = -1;
 	globals.sched.barrier = NULL;
-	globals.sched.budget = -1;
+	globals.sched.mem_read_budget = 0;
+	globals.sched.mem_write_budget = 0;
 
 	return;
 }
@@ -362,7 +369,8 @@ static inline void usage(char* argv[])
 	printf("-c: cpu to execute on. If not specified, let the kernel decide\n");
 	printf("-p: priority under SCHED_FIFO. If not specified, run as fair task\n");
 	printf("-v: sync virtual gang process. If not specified, run independently\n");
-	printf("-b: set budget for the virtual gang. If not specified, do nothing\n");
+	printf("-r: set budget for the memory read traffic. If not specified, do nothing\n");
+	printf("-w: set budget for the memory write traffic. If not specified, do nothing\n");
 	printf("\nExamples: \n$ bandwidth -m 8192 -c 3 -p 5 -a read -t 1\n  <- 8MB read for 1 secon on core 3 with SCHED_FIFO priority 5\n");
 	exit(1);
 }

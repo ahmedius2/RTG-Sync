@@ -403,7 +403,12 @@ int main(int argc, char *argv[])
 			break;
 		case 'v':
 			vgang_id = strtol(optarg, NULL, 0);
-			barrier = rtg_member_setup(vgang_id, 10);
+
+			/*
+			 * Create virtual gang with given ID and 10 MBps read
+ 			 * threshold and 5 MBps write threshold.
+			 */
+			barrier = rtg_member_setup(vgang_id, 10, 5);
 			break;
 		case 's':
 			verbose = strtol(optarg, NULL, 0);

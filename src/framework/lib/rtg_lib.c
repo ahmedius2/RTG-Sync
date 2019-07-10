@@ -164,7 +164,7 @@ static void delete_shared_file (char* shared_file)
  * @budget		Memory usage budget in MB/sec
  * @return		LLC miss events for the given budget
  */
-static inline uint64_t budget_to_events (int budget)
+static inline uint64_t budget_to_events (unsigned int budget)
 {
 	uint64_t events;
 
@@ -180,8 +180,8 @@ static inline uint64_t budget_to_events (int budget)
 	 *
 	 * Hence we end up with the following short formula.
 	 */
-	events = ((budget << 20) >> LLC_LINE_SIZE_SHIFT) *
-					REGULATION_PERIOD_SEC;
+	events = ((((uint64_t)budget) << (20 - LLC_LINE_SIZE_SHIFT)) *
+			REGULATION_PERIOD_MSEC) / 1000;
 
 	return events;
 }
@@ -191,16 +191,21 @@ static inline uint64_t budget_to_events (int budget)
  * registering a virtual gang with the given parameters with the kernel.
  *
  * @id			Integer id issued by RT-Gang daemon
- * @budget		Memory usage budget for corunning best-effort processes
- * 			in MBytes/sec
+ * @mem_read_budget	Memory usage budget (read traffic) for corunning
+ * 			best-effort processes in MBytes/sec
+ * @mem_write_budget	Memory usage budget (write traffic) for corunning
+ * 			best-effort processes in MBytes/sec
  */
-static void register_gang_with_kernel (int id, int budget)
+static void register_gang_with_kernel (int id, unsigned int mem_read_budget,
+				unsigned int mem_write_budget)
 {
 	int ret;
-	uint64_t events;
+	uint64_t mem_read_events, mem_write_events;
 
-	events = (budget < 0)? 0 : budget_to_events (budget);
-	ret = syscall (NR_RTG_SYSCALL, 0, id, events);
+	mem_read_events = budget_to_events (mem_read_budget);
+	mem_write_events = budget_to_events (mem_write_budget);
+
+	ret = syscall (NR_RTG_SYSCALL, 0, id, mem_read_events, mem_write_events);
 	rtg_assert (ret >= 0, "Failed to register virtual gang. Make sure "
 			"that the process is real-time (FIFO or Deadline)");
 
@@ -257,18 +262,22 @@ pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count)
  * barrier into the caller's address space.
  *
  * @id			Integer id issued by RT-Gang daemon
- * @budget		Memory usage budget for corunning best-effort processes
- * 			in MBytes/sec
+ * @mem_read_budget	Memory usage budget (read traffic) for corunning
+ * 			best-effort processes in MBytes/sec
+ * @mem_write_budget	Memory usage budget (write traffic) for corunning
+ * 			best-effort processes in MBytes/sec
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_member_setup (int id, int budget)
+pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
+				unsigned int mem_write_budget)
 {
 	int fd;
 	pthread_barrier_t *shmem_barrier;
 	PRINT_BARRIER_FILENAME (barrier_file, id);
 
-	rtg_assert (CHECK_BUDGET (budget), BUDGET_ERROR_MSG);
-	register_gang_with_kernel (id, budget);
+	rtg_assert (CHECK_BUDGET (mem_read_budget), BUDGET_ERROR_MSG);
+	rtg_assert (CHECK_BUDGET (mem_write_budget), BUDGET_ERROR_MSG);
+	register_gang_with_kernel (id, mem_read_budget, mem_write_budget);
 	fd = open_shared_file (barrier_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
 
