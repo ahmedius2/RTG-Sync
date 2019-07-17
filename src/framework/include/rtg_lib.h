@@ -74,6 +74,8 @@ static inline void rtg_assert (bool assertion, char* msg)
  * The functions declared below are meant to be called by other programs (which
  * link this library) that want to use this library's services
  */
+void register_gang_with_kernel (int id, unsigned int mem_read_budget,
+				unsigned int mem_write_budget);
 pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
 				unsigned int mem_write_budget);
 void rtg_member_sync (pthread_barrier_t* barrier);

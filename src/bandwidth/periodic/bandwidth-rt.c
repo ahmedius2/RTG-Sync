@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
 	/*
 	 * get command line options
 	 */
-	while ((opt = getopt_long(argc, argv, "m:n:a:t:c:r:p:i:j:l:d:u::o:v:s:h",
+	while ((opt = getopt_long(argc, argv, "m:n:a:t:c:r:p:i:j:l:d:u::v:s:owh",
 				  long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'm': /* set memory size */
@@ -409,6 +409,9 @@ int main(int argc, char *argv[])
  			 * threshold and 5 MBps write threshold.
 			 */
 			barrier = rtg_member_setup(vgang_id, 10, 5);
+			break;
+		case 'w':
+			register_gang_with_kernel(1001, 10, 5);
 			break;
 		case 's':
 			verbose = strtol(optarg, NULL, 0);

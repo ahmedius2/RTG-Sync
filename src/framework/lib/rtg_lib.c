@@ -196,7 +196,7 @@ static inline uint64_t budget_to_events (unsigned int budget)
  * @mem_write_budget	Memory usage budget (write traffic) for corunning
  * 			best-effort processes in MBytes/sec
  */
-static void register_gang_with_kernel (int id, unsigned int mem_read_budget,
+void register_gang_with_kernel (int id, unsigned int mem_read_budget,
 				unsigned int mem_write_budget)
 {
 	int ret;
