@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-PGMS=tau_1 tau_2
+PGMS=tau_1 tau_rt
 
 CFLAGS=-O2 -Wall -g -I../../framework/include
 CXXFLAGS=$(CFLAGS)
@@ -12,10 +12,13 @@ all: $(PGMS)
 tau_1: bandwidth-rt.c
 	@$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS)
 
-tau_2: tau_1
-	@cp tau_1 tau_2
+tau_rt: tau_1
+	@cp tau_1 tau_rt_1
+	@cp tau_1 tau_rt_2
+	@cp tau_1 tau_rt_3
+	@mv tau_1 tau_rt_4
 	@echo "Compilation Complete!"
 
 clean:
-	@rm -f $(PGMS)
+	@rm -f tau_*
 	@echo "Executable has been removed!"

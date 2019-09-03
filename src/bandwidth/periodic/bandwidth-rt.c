@@ -97,6 +97,7 @@ volatile int g_njoin = 0;
 volatile uint64_t g_nread = 0;
 volatile unsigned int g_start;
 int g_mem_size = DEFAULT_ALLOC_SIZE_KB * 1024;
+int g_job_compute_time_usec = 1000;
 
 /**************************************************************************
  * Public Functions
@@ -216,6 +217,7 @@ void worker(void *param)
 	unsigned int flags = 0;
 	struct sched_attr sattr;
 	struct periodic_info *info = (struct periodic_info *)param;
+	float job_start_time, elapsed_time;
 
 	if (deadline_msec != 0) {
 		sattr.size = sizeof(sattr);
@@ -255,7 +257,10 @@ void worker(void *param)
 		if (barrier) rtg_member_sync (barrier);
 		l_start = get_usecs();
 
-		for (i = 0;; i++) {
+		// for (i = 0;; i++) {
+		i = 0;
+		job_start_time = get_usecs();
+		do {
 			switch (acc_type) {
 				case READ:
 					sum += bench_read(l_mem_ptr);
@@ -267,9 +272,10 @@ void worker(void *param)
 			}
 
 			if (verbose > 1) fprintf(stderr, ".");
-			if (iterations > 0 && i+1 >= iterations)
-				break;
-		}
+
+			i++;
+			elapsed_time = get_usecs() - job_start_time;
+		} while (elapsed_time < g_job_compute_time_usec);
 
 		l_end = get_usecs();
 		l_duration = l_end - l_start;
@@ -328,6 +334,7 @@ int main(int argc, char *argv[])
 		{"period",  required_argument, 0,  'l' },
 		{"jobs",    required_argument, 0,  'j' },
 		{"verbose", required_argument, 0,  's' },
+		{"compute", required_argument, 0,  'e' },
 		{"local",   no_argument,       0,  'o' },
 		{0,         0,                 0,  0 }
 	};
@@ -338,15 +345,17 @@ int main(int argc, char *argv[])
 	/*
 	 * get command line options
 	 */
-	while ((opt = getopt_long(argc, argv, "m:n:a:t:c:r:p:i:j:l:d:u::v:s:owh",
+	while ((opt = getopt_long(argc, argv, "a:c:d:e:i:j:l:m:n:p:r:s:t:u:v:how",
 				  long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'm': /* set memory size */
 			g_mem_size = 1024 * strtol(optarg, NULL, 0);
 			break;
+
 		case 'n': /* #of threads */
 			g_nthreads = strtol(optarg, NULL, 0);
 			break;
+
 		case 'a': /* set access type */
 			if (!strcmp(optarg, "read"))
 				acc_type = READ;
@@ -354,6 +363,10 @@ int main(int argc, char *argv[])
 				acc_type = WRITE;
 			else
 				exit(1);
+			break;
+
+		case 'e': /* job compute time */
+			g_job_compute_time_usec = strtol(optarg, NULL, 0) * 1000;
 			break;
 
 		case 't': /* set time in secs to run */
