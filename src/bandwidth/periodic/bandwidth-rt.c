@@ -328,6 +328,7 @@ int main(int argc, char *argv[])
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	int vgang_id;
+	bool special = false;
 
 	static struct option long_options[] = {
 		{"threads", required_argument, 0,  'n' },
@@ -345,7 +346,7 @@ int main(int argc, char *argv[])
 	/*
 	 * get command line options
 	 */
-	while ((opt = getopt_long(argc, argv, "a:c:d:e:i:j:l:m:n:p:r:s:t:u:v:how",
+	while ((opt = getopt_long(argc, argv, "a:c:d:e:i:j:l:m:n:p:r:s:t:u:v:w:hox",
 				  long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'm': /* set memory size */
@@ -418,19 +419,23 @@ int main(int argc, char *argv[])
 			vgang_id = strtol(optarg, NULL, 0);
 
 			/*
-			 * Create virtual gang with given ID and 10 MBps read
- 			 * threshold and 5 MBps write threshold.
+			 * Create virtual gang with given ID and
+ 			 * default thresholds for read / write.
 			 */
-			barrier = rtg_member_setup(vgang_id, 10, 5);
+			barrier = rtg_member_setup(vgang_id, 0, 0);
 			break;
 		case 'w':
-			register_gang_with_kernel(1001, 10, 5);
+			vgang_id = strtol(optarg, NULL, 0);
+			register_gang_with_kernel(vgang_id, 0, 0);
 			break;
 		case 's':
 			verbose = strtol(optarg, NULL, 0);
 			break;
 		case 'o':
 			thread_local = 1;
+			break;
+		case 'x':
+			special = true;
 			break;
 		}
 	}
@@ -464,6 +469,11 @@ int main(int argc, char *argv[])
 	}
 
 	g_start = get_usecs();
+
+	if (special) {
+		rtg_member_sync (barrier);
+		barrier = NULL;
+	}
 
 	/* thread affinity set */
 	for (i = 0; i < MIN(g_nthreads, num_processors); i++) {
