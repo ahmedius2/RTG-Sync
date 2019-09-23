@@ -1,10 +1,10 @@
 # Declare the experiment parameters for real-timet taskset
 tracing_core=1
-period_msec=10
-compute_msec=5
+period_usec=500
+compute_usec=200
 fifo_priority=5
 verbose_level=0
-num_of_jobs=1000
+num_of_jobs=10000
 num_of_threads=1
 access_type="read"
 num_of_rt_tasks=4
@@ -12,7 +12,7 @@ virtual_gang_id=1001
 working_set_size_kb=16
 task_numbers=(1 2 3 4)
 cpu_affinities=(0 3 4 5)
-max_exec_time_sec=$((${num_of_jobs}*${period_msec}*2/1000))
+max_exec_time_sec=$((${num_of_jobs}*${period_usec}*2/1000))
 
 # Declare parameters for best-effort corunners
 be_access_type="read"
@@ -32,7 +32,7 @@ else
 	echo > /sys/kernel/debug/tracing/trace
 fi
 
-sleep 1
+sleep 2
 
 # Spawn the tasks
 for task_id in `seq 0 $((${num_of_rt_tasks}-1))`; do
@@ -54,9 +54,9 @@ for task_id in `seq 0 $((${num_of_rt_tasks}-1))`; do
 		-v ${virtual_gang_id} \
 		-n ${num_of_threads} \
 		-s ${verbose_level} \
-		-e ${compute_msec} \
+		-e ${compute_usec} \
 		-a ${access_type} \
-		-l ${period_msec} \
+		-l ${period_usec} \
 		-j ${num_of_jobs} \
 		-c ${affinity} &
 
