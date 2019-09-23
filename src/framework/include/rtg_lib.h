@@ -2,14 +2,28 @@
 #define __RTG_LIB_H__
 
 #include <stdio.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <strings.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <sys/mman.h>
+
+/*
+ * These macros are used in debugging related code.
+ */
+#define PATH_LENGTH 	256
+#define BUF_SIZE 	100
+
+#define debug_log_ftrace(mark_fd, msg, args...)				\
+do {									\
+    ftrace_write (mark_fd, msg, ##args);				\
+} while (0);
 
 /*
  * Shared memory based barrier will be created in the following file for use by

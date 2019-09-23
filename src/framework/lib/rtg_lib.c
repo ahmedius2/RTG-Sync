@@ -284,6 +284,89 @@ pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
 	return shmem_barrier;
 }
 
+#ifdef RTG_SYNCH_DEBUG
+/*
+ * Format string and write directly to ftrace buffer.
+ *
+ * NOTE: This code has been copied from RT-App:
+ * 	https://github.com/scheduler-tools/rt-app/blob/
+ * 		9a50d76f726d7c325c82ac8c7ed9ed70e1c97937/
+ * 		src/rt-app_utils.c#L302
+ */
+void ftrace_write(int mark_fd, const char *fmt, ...)
+{
+	va_list ap;
+	int n, size = BUF_SIZE, ret;
+	char *tmp, *ntmp;
+
+	if (mark_fd < 0) {
+		printf ("invalid mark_fd");
+		exit (EXIT_FAILURE);
+	}
+
+	if ((tmp = malloc (size)) == NULL) {
+		printf ("Cannot allocate ftrace buffer");
+		exit (EXIT_FAILURE);
+	}
+
+	while(1) {
+		/* Try to print in the allocated space */
+		va_start (ap, fmt);
+		n = vsnprintf (tmp, BUF_SIZE, fmt, ap);
+		va_end (ap);
+
+		/* If it worked return success */
+		if (n > -1 && n < size) {
+			ret = write (mark_fd, tmp, n);
+			free (tmp);
+			if (ret < 0) {
+				printf ("Cannot write mark_fd: %s\n",
+						strerror(errno));
+				exit (EXIT_FAILURE);
+			} else if (ret < n) {
+				printf ("Cannot write all bytes at once\n");
+			}
+
+			return;
+		}
+
+		/* Else try again with more space */
+		if (n > -1)	/* glibc 2.1 */
+			size = n+1;
+		else		/* glibc 2.0 */
+			size *= 2;
+
+		if ((ntmp = realloc (tmp, size)) == NULL) {
+			free (tmp);
+			printf ("Cannot reallocate ftrace buffer");
+			exit (EXIT_FAILURE);
+		} else {
+			tmp = ntmp;
+		}
+	}
+}
+
+/*
+ * Perform setup required for writing to ftrace buffer.
+ */
+int debug_setup_ftrace (void)
+{
+	char tmp [PATH_LENGTH];
+	int marker_fd = -1;
+
+	strcpy (tmp, "/sys/kernel/debug/tracing/trace_marker");
+	marker_fd = open (tmp, O_WRONLY);
+
+	if (marker_fd < 0) {
+		printf ("Cannot open trace_marker file %s", tmp);
+		exit (EXIT_FAILURE);
+	}
+
+
+	return marker_fd;
+}
+#endif /* RTG_SYNCH_DEBUG */
+
 /*
  * rtg_member_sync: Interface function for synchronizing on barrier between
  * virtual gang members.
@@ -292,7 +375,19 @@ pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
  */
 void rtg_member_sync (pthread_barrier_t* barrier)
 {
+	int marker_fd = -1;
+	pid_t pid = getpid ();
+
+#ifdef RTG_SYNCH_DEBUG
+	marker_fd = debug_setup_ftrace ();
+	debug_log_ftrace (marker_fd, "===== [RTG-LIB] <%d> Syncing on barrier...\n", pid);
+#endif
+
 	pthread_barrier_wait (barrier);
+
+#ifdef RTG_SYNCH_DEBUG
+	debug_log_ftrace (marker_fd, "===== [RTG-LIB] <%d> Sync Complete!\n", pid);
+#endif
 
 	return;
 }
