@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+from parser import Parser
+from cleaner import Cleaner
+from plotter import Plotter
+
+def main ():
+    source = 'exp_msec'
+    traceFiles = ['no_sync', 'startup_sync', 'job_sync']
+    parser = Parser ()
+    parsedDataHash = {}
+    cleaner = Cleaner ()
+    plotter = Plotter ()
+    lockDurationData = {}
+
+    lineStyles = {'no_sync': 'r', 'startup_sync': 'b', 'job_sync': 'g'}
+
+    for f in traceFiles:
+        fileName = '%s/ktrace.%s' % (source, f)
+        parsedDataHash [f] = parser.parse (fileName)
+
+        for gang in parsedDataHash [f]:
+            if gang == 0:
+               continue
+
+            lockDurationData [f] = cleaner.extract_metric_from_data (
+                                            parsedDataHash [f][gang],
+                                            'lock-duration')
+
+            # print '%15s : %d samples' % (f, len (lockDurationData [f]))
+
+    plotter.plot (source, lockDurationData, lineStyles, traceFiles)
+
+    return
+
+if __name__ == '__main__':
+    main ()
