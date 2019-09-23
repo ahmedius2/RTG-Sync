@@ -1,0 +1,984 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 973/973   #P:6
+#
+#                              _-----=> irqs-off
+#                             / _----=> need-resched
+#                            | / _---=> hardirq/softirq
+#                            || / _--=> preempt-depth
+#                            ||| /     delay
+#           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION
+#              | |       |   ||||       |         |
+     kworker/4:2-384   [004] dn.3  2721.832745: rtg_try_acquire_lock: rtg_acquire: gid=0 comm=deepPicar
+            bash-2455  [003] dn.3  2721.837957: rtg_try_acquire_lock: rtg_block: comm=deepPicar sched=FIFO pid=4452 tgid=4452 rtgid=0 prio=93
+       deepPicar-4453  [004] d..3  2721.852791: rtg_try_release_lock: rtg_release: gid=0 comm=deepPicar
+          <idle>-0     [003] dn.3  2721.852795: rtg_try_acquire_lock: rtg_acquire: gid=0 comm=deepPicar
+     kworker/4:2-384   [004] dn.3  2721.852812: rtg_try_acquire_lock: rtg_block: comm=deepPicar sched=FIFO pid=4453 tgid=4453 rtgid=0 prio=93
+        tau_rt_3-4459  [004] ...1  2721.967106: tracing_mark_write: ===== [RTG-LIB] <4459> Syncing on barrier...
+       deepPicar-4451  [000] ...1  2722.102862: tracing_mark_write: ===== [RTG-LIB] <4451> Syncing on barrier...
+       deepPicar-4454  [005] ...1  2722.109800: tracing_mark_write: ===== [RTG-LIB] <4454> Syncing on barrier...
+        tau_rt_1-4457  [000] ...1  2722.112688: tracing_mark_write: ===== [RTG-LIB] <4457> Syncing on barrier...
+       deepPicar-4466  [003] d..3  2722.117416: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2722.117420: rtg_try_acquire_lock: rtg_acquire: gid=0 comm=deepPicar
+       deepPicar-4466  [003] d..3  2722.117424: rtg_try_acquire_lock: rtg_block: comm=deepPicar sched=FIFO pid=4452 tgid=4452 rtgid=1001 prio=93
+        tau_rt_4-4460  [005] ...1  2722.119574: tracing_mark_write: ===== [RTG-LIB] <4460> Syncing on barrier...
+        tau_rt_2-4458  [003] ...1  2722.127175: tracing_mark_write: ===== [RTG-LIB] <4458> Syncing on barrier...
+        tau_rt_2-4458  [003] ...1  2722.127223: tracing_mark_write: ===== [RTG-LIB] <4458> Sync Complete!
+          <idle>-0     [000] dn.3  2722.127224: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2722.127227: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.264000: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.264004: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+          <idle>-0     [003] dn.3  2722.264010: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4452 tgid=4452 rtgid=1001
+          <idle>-0     [005] dn.3  2722.264014: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+        tau_rt_1-4457  [000] dn.3  2722.264017: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4452  [003] ...1  2722.264146: tracing_mark_write: ===== [RTG-LIB] <4452> Syncing on barrier...
+       deepPicar-4452  [003] d..3  2722.264182: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4492  [004] d..3  2722.265307: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265309: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4492  [004] d..3  2722.265314: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4493 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265317: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2722.265319: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+        tau_rt_4-4460  [005] dn.3  2722.265321: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4493  [004] d..3  2722.265328: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265329: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4493  [004] d..3  2722.265332: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4494 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265335: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4494  [004] d..3  2722.265342: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265343: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4494  [004] d..3  2722.265346: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4495 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265348: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4495  [004] d..3  2722.265355: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265356: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4457  [000] ...1  2722.265357: tracing_mark_write: ===== [RTG-LIB] <4457> Sync Complete!
+       deepPicar-4495  [004] d..3  2722.265358: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4496 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265360: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4496  [004] d..3  2722.265367: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265368: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4496  [004] d..3  2722.265370: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4497 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265373: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4497  [004] d..3  2722.265380: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265380: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4497  [004] d..3  2722.265383: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265385: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.265516: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.265517: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4453  [004] d..3  2722.265519: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4493 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.265522: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4493  [004] d..3  2722.266149: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.266150: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4493  [004] d..3  2722.266153: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.266155: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.266318: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.266320: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4453  [004] d..3  2722.266322: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4494 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.266325: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4494  [004] d..3  2722.266836: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.266838: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4494  [004] d..3  2722.266840: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.266843: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.267086: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.267087: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4453  [004] d..3  2722.267090: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4495 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.267092: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4495  [004] d..3  2722.267588: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.267589: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4495  [004] d..3  2722.267592: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.267595: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.267810: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.267811: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4453  [004] d..3  2722.267814: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4496 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.267816: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4496  [004] d..3  2722.268279: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.268281: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4496  [004] d..3  2722.268283: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.268285: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2722.290986: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2722.332403: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2722.332406: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4453  [004] d..3  2722.332410: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4460 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4497 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.332414: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+        tau_rt_4-4460  [005] dn.3  2722.332416: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4497  [004] d..3  2722.332950: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2722.332952: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4497  [004] d..3  2722.332956: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4460 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4490 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.332958: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+        tau_rt_4-4460  [005] dn.3  2722.332960: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4490  [004] d..3  2722.344766: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2722.344769: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+       deepPicar-4490  [004] d..3  2722.344772: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4457 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+        tau_rt_1-4457  [000] dn.3  2722.344775: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4457 tgid=4457 rtgid=1002 prio=94
+        tau_rt_4-4460  [005] dn.3  2722.344777: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] ...1  2722.344900: tracing_mark_write: ===== [RTG-LIB] <4453> Syncing on barrier...
+       deepPicar-4453  [004] ...1  2722.344953: tracing_mark_write: ===== [RTG-LIB] <4453> Sync Complete!
+       deepPicar-4451  [000] ...1  2722.344961: tracing_mark_write: ===== [RTG-LIB] <4451> Sync Complete!
+       deepPicar-4452  [003] ...1  2722.344963: tracing_mark_write: ===== [RTG-LIB] <4452> Sync Complete!
+       deepPicar-4454  [005] ...1  2722.344963: tracing_mark_write: ===== [RTG-LIB] <4454> Sync Complete!
+       deepPicar-4482  [003] d..3  2722.346808: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4468  [000] dn.3  2722.346812: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.360844: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4459 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2722.360848: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4460 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2722.360907: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2722.360958: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.360960: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_4-4460  [005] ...1  2722.360975: tracing_mark_write: ===== [RTG-LIB] <4460> Sync Complete!
+        tau_rt_3-4459  [004] ...1  2722.360976: tracing_mark_write: ===== [RTG-LIB] <4459> Sync Complete!
+        tau_rt_1-4498  [000] d..3  2722.384203: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.394988: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.396336: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.396339: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.410671: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.410674: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.410762: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.411044: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.434110: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.444983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.446317: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.446320: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.460635: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.460637: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.460722: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.461049: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.484181: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.494993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.496316: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.496319: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.510539: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.511050: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.534123: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.544985: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.546310: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.546313: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.560579: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.560581: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.560666: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.561048: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.584161: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.594982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.610599: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.611045: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.634162: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.644980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.646360: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.646363: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4492  [004] d..3  2722.647473: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4475  [005] d..3  2722.647476: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4464  [005] d..3  2722.661271: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2722.661275: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.661390: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.661392: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4498  [000] d..3  2722.684396: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.694981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.696335: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.696339: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4469  [000] d..3  2722.696905: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2722.696908: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.710695: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.711043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.734149: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.744980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.746335: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.746338: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.760803: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.761049: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.784169: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.794986: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.796332: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.796335: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4495  [004] d..3  2722.797100: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4485  [003] d..3  2722.797103: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.810862: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.811047: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.834098: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.844992: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.846347: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.846350: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2722.860983: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.861049: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.884266: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.894993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2722.896349: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.896352: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4473  [000] d..3  2722.897127: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4480  [005] d..3  2722.897131: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.910832: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.911045: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.934108: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.944991: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.960866: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2722.961048: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2722.984199: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2722.994983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2722.996331: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2722.996334: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.010794: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.011051: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.034140: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.044983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.046319: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.046322: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.061007: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.061009: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.061050: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2723.061095: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2723.061100: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.061108: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.061110: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2723.084147: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2723.094984: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.096343: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.096346: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2723.111097: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2723.111101: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2723.111110: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2723.111122: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2723.111124: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2723.111129: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_3-4500  [004] dn.3  2723.111133: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_4-4499  [005] dn.3  2723.111135: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.111213: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2723.111214: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_1-4498  [000] d..3  2723.137544: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.144982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.146325: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.146328: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.160859: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2723.160914: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.160916: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.160918: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.161004: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.161005: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2723.194992: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2723.196357: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.196360: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.210838: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2723.210888: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.210890: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.210892: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.210996: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.210998: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2723.244998: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2723.246367: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.246371: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.261243: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2723.261248: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2723.261251: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.261287: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2723.261289: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_2-4488  [003] d..3  2723.290881: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2723.294991: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.296326: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.296329: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.311001: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.311004: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.311045: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2723.311094: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2723.311097: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.311104: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.311105: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4498  [000] d..3  2723.336493: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.344991: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.346310: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.346313: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.360931: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.360935: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_3-4500  [004] dn.3  2723.394989: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2723.411014: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2723.411019: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2723.411106: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2723.411141: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.411143: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2723.411148: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_4-4499  [005] dn.3  2723.411153: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2723.411155: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2723.411157: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.411234: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.411236: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_3-4500  [004] dn.3  2723.444993: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4454  [005] d..3  2723.446308: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.446312: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.460981: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2723.460985: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.461054: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.461056: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_3-4500  [004] d..3  2723.487432: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2723.494992: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.496337: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.496340: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.510918: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2723.510920: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.511039: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.511044: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.534017: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.544983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.546329: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.546332: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4492  [004] d..3  2723.547259: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4475  [005] d..3  2723.547262: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4466  [003] d..3  2723.560979: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4464  [005] d..3  2723.560982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.561099: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2723.561104: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.561106: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.594991: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4498 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2723.596357: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.596360: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.610859: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.610867: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2723.611093: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4498  [000] d..3  2723.637251: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.644982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.646360: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.646363: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.660965: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.660995: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.660999: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] dn.3  2723.695001: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [000] dn.3  2723.695005: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.696362: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.696365: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.710931: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2723.711059: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.711061: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2723.711065: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_2-4488  [003] dn.3  2723.711069: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2723.711092: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2723.711095: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.711168: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.711169: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2723.735241: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2723.744989: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.746321: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.746325: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.760962: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.761049: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.784166: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.794982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.796337: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.796340: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4464  [005] d..3  2723.810823: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4490  [004] d..3  2723.810827: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.810941: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.811044: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.834116: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.844987: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.846393: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.846396: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.861125: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2723.861129: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2723.861195: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2723.861264: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.861266: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.884252: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.894981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.896335: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.896338: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.910986: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.911041: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.934095: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.944983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2723.946329: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.946332: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2723.960963: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2723.961048: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2723.984198: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2723.994980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2723.996329: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2723.996332: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.011063: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2724.011098: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2724.011101: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.011120: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2724.011122: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_2-4488  [003] d..3  2724.034108: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2724.044980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.061173: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2724.061177: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.061179: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.061188: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.061190: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4498  [000] d..3  2724.081508: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2724.094965: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2724.094979: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2724.094980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.096360: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.096364: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4497  [004] d..3  2724.097185: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4480  [005] d..3  2724.097188: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.110823: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2724.110827: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.110855: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.110917: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.110919: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2724.110924: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_4-4499  [005] dn.3  2724.110929: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2724.110932: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2724.110933: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.111031: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2724.111032: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2724.144998: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2724.146353: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.146356: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.161085: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2724.161089: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.161092: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.161115: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.161117: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_3-4500  [004] dn.3  2724.194990: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2724.196334: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.196337: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4469  [000] d..3  2724.197208: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2724.197211: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.210902: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.210906: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2724.210909: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.210983: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2724.210985: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_3-4500  [004] dn.3  2724.244997: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2724.246346: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.246349: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.261147: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2724.261215: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.261219: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.261288: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2724.261290: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2724.294993: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2724.296351: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.296355: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4485  [003] d..3  2724.297193: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4495  [004] d..3  2724.297196: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.310987: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2724.310991: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.311014: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.311025: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2724.311027: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2724.311031: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_4-4499  [005] dn.3  2724.311035: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.311124: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.311126: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_4-4499  [005] d..3  2724.340264: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2724.344986: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.346379: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.346382: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.361124: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2724.361128: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.361146: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.361187: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2724.361189: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+       deepPicar-4462  [000] d..3  2724.361193: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+          <idle>-0     [005] dn.3  2724.361196: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2724.361198: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2724.361200: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.361280: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2724.361281: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] d..3  2724.392093: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2724.394982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.396297: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.396300: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.411014: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.411042: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2724.434086: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [000] dn.3  2724.444993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.446357: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.446360: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.461138: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2724.461142: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.461150: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.461164: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2724.461166: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2724.461171: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_4-4499  [005] dn.3  2724.461176: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2724.461177: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.461256: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.461258: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_4-4499  [005] d..3  2724.487487: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2724.494980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.496317: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.496321: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4469  [000] d..3  2724.497142: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2724.497146: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.510894: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.510976: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.510978: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [000] dn.3  2724.545000: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+       deepPicar-4452  [003] d..3  2724.546403: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.546406: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.561164: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.561168: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2724.594994: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4498 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2724.596322: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.596325: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.610843: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.610908: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.610910: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2724.640283: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2724.644991: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.646318: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.646321: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.660991: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.660993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.661049: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.661084: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.661086: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2724.684093: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2724.694984: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.696314: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.696317: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.710870: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.711052: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2724.734150: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2724.744982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.746330: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.746333: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.761009: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.761011: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.761049: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2724.761094: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2724.761098: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.761109: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.761110: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_2-4488  [003] d..3  2724.784079: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2724.794982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.796378: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.796382: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4483  [003] d..3  2724.797200: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2724.797203: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.810917: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.811042: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2724.834160: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2724.844981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.846342: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.846345: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.861053: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2724.861096: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2724.861099: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.861107: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.861109: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2724.861113: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_3-4500  [004] dn.3  2724.861118: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2724.861120: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2724.861205: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.861206: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2724.887341: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+     kworker/4:2-384   [004] dn.3  2724.894980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.896318: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.896321: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4485  [003] d..3  2724.897107: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4478  [005] d..3  2724.897110: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.910790: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2724.910799: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.910801: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2724.910890: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2724.911053: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2724.937282: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2724.944986: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2724.960919: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4490  [004] d..3  2724.960922: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2724.961038: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2724.961050: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2724.961053: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2724.987170: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [005] dn.3  2724.994978: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2724.994985: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2724.996336: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2724.996339: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4473  [000] d..3  2724.997124: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4480  [005] d..3  2724.997128: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.010818: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.010829: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+     kworker/5:3-219   [005] d..3  2725.010846: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2725.044998: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2725.046395: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.046399: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4482  [003] d..3  2725.047400: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4475  [005] d..3  2725.047403: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.061171: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.061175: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.061236: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2725.061251: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+           gmain-837   [005] dn.3  2725.061254: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2725.061257: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_3-4500  [004] dn.3  2725.061263: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_2-4488  [003] dn.3  2725.061265: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.061363: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2725.061365: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_2-4488  [003] d..3  2725.084571: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2725.094998: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.096337: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.096340: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.110904: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.111019: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2725.111021: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_4-4499  [005] d..3  2725.140417: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2725.144993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.146337: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.146340: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.160924: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.161047: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2725.183966: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.194981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.196336: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.196339: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4471  [000] d..3  2725.197129: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4478  [005] d..3  2725.197133: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.210897: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.211051: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2725.233988: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.244982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.246308: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.246312: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.261216: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2725.261220: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.261223: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4498 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.261231: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.261233: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2725.281366: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2725.290965: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2725.294986: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2725.294989: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.296327: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.296330: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.310864: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.310867: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.310881: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+     kworker/4:2-384   [004] dn.3  2725.310884: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] dn.3  2725.344996: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4454  [005] d..3  2725.346385: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.346388: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.360910: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4498 tgid=4457 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.360914: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2725.360917: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4466  [003] d..3  2725.360987: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2725.360989: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+       deepPicar-4466  [003] d..3  2725.360993: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4452 tgid=4452 rtgid=1001
+        tau_rt_1-4498  [000] dn.3  2725.360997: rtg_try_acquire_lock: rtg_block: comm=tau_rt_1 sched=FIFO pid=4498 tgid=4457 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2725.360999: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_4-4499  [005] dn.3  2725.361001: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.361099: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [000] dn.3  2725.361101: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.394996: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4498 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2725.396347: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.396350: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4490  [004] d..3  2725.410927: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2725.410930: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.411068: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.411070: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.445000: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_1 sched=FIFO prio=94 pid=4498 tgid=4457 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2725.446364: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.446367: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2725.461098: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.461124: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.461128: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2725.461144: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+     kworker/5:3-219   [005] dn.3  2725.461145: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2725.461149: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_3-4500  [004] dn.3  2725.461156: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.461253: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2725.461255: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2725.494996: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_3 sched=FIFO prio=94 pid=4500 tgid=4459 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4454  [005] d..3  2725.496362: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.496366: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.510925: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2725.511031: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.511033: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2725.511037: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_2-4488  [003] dn.3  2725.511045: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2725.511093: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2725.511096: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.511138: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.511139: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2725.545000: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4454  [005] d..3  2725.546340: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.546344: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.561006: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.561084: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.561086: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2725.594995: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4497  [004] d..3  2725.597185: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4473  [000] d..3  2725.597189: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.610798: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2725.610860: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2725.610861: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.610863: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.610964: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.610965: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2725.640287: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2725.644980: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.646334: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.646337: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.661131: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.661135: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.661138: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.661156: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.661158: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_1-4498  [000] d..3  2725.681507: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.694990: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.696300: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.696304: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4483  [003] d..3  2725.697111: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4469  [000] d..3  2725.697114: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.710878: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.710882: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2725.711004: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2725.711061: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2725.711063: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+       deepPicar-4462  [000] d..3  2725.711067: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_2-4488  [003] dn.3  2725.711074: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+        tau_rt_3-4500  [004] dn.3  2725.711076: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+        tau_rt_4-4499  [005] dn.3  2725.711078: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.711164: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.711166: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_3-4500  [004] dn.3  2725.744998: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2725.746348: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.746352: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.760986: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2725.761008: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.761011: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] d..3  2725.792477: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [005] dn.3  2725.794967: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2725.794984: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2725.796338: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.796341: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.811100: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2725.811104: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4453  [004] d..3  2725.811109: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2725.811186: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2725.811189: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2725.844995: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4451  [000] d..3  2725.846395: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.846398: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2725.861182: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4466  [003] d..3  2725.861185: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.861298: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.861301: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_4-4499  [005] d..3  2725.890762: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [000] dn.3  2725.894998: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.896328: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2725.896331: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.910883: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.911052: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2725.933996: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.944992: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.946329: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.946332: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2725.960965: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2725.961047: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2725.983973: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2725.994982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2725.996330: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2725.996333: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.010836: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.011043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.034024: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.044990: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.046327: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.046331: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2726.060933: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4490  [004] d..3  2726.060936: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.061061: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.061063: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.084152: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.094992: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.096336: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.096340: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.110883: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.111050: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.134050: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.144983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.161093: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2726.161097: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_1-4498  [000] d..3  2726.184106: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.194981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.196323: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.196327: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.210863: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.211051: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.234000: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.244981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.246342: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.246346: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.261056: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.261084: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.261086: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2726.284210: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2726.294982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.296327: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.296331: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4493  [004] d..3  2726.297101: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2726.297105: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2726.310971: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2726.310973: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.311043: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.311061: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.311062: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.334130: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.344981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.346333: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.346336: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.360882: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.361049: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.384030: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.394987: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.396392: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.396395: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.410937: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.411043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.434007: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.444984: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.446319: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.446322: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.460985: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.461048: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.484092: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.494989: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.496346: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.496349: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.510994: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.511043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.533983: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.544989: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.546324: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.546328: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.560962: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.561040: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.584177: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.594982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4469  [000] d..3  2726.597090: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4493  [004] d..3  2726.597093: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.610847: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.611051: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.633980: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.644984: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.646325: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.646328: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.661056: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.661070: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2726.661096: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_3-4500  [004] d..3  2726.687292: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2726.694991: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.696364: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.696367: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.710912: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.710964: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.710967: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2726.744997: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4453  [004] d..3  2726.746356: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.746360: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.760872: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2726.761074: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.761076: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2726.761079: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_2-4488  [003] dn.3  2726.761083: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2726.761096: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2726.761099: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.761184: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.761185: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2726.794991: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4454  [005] d..3  2726.796344: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.796348: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.810892: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4454  [005] d..3  2726.810909: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2726.811092: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+          <idle>-0     [004] dn.3  2726.844998: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_4 sched=FIFO prio=94 pid=4499 tgid=4460 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4466  [003] d..3  2726.861147: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2726.861151: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.861263: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.861266: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2726.894990: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2726.896339: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2726.896343: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4493  [004] d..3  2726.897149: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2726.897152: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.910836: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2726.910919: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2726.910921: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.910923: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2726.911031: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.911039: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2726.940512: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2726.944993: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.946388: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2726.946391: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4490  [004] d..3  2726.960909: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4466  [003] d..3  2726.960912: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.961028: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2726.961062: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_1-4498  [000] d..3  2726.984169: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2726.994983: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2726.996327: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2726.996330: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4495  [004] d..3  2726.997107: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4478  [005] d..3  2726.997110: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2727.011097: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2727.011101: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2727.011142: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.011152: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2727.011154: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_4
+        tau_rt_1-4498  [000] d..3  2727.037331: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_1
+          <idle>-0     [004] dn.3  2727.044982: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2727.046324: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2727.046328: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2727.061100: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+          <idle>-0     [005] dn.3  2727.061104: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+       deepPicar-4452  [003] d..3  2727.061131: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.061142: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [004] dn.3  2727.061144: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_3-4500  [004] d..3  2727.087297: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2727.094988: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2727.096312: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2727.096315: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4480  [005] d..3  2727.097119: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4497  [004] d..3  2727.097122: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2727.110846: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2727.110914: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2727.110916: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+       deepPicar-4462  [000] d..3  2727.110920: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4451 tgid=4451 rtgid=1001
+        tau_rt_2-4488  [003] dn.3  2727.110926: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.111033: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2727.111038: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2727.145000: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4451  [000] d..3  2727.146346: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2727.146350: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2727.161012: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.161082: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2727.161085: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2727.194994: rtg_try_acquire_lock: rtg_preempt: prev=tau_rt_2 sched=FIFO prio=94 pid=4488 tgid=4458 rtgid=1002 | next=deepPicar sched=FIFO prio=93 pid=4453 tgid=4453 rtgid=1001
+       deepPicar-4452  [003] d..3  2727.196345: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4454  [005] d..3  2727.196348: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4483  [003] d..3  2727.197183: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4476  [005] d..3  2727.197186: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2727.210918: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.210990: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2727.210993: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2727.240482: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [004] dn.3  2727.244981: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2727.246368: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2727.246372: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [003] dn.3  2727.261053: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4462  [000] d..3  2727.261060: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4462  [000] d..3  2727.261062: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+          <idle>-0     [005] dn.3  2727.261095: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+          <idle>-0     [004] dn.3  2727.261098: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4451  [000] d..3  2727.261160: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4451  [000] d..3  2727.261161: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_1
+        tau_rt_3-4500  [004] d..3  2727.287427: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_3
+          <idle>-0     [004] dn.3  2727.294994: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4453  [004] d..3  2727.312870: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4452  [003] d..3  2727.312873: rtg_try_acquire_lock: rtg_acquire: gid=1001 comm=deepPicar
+       deepPicar-4491  [004] d..3  2727.318850: rtg_try_acquire_lock: rtg_block: comm=tau_rt_3 sched=FIFO pid=4500 tgid=4459 rtgid=1002 prio=94
+       deepPicar-4481  [003] d..3  2727.318924: rtg_try_acquire_lock: rtg_block: comm=tau_rt_2 sched=FIFO pid=4488 tgid=4458 rtgid=1002 prio=94
+       deepPicar-4474  [005] d..3  2727.319328: rtg_try_acquire_lock: rtg_block: comm=tau_rt_4 sched=FIFO pid=4499 tgid=4460 rtgid=1002 prio=94
+           <...>-4467  [000] d..3  2727.319336: rtg_try_release_lock: rtg_release: gid=1001 comm=deepPicar
+       deepPicar-4491  [004] dn.3  2727.319338: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_3
+        tau_rt_4-4499  [005] d..3  2727.388047: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [003] dn.3  2727.411043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_4-4499  [005] d..3  2727.436930: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [003] dn.3  2727.461042: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_4-4499  [005] d..3  2727.486638: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_4
+          <idle>-0     [003] dn.3  2727.511043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2727.536600: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [003] dn.3  2727.561043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2727.581503: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+          <idle>-0     [003] dn.3  2727.611043: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2727.611151: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
+        tau_rt_2-4488  [003] d..3  2727.611153: rtg_try_acquire_lock: rtg_acquire: gid=1002 comm=tau_rt_2
+        tau_rt_2-4458  [003] d..3  2727.612876: rtg_try_release_lock: rtg_release: gid=1002 comm=tau_rt_2
