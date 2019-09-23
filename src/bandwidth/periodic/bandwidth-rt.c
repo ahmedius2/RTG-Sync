@@ -81,7 +81,7 @@ struct sched_attr {
  **************************************************************************/
 int jobs = 0;
 int cpuid = 0;
-int period = 0;
+int period_usec = 0;
 int verbose = 0;
 int iterations = 0;
 int acc_type = READ;
@@ -154,7 +154,7 @@ int bench_write(char *mem_ptr)
 	return 1;
 }
 
-int make_periodic (int unsigned period, struct periodic_info *info)
+int make_periodic (int unsigned period_usec, struct periodic_info *info)
 {
 	int ret;
 	unsigned int ns;
@@ -190,8 +190,8 @@ int make_periodic (int unsigned period, struct periodic_info *info)
 		return ret;
 
 	/* Make the timer periodic */
-	sec = period/1000000;
-	ns = (period - (sec * 1000000)) * 1000;
+	sec = period_usec/1000000;
+	ns = (period_usec - (sec * 1000000)) * 1000;
 	itval.it_interval.tv_sec = sec;
 	itval.it_interval.tv_nsec = ns;
 	itval.it_value.tv_sec = sec;
@@ -251,7 +251,7 @@ void worker(void *param)
 	/*
 	 * actual memory access
 	 */
-	if (period > 0) make_periodic(period * 1000, info);
+	if (period_usec > 0) make_periodic(period_usec, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
 		if (barrier) rtg_member_sync (barrier);
@@ -280,7 +280,7 @@ void worker(void *param)
 		l_end = get_usecs();
 		l_duration = l_end - l_start;
 		if (verbose) fprintf(stderr, "\nJob %d Took %d us", j, l_duration);
-		if (period > 0) wait_period (info);
+		if (period_usec > 0) wait_period (info);
 		if (jobs == 0 || j+1 >= jobs)
 			break;
 	}
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'e': /* job compute time */
-			g_job_compute_time_usec = strtol(optarg, NULL, 0) * 1000;
+			g_job_compute_time_usec = strtol(optarg, NULL, 0);
 			break;
 
 		case 't': /* set time in secs to run */
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 			jobs = strtol(optarg, NULL, 0);
 			break;
 		case 'l': /* period -> determine P (ms)*/
-			period = strtol(optarg, NULL, 0);
+			period_usec = strtol(optarg, NULL, 0);
 			sigemptyset (&alarm_sig);
 			for (i = SIGRTMIN; i <= SIGRTMAX; i++)
 				sigaddset (&alarm_sig, i);
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
 	       cpuid,
 	       iterations,
                jobs,
-	       period);
+	       period_usec);
 	printf("stop at %d\n", finish);
 
 	/* set signals to terminate once time has been reached */
