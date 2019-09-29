@@ -38,7 +38,7 @@ setup:
 	@rm -f build/*
 
 $(LIB_EXE): $(LIB_SRC)
-	$(CC) $(LIB_INC) -shared -fPIC $< -o $@
+	$(CC) $(LIB_INC) -D RTG_SYNCH_DEBUG -shared -fPIC $< -o $@
 	@rm -f /usr/lib/$(notdir $(LIB_EXE))
 	@ln -s $(shell pwd)/$(LIB_EXE) /usr/lib/$(notdir $(LIB_EXE))
 	

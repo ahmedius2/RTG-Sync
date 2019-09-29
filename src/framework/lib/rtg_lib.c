@@ -13,6 +13,10 @@
  */
 #include "rtg_lib.h"
 
+#ifdef RTG_SYNCH_DEBUG
+static int mark_fd = -1;
+#endif
+
 /*
  * open_shared_file: Helper function for opening a given file with the provided
  * access permissions.
@@ -293,7 +297,7 @@ pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
  * 		9a50d76f726d7c325c82ac8c7ed9ed70e1c97937/
  * 		src/rt-app_utils.c#L302
  */
-void ftrace_write(int mark_fd, const char *fmt, ...)
+void ftrace_write(const char *fmt, ...)
 {
 	va_list ap;
 	int n, size = BUF_SIZE, ret;
@@ -346,24 +350,24 @@ void ftrace_write(int mark_fd, const char *fmt, ...)
 	}
 }
 
+
 /*
  * Perform setup required for writing to ftrace buffer.
  */
-int debug_setup_ftrace (void)
+void debug_setup_ftrace (void)
 {
 	char tmp [PATH_LENGTH];
-	int marker_fd = -1;
 
 	strcpy (tmp, "/sys/kernel/debug/tracing/trace_marker");
-	marker_fd = open (tmp, O_WRONLY);
+	mark_fd = open (tmp, O_WRONLY);
 
-	if (marker_fd < 0) {
+	if (mark_fd < 0) {
 		printf ("Cannot open trace_marker file %s", tmp);
 		exit (EXIT_FAILURE);
 	}
 
 
-	return marker_fd;
+	return;
 }
 #endif /* RTG_SYNCH_DEBUG */
 
@@ -375,18 +379,16 @@ int debug_setup_ftrace (void)
  */
 void rtg_member_sync (pthread_barrier_t* barrier)
 {
-	int marker_fd = -1;
 	pid_t pid = getpid ();
 
 #ifdef RTG_SYNCH_DEBUG
-	marker_fd = debug_setup_ftrace ();
-	debug_log_ftrace (marker_fd, "===== [RTG-LIB] <%d> Syncing on barrier...\n", pid);
+	debug_log_ftrace ("===== [RTG-LIB] <%d> Syncing on barrier...\n", pid);
 #endif
 
 	pthread_barrier_wait (barrier);
 
 #ifdef RTG_SYNCH_DEBUG
-	debug_log_ftrace (marker_fd, "===== [RTG-LIB] <%d> Sync Complete!\n", pid);
+	debug_log_ftrace ("===== [RTG-LIB] <%d> Sync Complete!\n", pid);
 #endif
 
 	return;

@@ -20,10 +20,14 @@
 #define PATH_LENGTH 	256
 #define BUF_SIZE 	100
 
-#define debug_log_ftrace(mark_fd, msg, args...)				\
+#ifdef RTG_SYNCH_DEBUG
+#define debug_log_ftrace(msg, args...)					\
 do {									\
-    ftrace_write (mark_fd, msg, ##args);				\
+    ftrace_write (msg, ##args);						\
 } while (0);
+#else
+#define debug_log_ftrace(msg, args...)
+#endif
 
 /*
  * Shared memory based barrier will be created in the following file for use by
@@ -95,5 +99,10 @@ pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
 void rtg_member_sync (pthread_barrier_t* barrier);
 pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count);
 void rtg_daemon_cleanup (pthread_barrier_t* barrier, int id);
+
+#ifdef RTG_SYNCH_DEBUG
+void debug_setup_ftrace (void);
+void ftrace_write(const char *fmt, ...);
+#endif
 
 #endif /* __RTG_LIB_H__ */

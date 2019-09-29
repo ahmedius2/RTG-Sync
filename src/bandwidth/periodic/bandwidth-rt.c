@@ -81,6 +81,7 @@ struct sched_attr {
  **************************************************************************/
 int jobs = 0;
 int cpuid = 0;
+int vgang_id = 0;
 int period_usec = 0;
 int verbose = 0;
 int iterations = 0;
@@ -254,7 +255,7 @@ void worker(void *param)
 	if (period_usec > 0) make_periodic(period_usec, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
-		if (barrier) rtg_member_sync (barrier);
+		debug_log_ftrace ("gid=%d: job_start\n", vgang_id);
 		l_start = get_usecs();
 
 		// for (i = 0;; i++) {
@@ -312,7 +313,6 @@ void usage(int argc, char *argv[])
 	exit(1);
 }
 
-
 int main(int argc, char *argv[])
 {
 	unsigned finish = 5;
@@ -327,7 +327,6 @@ int main(int argc, char *argv[])
 	struct periodic_info info[32];
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
-	int vgang_id;
 	bool special = false;
 
 	static struct option long_options[] = {
