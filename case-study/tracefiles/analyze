@@ -9,9 +9,9 @@ def main ():
     traceFiles = ['rtgsynch']
     parser = Parser ()
     parsedDataHash = {}
-    cleaner = Cleaner ()
+    cleaner = Cleaner (True)
     plotter = Plotter ()
-    lockDurationData = {}
+    lockDurationData = {f:{} for f in traceFiles}
 
     lineStyles = {'rtgang': 'r', 'rtgsynch': 'g'}
 
@@ -23,12 +23,12 @@ def main ():
             if gang == 0:
                 continue
 
-            lockDurationData [f] = cleaner.extract_metric_from_data (
+            lockDurationData [f][gang] = cleaner.extract_metric_from_data (
                                             gang,
                                             parsedDataHash [f][gang],
                                             'lock-duration')
 
-            print '%15s : %d samples' % (f, len (lockDurationData [f]))
+            print '%15s | %d : %d samples' % (f, gang, len (lockDurationData [f][gang]))
 
     plotter.plot (source, lockDurationData, lineStyles, traceFiles)
 

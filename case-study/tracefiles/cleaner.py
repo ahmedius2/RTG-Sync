@@ -1,5 +1,6 @@
 class Cleaner:
-    def __init__ (self):
+    def __init__ (self, debug = False):
+        self.debug = debug
         self.data = {}
 
         return
@@ -18,59 +19,92 @@ class Cleaner:
             The following state-transitions can happen at any time-instance
             w.r.t. the gang scheduling lock:
 
-            ----------------------------------------------------------------
-            State Transition  |   Trace Event   | Description
-            ----------------------------------------------------------------
-            Lock Acquisition  |   rtg_acquire   | Locking duration begins
-            Lock Release      |   rtg_release   | Locking duration ends  
-            Lock Blocking     |   rtg_block     | No impact on locking
+            ----------------------------------------------------------
+            Trace Event   | Description
+            ----------------------------------------------------------
+            rtg_acquire   | Locking duration starts or resumes
+            rtg_release   | Locking duration stops or gets updated
+            rtg_block     | No impact on locking
+            rtg_preemptor | rtg_acquire for preemptor gang
+            rtg_preemptee | rtg_release for preempted gang
         '''
 
-        sortedTimeStamps = sorted (self.data.keys ())
+        timeline = sorted (self.data.keys ())
+        periodicExecutionBegin = False
+        partialLockDuration = 0
         lockDurations = []
+        lockStartTime = 0
         state = 'init'
         nextState = ''
 
-        for ts in sortedTimeStamps:
+        if self.debug:
+            fdo = open ('cleaner_gid_%d.txt' % self.gangId, 'w')
+            outputFormat = '%15s | %15s | %15s | %20s | %20s\n'
+            headerLine = outputFormat % ('Timestamp',
+                                         'Offset (msec)',
+                                         'Event',
+                                         'Transition',
+                                         'Partial Lock Duration')
+            hrule = '-' * len (headerLine) + '\n'
+            fdo.write (headerLine)
+            fdo.write (hrule)
+
+        startTime = timeline [0]
+
+        for ts in timeline:
             newState = self.data [ts]
-
-            if state == 'init' and newState != 'acquire':
-                self.raiseValueError ('First transition must be lock-acquire: %s' % newState)
-
-            # Acquire -> Start: Job is starting
-            # Any other acquire is un-interesting
-            #
-            # Release -> Acquire -> Start: Previous job has ended
-            # Any other release is un-interesting
-            if newState == 'acquire':
-                lockAcquireTime = ts
-                if state == 'init':
-                    nextState = 'i->a'
-                elif state == 'r':
-                    nextState = 'r->a'
+            self.__check_state_transition (state, newState)
 
             if newState == 'start':
-                if state == 'i->a':
-                    nextState = 's'
-                    lockStartTime = lockAcquireTime
+                newState = 'acquire'
 
-                if state == 'r->a':
-                    nextState = 's'
-                    prevLockDuration = (lockReleaseTime - lockStartTime) * 1000
-                    lockDurations.append (prevLockDuration)
-                    lockStartTime = lockAcquireTime
+                if periodicExecutionBegin:
+                    lockDurations.append (partialLockDuration * 1000)
+                else:
+                    periodicExecutionBegin = True
 
-            if newState == 'release':
-                if state == 's' or state == 'r->a':
-                    nextState = 'r'
-                    lockReleaseTime = ts
+                partialLockDuration = 0
 
-            if not nextState:
-                raiseValueError ('Unexpected transition: <%s => %s>' % (state, newState))
+            elif newState == 'acquire' or newState == 'preemptor':
+                lockStartTime = ts
 
-            state = nextState
+            elif newState == 'release' or newState == 'preemptee':
+                partialLockDuration += (ts - lockStartTime)
+
+            elif newState == 'block':
+                pass
+
+            if self.debug:
+                fdo.write (outputFormat %
+                            (ts,
+                             '%.3f' % ((ts - startTime) * 1000),
+                             self.data [ts],
+                             '%s => %s' % (state, newState),
+                             '%.3f' % (partialLockDuration * 1000)))
+
+            state = newState
+
+        if self.debug:
+            fdo.close ()
 
         return lockDurations
 
-    def raiseValueError (self, errorMsg):
+    def __raise_value_error (self, errorMsg):
         raise ValueError, '[Gang: %d] %s' % (self.gangId, errorMsg)
+
+    # Verify if transition from prev -> cur is allowed
+    def __check_state_transition (self, prev, cur):
+        transitionMap = {
+                'init'      : ['acquire', 'preemptor', 'block'],
+                'acquire'   : ['start', 'release', 'preemptee'],
+                'preemptor' : ['start', 'release', 'preemptee'],
+                'release'   : ['acquire', 'preemptor', 'block'],
+                'block'     : ['acquire', 'block'],
+                'preemptee' : ['acquire', 'block']
+        }
+
+        if cur not in transitionMap [prev]:
+            self.__raise_value_error ('Transition not allowed: <%s => %s>' %
+                                        (prev, cur))
+
+        return

@@ -1,10 +1,11 @@
 import os, sys, re
 
 class Parser:
-    def __init__ (self):
+    def __init__ (self, debug = False):
+        self.debug = debug
         self.parsedData = {}
         self.eventRegexP1 = r'^.* ([\d\.]+):(.*)$'
-        self.eventRegexP2a = r'^.* rtg_([\D]+): comm=([\D]+) rtgid=([\d]+).*$'
+        self.eventRegexP2a = r'^.* rtg_([\D]+): comm=([^\s]+) rtgid=([\d]+).*$'
         self.eventRegexP2b = r'^.* gid=([\d]+): job_start.*$'
 
         return
@@ -53,6 +54,9 @@ class Parser:
 
                 self.__insert_event_for_gang (rtgid, timeStamp, event)
 
+            if self.debug:
+                self.__debug_print_parsed_data_per_gang ()
+
         return self.parsedData
 
     def __insert_event_for_gang (self, gangId, timeStamp, event):
@@ -66,3 +70,24 @@ class Parser:
     def __check_file_exists (self, fileName):
         if not os.path.isfile (fileName):
             raise IOError, "File <%s> does not exists!" % (fileName)
+
+    def __debug_print_parsed_data_per_gang (self, parsedData):
+        outputFormat = '%20s | %20s | %20s\n'
+
+        for gang in parsedData:
+            timeline = sorted (parsedData [gang].keys ())
+            startTime = timeline [0]
+
+            with open ('gid_%s.txt' % (gang), 'w') as fdo:
+                headerLine = outputFormat % ('Timestamp', 'Offset (msec)',
+                                            'Event')
+                hrule = '-' * len (headerLine) + '\n'
+                fdo.write (headerLine)
+                fdo.write (hrule)
+
+                for ts in timeline:
+                    fdo.write (outputFormat % (ts,
+                                    '%.3f' % ((ts - startTime) * 1000),
+                                    parsedData [gang][ts]))
+
+        return

@@ -1,6 +1,6 @@
 # tracer: nop
 #
-# entries-in-buffer/entries-written: 886/886   #P:6
+# entries-in-buffer/entries-written: 372/372   #P:6
 #
 #                              _-----=> irqs-off
 #                             / _----=> need-resched
@@ -9,889 +9,375 @@
 #                            ||| /     delay
 #           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION
 #              | |       |   ||||       |         |
-         dhd_dpc-604   [000] d..3 21173.646835: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] dn.3 21173.646852: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-         dhd_dpc-604   [000] d..3 21173.646908: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.686384: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.686388: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=752 prio=93
-       deepPicar-752   [000] d..3 21173.686454: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=752 prio=93
-       deepPicar-752   [000] d..3 21173.686456: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=753 prio=93
-       deepPicar-753   [000] d..3 21173.686489: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=753 prio=93
-       deepPicar-753   [000] d..3 21173.686491: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=758 prio=93
-       deepPicar-758   [000] d..3 21173.686523: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=758 prio=93
-       deepPicar-758   [000] d..3 21173.686525: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=761 prio=93
-       deepPicar-761   [000] d..3 21173.687762: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=761 prio=93
-       deepPicar-761   [000] d..3 21173.687765: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=762 prio=93
-       deepPicar-762   [000] d..3 21173.687780: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=762 prio=93
-       deepPicar-762   [000] d..3 21173.687782: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=763 prio=93
-       deepPicar-763   [000] d..3 21173.687791: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=763 prio=93
-       deepPicar-763   [000] d..3 21173.687792: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=764 prio=93
-       deepPicar-764   [000] d..3 21173.687802: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=764 prio=93
-       deepPicar-764   [000] d..3 21173.687804: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=765 prio=93
-       deepPicar-765   [000] d..3 21173.687813: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=765 prio=93
-       deepPicar-765   [000] d..3 21173.687815: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=766 prio=93
-       deepPicar-766   [000] d..3 21173.687823: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=766 prio=93
-       deepPicar-766   [000] d..3 21173.687824: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.687982: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.687983: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=762 prio=93
-       deepPicar-762   [000] d..3 21173.688687: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=762 prio=93
-       deepPicar-762   [000] d..3 21173.688690: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.688888: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.688890: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=763 prio=93
-       deepPicar-763   [000] d..3 21173.689463: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=763 prio=93
-       deepPicar-763   [000] d..3 21173.689467: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.689741: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=746 pid=746 prio=93
-       deepPicar-746   [000] d..3 21173.689743: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=746 pid=764 prio=93
-       deepPicar-746   [000] ...1 21173.792576: tracing_mark_write: gid=1001: job_start
-       deepPicar-751   [005] d..3 21173.827659: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.827663: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21173.828200: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21173.828202: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21173.840266: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21173.840269: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.841410: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.841413: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21173.841904: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21173.841907: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21173.842586: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21173.861615: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21173.861620: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21173.861729: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21173.890371: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.891496: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.891499: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21173.891913: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21173.891915: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21173.892583: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21173.911661: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21173.911665: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21173.911760: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21173.940368: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.941505: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.941508: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21173.941896: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21173.941899: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21173.942583: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21173.961519: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21173.961523: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21173.961632: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21173.990372: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.991495: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21173.991498: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21173.991939: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21173.991943: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21173.992583: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.011294: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21174.011298: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21174.011407: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.040368: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.041499: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.041502: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.041923: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.041925: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.042587: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.061590: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.090372: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.091517: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.091520: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.091925: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.091927: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.092585: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21174.112213: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.140371: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.141569: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.141572: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-746   [000] ...1 21174.142586: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.161616: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.190374: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.191545: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.191548: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.192056: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.192058: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.192589: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21174.211873: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21174.211877: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21174.211985: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.240372: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.241518: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.241521: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.242235: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.242237: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.242589: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21174.261747: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21174.261751: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21174.261859: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.290375: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.291523: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.291526: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.292255: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.292258: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.292588: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21174.311966: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21174.311970: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21174.312077: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.340374: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.341493: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.341496: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.342247: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.342250: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.342590: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.361854: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.390377: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.391516: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.391518: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.392268: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.392269: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.392593: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.412082: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21174.412087: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21174.412195: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.440379: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.441487: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.441490: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21174.442230: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21174.442232: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.442591: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.461876: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.490379: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.491511: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.491514: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.492155: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.492157: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.492593: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.512134: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21174.512138: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21174.512246: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.540378: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.541508: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.541511: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.542276: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.542279: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.542596: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.561899: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21174.561903: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21174.562010: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.590380: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.591564: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.591567: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.592338: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.592340: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.592596: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.611926: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21174.611929: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21174.612018: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.640380: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.641522: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.641524: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.642298: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.642301: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.642594: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21174.662069: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.690382: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.691533: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.691536: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.692263: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.692265: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.692598: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21174.712149: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21174.712153: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21174.712263: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.740381: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.741572: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.741575: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-746   [000] ...1 21174.742599: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21174.761949: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21174.761953: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21174.762060: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21174.790383: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.791536: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.791539: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.792298: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21174.792301: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.792600: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21174.812049: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21174.812053: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21174.812161: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.840382: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.841470: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.841473: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.842292: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21174.842294: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.842599: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.861925: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.890386: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.891565: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.891567: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.892345: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21174.892348: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.892602: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.912136: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.940387: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.941539: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.941542: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.942420: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21174.942422: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.942612: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21174.961829: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21174.990388: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.991532: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21174.991535: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.992292: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21174.992294: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21174.992613: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.012046: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.012050: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21175.012159: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.040388: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.041525: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.041528: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.042400: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.042402: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.042605: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21175.061874: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21175.061878: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21175.061988: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.090392: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.091540: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.091542: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.092335: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.092337: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.092607: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.111987: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.111991: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21175.112098: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.140389: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.141555: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.141557: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.142378: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.142381: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.142604: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.161885: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.161889: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21175.162000: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.190392: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.191545: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.191548: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.192334: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.192336: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.192610: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21175.211988: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21175.211992: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21175.212105: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.240393: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.241498: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.241500: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.242373: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.242375: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.242608: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.262066: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.262070: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21175.262179: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.290394: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.291557: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.291560: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.292325: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.292327: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.292609: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21175.312194: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21175.312198: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21175.312310: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.340394: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.341570: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.341573: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.342568: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.342570: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.342610: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.361900: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.361904: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21175.362010: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.390396: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.391514: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.391517: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.392292: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.392294: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.392611: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.411900: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.411904: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21175.412015: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.440396: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.441521: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.441524: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.442429: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.442432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.442613: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.461908: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21175.461911: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21175.461997: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.490398: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.491532: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.491535: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.492390: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.492392: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.492611: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21175.512070: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.540398: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.541540: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.541543: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.542497: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.542500: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.542617: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21175.561789: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.590401: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.591565: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.591568: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.592343: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.592345: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.592614: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.612051: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.612056: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21175.612165: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.640398: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.641540: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.641542: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.642494: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.642497: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.642621: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21175.661964: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21175.661968: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21175.662079: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.690401: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.691551: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.691553: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.692374: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.692376: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.692616: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21175.712223: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.740401: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.741532: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.741535: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.742490: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21175.742491: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.742619: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21175.761851: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.790403: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.791474: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.791477: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.792263: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21175.792265: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.792630: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21175.811980: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21175.811984: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21175.812097: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.840401: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.841527: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.841530: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.842510: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21175.842513: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.842620: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21175.862176: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21175.890406: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.891548: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.891551: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.892437: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21175.892438: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.892620: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21175.912135: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21175.912139: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21175.912254: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.940405: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.941564: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.941567: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.942580: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21175.942582: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.942621: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21175.962063: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21175.990408: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.991533: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21175.991537: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.992306: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21175.992308: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21175.992622: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.012044: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.040405: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.041559: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.041562: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.042422: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.042425: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.042630: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21176.061995: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.090409: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.091563: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.091565: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.092329: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.092331: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.092622: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.112080: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.140410: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.141546: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.141548: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.142411: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.142413: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.142625: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.162001: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21176.162005: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21176.162116: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.190409: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.191520: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.191523: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.192292: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.192294: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.192624: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.212008: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21176.212012: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21176.212120: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.240410: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.241552: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.241554: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.242430: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.242432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.242624: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21176.262018: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21176.262022: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21176.262133: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.290411: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.291581: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.291584: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.292345: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.292347: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.292627: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.312145: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.340412: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.341550: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.341553: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.342415: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.342417: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.342628: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.361991: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.390416: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.391568: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.391571: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.392312: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.392314: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.392628: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21176.411759: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21176.411763: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21176.411874: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.440414: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.441561: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.441564: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.442407: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.442409: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.442629: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21176.461999: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.490417: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.491562: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.491564: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.492312: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.492314: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.492631: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.512219: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.540416: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.541610: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.541612: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.542591: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.542593: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.542629: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21176.561873: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21176.561877: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21176.561987: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.590418: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.591576: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.591579: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.592344: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.592346: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.592635: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.612090: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21176.612094: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21176.612204: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.640420: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.641592: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.641595: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.642409: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.642411: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.642641: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.661933: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21176.661937: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21176.662052: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.690423: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.691528: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.691530: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.692278: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.692280: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.692637: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.712055: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21176.712059: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21176.712145: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.740420: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.741567: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.741569: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.742449: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21176.742451: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.742636: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21176.761977: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21176.761981: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21176.762090: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.790422: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.791565: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.791568: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.792337: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21176.792339: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.792636: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21176.812171: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21176.840420: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.841584: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.841587: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.842454: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21176.842456: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.842639: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21176.861886: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21176.861890: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21176.861998: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.890424: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.891575: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.891578: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.892349: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21176.892351: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.892639: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21176.912228: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.940423: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.941577: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.941579: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.942428: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21176.942432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.942639: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21176.961978: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21176.961982: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21176.962093: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21176.990426: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.991571: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21176.991574: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.992349: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21176.992351: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21176.992640: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21177.012129: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21177.012133: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.012248: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.040426: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.041576: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.041578: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.042446: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.042448: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.042648: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.062044: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.090429: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.091570: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.091573: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.092361: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.092363: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.092643: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21177.112248: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21177.112252: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21177.112362: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21177.140427: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.141600: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.141603: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.142545: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.142547: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.142644: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.162003: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21177.162008: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21177.162119: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.190429: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.191576: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.191579: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.192334: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.192336: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.192646: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21177.212253: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21177.212257: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.212367: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.240429: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.241564: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.241567: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.242488: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.242491: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.242645: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.262153: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.290432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.291579: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.291581: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.292408: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.292410: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.292645: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.312388: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.340432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.341621: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.341624: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.342589: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.342591: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.342647: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21177.361835: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21177.361839: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.361948: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.390435: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.391575: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.391577: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.392339: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.392342: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.392647: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.412000: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21177.412004: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21177.412113: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21177.440432: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.441590: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.441592: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.442494: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.442496: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.442650: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.462107: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21177.462110: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.462191: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.490435: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.491568: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.491571: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.492299: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.492301: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.492654: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.512116: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.540434: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.541565: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.541568: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.542348: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.542350: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.542649: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.561990: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.590438: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.591572: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.591576: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.592333: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.592335: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.592654: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.612108: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.640439: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.641622: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.641625: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.642417: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.642419: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.642652: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.661990: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21177.661994: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21177.662109: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21177.690438: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.691600: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.691603: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.692329: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.692331: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.692655: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21177.712191: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21177.740437: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.741632: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.741635: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.742596: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21177.742598: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.742652: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.761821: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21177.761825: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-750   [004] d..3 21177.761934: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.790441: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.791602: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.791604: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.792328: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21177.792331: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.792656: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21177.812060: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.840439: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.841612: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.841614: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.842434: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21177.842436: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.842657: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.861847: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21177.861852: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21177.861961: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21177.890444: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.891633: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.891636: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.892381: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21177.892383: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.892657: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21177.912042: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21177.912045: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.912130: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.940443: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.941546: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.941549: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.942331: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21177.942332: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.942659: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21177.961836: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21177.961840: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21177.961946: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21177.990446: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.991576: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21177.991579: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.992317: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21177.992319: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21177.992657: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21178.012048: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21178.012052: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21178.012161: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.040445: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.041606: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.041609: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.042450: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.042452: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.042661: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21178.061847: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.090448: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.091603: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.091606: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.092346: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.092348: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.092660: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.112011: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21178.112015: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21178.112125: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.140446: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.141600: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.141602: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.142414: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.142417: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.142662: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21178.162077: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.190448: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.191627: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.191630: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.192364: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.192366: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.192665: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21178.212143: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21178.212147: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-749   [003] d..3 21178.212260: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.240449: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.241596: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.241599: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.242414: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.242416: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.242669: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.261896: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21178.261900: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21178.262010: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.290451: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.291554: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.291557: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.292315: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.292317: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.292668: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.312274: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21178.312278: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21178.312387: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.340452: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.341608: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.341611: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.342583: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.342585: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.342667: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21178.362022: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.390454: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.391611: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.391614: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.392363: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.392365: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.392666: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.412005: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21178.412010: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21178.412119: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.440452: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.441624: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.441627: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.442431: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.442434: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.442667: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21178.461915: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.490454: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.491615: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.491617: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.492350: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.492352: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.492669: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.512054: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-756   [003] d..3 21178.512058: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-       deepPicar-749   [003] d..3 21178.512249: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.540455: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.541601: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.541604: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.542478: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.542480: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.542670: tracing_mark_write: gid=1001: job_start
-       deepPicar-749   [003] d..3 21178.561989: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=749 prio=93
-          <idle>-0     [005] dn.3 21178.590457: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.591600: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.591602: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.592386: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.592388: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.592670: tracing_mark_write: gid=1001: job_start
-       deepPicar-757   [004] d..3 21178.612223: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=757 prio=93
-       deepPicar-757   [004] d..3 21178.612226: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21178.612308: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.640455: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.641593: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.641596: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.642453: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.642455: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.642670: tracing_mark_write: gid=1001: job_start
-       deepPicar-750   [004] d..3 21178.661933: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.690461: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.691601: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.691603: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.692383: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.692386: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.692676: tracing_mark_write: gid=1001: job_start
-       deepPicar-756   [003] d..3 21178.712117: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=749 pid=756 prio=93
-       deepPicar-757   [004] d..3 21178.712121: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-       deepPicar-750   [004] d..3 21178.712229: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=750 prio=93
-          <idle>-0     [005] dn.3 21178.740458: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.741623: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.741626: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.742494: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.742496: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-746   [000] ...1 21178.742676: tracing_mark_write: gid=1001: job_start
-       deepPicar-760   [004] d..3 21178.767679: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=750 pid=760 prio=93
-          <idle>-0     [005] dn.3 21178.790460: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.791625: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.791627: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.792387: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.792389: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21178.805131: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21178.805134: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805525: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805528: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.805590: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=782 prio=93
-       deepPicar-782   [005] d..3 21178.805591: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805666: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805667: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.805689: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=783 prio=93
-       deepPicar-783   [005] d..3 21178.805690: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805772: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805774: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.805794: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=784 prio=93
-       deepPicar-784   [005] d..3 21178.805795: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805874: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805875: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.805896: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=785 prio=93
-       deepPicar-785   [005] d..3 21178.805897: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805968: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.805970: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.805989: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=786 prio=93
-       deepPicar-786   [005] d..3 21178.805990: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.806060: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.806062: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.806079: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=787 prio=93
-       deepPicar-787   [005] d..3 21178.806080: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.807242: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=751 prio=93
-       deepPicar-751   [005] d..3 21178.807245: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=779 prio=93
-       deepPicar-779   [005] d..3 21178.807266: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=779 prio=93
-       deepPicar-779   [005] d..3 21178.807267: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21178.807279: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=780 prio=93
-       deepPicar-780   [005] d..3 21178.807281: rtg_try_acquire_lock: rtg_acquire: comm=deepPicar rtgid=1001 tgid=751 pid=781 prio=93
-       deepPicar-781   [005] d..3 21178.812075: rtg_try_release_lock: rtg_release: comm=deepPicar rtgid=1001 tgid=751 pid=781 prio=93
+        tau_rt_1-16359 [000] d..3 24221.134773: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.134829: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.183557: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.184830: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.184860: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.232827: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.234833: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.234857: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.282804: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.284835: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.284859: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.332743: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.334828: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.334851: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.382703: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.384828: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.384850: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.433035: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.434823: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.434847: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24221.436964: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24221.436993: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24221.437056: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24221.437078: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24221.437142: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24221.437150: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24221.437213: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24221.437302: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24221.437314: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24221.437369: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24221.483185: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.484814: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.484837: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.532856: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.534820: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.534845: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.582757: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.584820: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.584843: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.633031: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.634813: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.634838: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.682841: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.684805: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.684829: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.732762: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.734803: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.734826: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.782845: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.784810: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.784833: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.832823: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.834802: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.834824: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.882735: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.884796: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.884818: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.932909: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.934795: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.934818: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24221.982749: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24221.984796: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24221.984819: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.032763: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.034792: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.034813: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.082770: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.084795: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.084818: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.132697: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.134786: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.134808: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.182692: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.184788: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.184810: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.233303: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.234786: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.234811: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.282732: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.284784: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.284808: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.332674: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.334776: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.334799: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.382758: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.384776: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.384799: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.432846: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.434768: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.434792: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24222.441100: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24222.441130: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24222.441193: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24222.441213: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24222.441277: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24222.441285: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24222.441349: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24222.441440: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24222.441452: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24222.441511: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24222.482808: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.484772: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.484794: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.532714: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.534764: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.534787: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.582688: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.584767: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.584790: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.632649: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.634759: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.634779: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.682646: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.684754: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.684774: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.732711: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.734758: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.734781: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.782675: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.784759: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.784782: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.833253: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.834751: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.834775: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.882718: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.884750: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.884775: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.932833: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.934741: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.934762: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24222.982681: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24222.984747: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24222.984767: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.032705: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.034740: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.034763: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.082633: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.084742: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.084764: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.132700: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.134734: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.134756: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.182651: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.184736: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.184759: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.232688: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.234729: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.234751: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.282700: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.284731: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.284753: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.332688: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.334726: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.334748: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.382599: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.384725: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.384747: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.434186: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+     dbus-daemon-541   [000] dn.3 24223.434718: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.434745: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.482719: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.484710: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.484734: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.532687: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.534713: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.534735: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.582635: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.584716: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.584739: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.632606: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.634708: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.634730: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.682618: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.684711: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.684735: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.732711: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.734702: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.734725: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.782695: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.784699: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.784721: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.832691: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.834696: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.834718: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.882627: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.884701: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.884721: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.932843: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.934692: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.934714: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24223.982688: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24223.984695: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24223.984719: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24223.988296: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+      watchdog/0-11    [000] d..3 24223.988305: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24224.033437: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.034691: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.034715: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.082589: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.084691: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.084715: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.132617: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.134682: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.134706: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.182624: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.184685: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.184706: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.232596: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.234678: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.234698: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.282591: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.284672: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.284694: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.332602: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.334675: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.334697: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.382548: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+            Xorg-1132  [000] dn.3 24224.384663: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.384690: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.432746: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.434666: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.434688: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24224.436344: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.436378: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.436442: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.436463: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.436529: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.436537: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.436600: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.436668: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.436682: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.436690: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24224.482982: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.484659: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.484684: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24224.487519: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.487548: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.487616: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.487637: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.487700: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.487708: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.487773: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.487865: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.487877: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.487937: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.498532: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.498600: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.498612: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.498634: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.498644: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.498668: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.498678: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.498724: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24224.532876: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.534662: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.534686: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.582603: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.584661: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.584685: tracing_mark_write: gid=1002: job_start
+        tau_rt_1-16362 [000] dn.3 24224.591644: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.591673: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.591737: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.591758: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.591823: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.591831: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.591895: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.591985: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] dn.3 24224.591997: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+         dhd_dpc-604   [000] d..3 24224.592054: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_4-16368 [005] d..3 24224.633600: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.634656: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.634679: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.682607: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.684660: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.684684: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.732597: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.734651: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.734676: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.782692: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.784654: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.784678: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.832576: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.834646: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.834668: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.882592: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.884648: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.884671: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.932629: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.934638: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.934658: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24224.982528: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24224.984644: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24224.984664: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.032543: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.034634: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.034656: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.082561: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.084631: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.084653: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.132546: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.134630: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.134650: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.182589: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.184634: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.184657: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.233366: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.234625: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.234647: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.282608: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.284627: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.284652: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.332531: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.334619: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.334641: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.382608: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.384613: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.384636: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.432697: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.434614: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.434636: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.482512: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.484616: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.484640: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.532580: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.534609: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.534632: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.582512: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.584610: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.584632: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.632585: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.634606: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.634627: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.682598: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.684610: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.684632: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.732588: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.734602: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.734625: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.782698: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.784590: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.784614: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.833314: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.834594: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.834617: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.882535: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.884591: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.884613: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.932564: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.934586: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.934607: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24225.982491: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24225.984592: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24225.984614: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24226.032569: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24226.034585: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24226.034606: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24226.082653: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24226.084577: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] ...1 24226.084600: tracing_mark_write: gid=1002: job_start
+        tau_rt_4-16368 [005] d..3 24226.132566: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16368 prio=94
+          <idle>-0     [000] dn.3 24226.134578: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] d..3 24226.134655: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16362 prio=94
+        tau_rt_1-16362 [000] d..3 24226.134657: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16359 prio=94
+        tau_rt_1-16359 [000] d..3 24226.136961: rtg_try_release_lock: rtg_release: comm=tau_rt_1 rtgid=1002 tgid=16359 pid=16359 prio=94
+          <idle>-0     [003] dn.3 24226.154801: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_2 rtgid=1002 tgid=16363 pid=16366 prio=94
+        tau_rt_2-16366 [003] d..3 24226.154859: rtg_try_release_lock: rtg_release: comm=tau_rt_2 rtgid=1002 tgid=16363 pid=16366 prio=94
+        tau_rt_2-16366 [003] d..3 24226.154861: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_2 rtgid=1002 tgid=16363 pid=16363 prio=94
+        tau_rt_2-16363 [003] d..3 24226.156663: rtg_try_release_lock: rtg_release: comm=tau_rt_2 rtgid=1002 tgid=16363 pid=16363 prio=94
+          <idle>-0     [004] dn.3 24226.157403: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_3 rtgid=1002 tgid=16364 pid=16367 prio=94
+        tau_rt_3-16367 [004] d..3 24226.157458: rtg_try_release_lock: rtg_release: comm=tau_rt_3 rtgid=1002 tgid=16364 pid=16367 prio=94
+        tau_rt_3-16367 [004] d..3 24226.157460: rtg_try_acquire_lock: rtg_acquire: comm=tau_rt_3 rtgid=1002 tgid=16364 pid=16364 prio=94
+        tau_rt_4-16365 [005] d..3 24226.160291: rtg_try_release_lock: rtg_release: comm=tau_rt_4 rtgid=1002 tgid=16365 pid=16365 prio=94
