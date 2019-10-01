@@ -86,6 +86,7 @@ int period_usec = 0;
 int verbose = 0;
 int iterations = 0;
 int acc_type = READ;
+bool leader = false;
 int thread_local = 0;
 
 /* Options for SCHED_DEADLINE */
@@ -255,7 +256,11 @@ void worker(void *param)
 	if (period_usec > 0) make_periodic(period_usec, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
-		debug_log_ftrace ("gid=%d: job_start\n", vgang_id);
+
+#ifdef RTG_SYNCH_DEBUG
+		if (leader) debug_log_ftrace ("gid=%d: job_start\n", vgang_id);
+#endif
+
 		l_start = get_usecs();
 
 		// for (i = 0;; i++) {
@@ -345,7 +350,7 @@ int main(int argc, char *argv[])
 	/*
 	 * get command line options
 	 */
-	while ((opt = getopt_long(argc, argv, "a:c:d:e:i:j:l:m:n:p:r:s:t:u:v:w:hox",
+	while ((opt = getopt_long(argc, argv, "a:c:d:e:i:j:l:m:n:p:r:s:t:u:v:w:ghox",
 				  long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'm': /* set memory size */
@@ -433,6 +438,9 @@ int main(int argc, char *argv[])
 		case 'o':
 			thread_local = 1;
 			break;
+		case 'g':
+			leader = true;
+			break;
 		case 'x':
 			special = true;
 			break;
@@ -469,7 +477,11 @@ int main(int argc, char *argv[])
 
 	g_start = get_usecs();
 
-	if (special) {
+#ifdef RTG_SYNCH_DEBUG
+	debug_setup_ftrace ();
+#endif
+
+	if (special && (barrier != NULL)) {
 		rtg_member_sync (barrier);
 		barrier = NULL;
 	}

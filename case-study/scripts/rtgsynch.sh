@@ -1,17 +1,19 @@
 #############################################################################
-# Experiment Script: Need for Synchronization
-# Scenario: RTG-Synch
+# Experiment Script: Virtual Gangs in RTG-Synch
+#
+# This experiment demonstrates the determinism in the execution of virtual
+# gangs when they are formed as per RTG-Synch's guidelines i.e., gang members
+# are selected based on gang-formation algorithm and startup synchronization is
+# enforced among gang members.
 #
 # Copyright (C) 2019 KU-CSL
-# 09-14-2019	Determine taskset parameters for DeepPicar workload
-# 09-16-2019	Incorporate RTG-Synch daemon for virtual-gang management
 #############################################################################
 
 tracing_core=1
 num_of_tasks=4
-period_msec=50
+period_msec=$1
 dnn_gang_id=1001
-num_of_frames=100
+num_of_frames=945
 dnn_gang_priority=6
 be_read_threshold_mbps=10
 be_write_threshold_mbps=5
@@ -22,10 +24,10 @@ output_control=(""      ""          ""           ""      )
 
 bw_rt_gang_id=1002
 bw_rt_verbose_lvl=0
-bw_rt_num_of_jobs=100
+bw_rt_num_of_jobs=${num_of_frames}
 bw_rt_gang_priority=5
 bw_rt_num_of_threads=1
-bw_rt_period_usec=50000
+bw_rt_period_usec=$((${period_msec}*1000))
 bw_rt_access_type="write"
 bw_rt_compute_time_usec=20000
 bw_rt_working_set_size_kb=16384
@@ -39,7 +41,7 @@ sleep 1
 taskset -c $((${tracing_core}+1)) ${rtg_sync_path}/rtg_client -c ${num_of_tasks} # Gang - 1001
 taskset -c $((${tracing_core}+1)) ${rtg_sync_path}/rtg_client -c ${num_of_tasks} # Gang - 1002
 
-if [ "$1" == "trace-cmd" ]; then
+if [ "$2" == "trace-cmd" ]; then
 	# Start tracing on denver cluster
 	taskset -c ${tracing_core} trace-cmd record -e sched_switch &> /dev/null &
 	trace_pid=$!
@@ -51,7 +53,21 @@ fi
 
 sleep 2
 
-for task_id in `seq 0 $((${num_of_tasks}-1))`; do
+###############################################################################
+# Gang - 1 (4 DNN)
+###############################################################################
+taskset -c 0 chrt -f ${dnn_gang_priority} ./deepPicar \
+		-w ${be_write_threshold_mbps} \
+		-r ${be_read_threshold_mbps} \
+		-l ${num_of_frames} \
+		-v ${dnn_gang_id} \
+		-t ${period_msec} \
+		-i inputs/v1.avi \
+		-m models/m1.pb \
+		-g 2> /dev/null &
+
+
+for task_id in `seq 1 $((${num_of_tasks}-1))`; do
 	output=${output_control[${task_id}]}
 	affinity=${cpu_affinities[${task_id}]}
 	model=models/${model_files[${task_id}]}
@@ -69,7 +85,24 @@ for task_id in `seq 0 $((${num_of_tasks}-1))`; do
 	last_task=$!
 done
 
-for task_id in `seq 0 $((${num_of_tasks}-1))`; do
+sleep 1
+
+###############################################################################
+# Gang - 2 (4 BwWrite-RT)
+###############################################################################
+taskset -c 0 chrt -f ${bw_rt_gang_priority} ${bw_rt_path}/tau_rt_1 \
+		-m ${bw_rt_working_set_size_kb} \
+		-t ${bw_rt_max_exec_time_msec} \
+		-e ${bw_rt_compute_time_usec} \
+		-n ${bw_rt_num_of_threads} \
+		-l ${bw_rt_period_usec} \
+		-a ${bw_rt_access_type} \
+		-s ${bw_rt_verbose_lvl} \
+		-j ${bw_rt_num_of_jobs} \
+		-v ${bw_rt_gang_id} \
+		-c 0 -g -x &> /dev/null &
+
+for task_id in `seq 1 $((${num_of_tasks}-1))`; do
 	affinity=${cpu_affinities[${task_id}]}
 	bw_rt_exec="${bw_rt_path}/tau_rt_$((${task_id}+1))"
 
@@ -84,7 +117,7 @@ for task_id in `seq 0 $((${num_of_tasks}-1))`; do
 			-j ${bw_rt_num_of_jobs} \
 			-v ${bw_rt_gang_id} \
 			-c ${affinity} \
-			-x &
+			-x &> /dev/null &
 done
 
 wait ${last_task}
@@ -92,15 +125,15 @@ ${rtg_sync_path}/rtg_client -f ${bw_rt_gang_id}
 ${rtg_sync_path}/rtg_client -f ${dnn_gang_id}
 ${rtg_sync_path}/rtg_client -t
 
-if [ "$1" == "trace-cmd" ]; then
+if [ "$2" == "trace-cmd" ]; then
 	kill -s SIGINT ${trace_pid} $> /dev/null
 	sleep 2
 
 	# Rename trace file
-	mv trace.dat trace.rtgsynch
+	mv trace.dat trace.rtgsynch_${1}
 else
 	sleep 2
-	cp /sys/kernel/debug/tracing/trace ktrace.rtgsynch
+	cp /sys/kernel/debug/tracing/trace ktrace.rtgsynch_${1}
 	echo > /sys/kernel/debug/tracing/trace
 fi
 
