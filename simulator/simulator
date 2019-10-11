@@ -25,9 +25,10 @@ TOTAL_NUM_OF_TASKS = 5
 
 def main ():
     taskset = []
+    computeTimes = [1, 2, 3, 4, 2]
 
     for idx in range (1, TOTAL_NUM_OF_TASKS + 1):
-        task = Task (idx, MAX_COMPUTE_TIME, TOTAL_NUM_OF_CORES)
+        task = Task (idx, computeTimes [idx - 1], 1, MAX_COMPUTE_TIME, TOTAL_NUM_OF_CORES)
         taskset.append (task)
         print task
 
@@ -35,14 +36,7 @@ def main ():
     gangs, computeTimes = virtualGangGenerator.generate_gang_combinations (taskset)
 
     heuristics = Heuristics ()
-    bestGangCombos, bestComputeTime = heuristics.bruteForce (gangs, computeTimes)
-
-    print '--------------------'
-    print 'Brute-Force Solution'
-    print '--------------------'
-    print '\tBest Combination                : ', bestGangCombos
-    print '\tOptimal Taskset Completion Time : ', bestComputeTime
-    print
+    configTimesHash = heuristics.rankConfigurations (gangs, computeTimes)
 
     return
 

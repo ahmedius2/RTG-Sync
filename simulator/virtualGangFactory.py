@@ -17,7 +17,7 @@ class CombinationGenerator:
 
         return
 
-    def generate_gang_combinations (self, taskset):
+    def generate_gang_combinations (self, taskset, debug = False):
         self.candidateSet = []
         self.parallelismHash = {}
         self.computeTimeHash = {}
@@ -30,7 +30,8 @@ class CombinationGenerator:
         combos = self.__generate_gang_combinations (self.candidateSet)
         comboTimes = self.__calc_combination_times (combos)
 
-        self.__dbg_print_gang_combinations (combos)
+        if debug:
+            self.__dbg_print_gang_combinations (combos)
 
         return combos, comboTimes
 

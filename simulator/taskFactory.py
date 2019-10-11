@@ -11,7 +11,7 @@ Copyright (C) 2019 KU-CSL
 import random
 
 class Task:
-    def __init__ (self, taskId, maxComputeTime = 10, totalNumOfCores = 4):
+    def __init__ (self, taskId, c = 0, m = 0, maxComputeTime = 10, totalNumOfCores = 4):
         ''' Initialize a task object. The task object is defined by the
         following parameters:
 
@@ -28,8 +28,8 @@ class Task:
         The purpose of this class is to generate taskset parameters randomly in
         the pre-specified range and return the task object to the caller. '''
 
-        self.C = random.randint (1, maxComputeTime)
-        self.m = random.randint (1, totalNumOfCores)
+        self.C = random.randint (1, maxComputeTime) if not c else c
+        self.m = random.randint (1, totalNumOfCores) if not m else m
         self.name = 't%d' % (taskId)
 
         return
