@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 PGMS=tau_1 tau_rt
 
-CFLAGS=-O2 -Wall -g -I../../framework/include -D RTG_SYNCH_DEBUG
+CFLAGS=-O2 -Wall -g -I../../framework/include
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-Wl,--no-as-needed -lrt
 LIBS := -lrtg -lpthread

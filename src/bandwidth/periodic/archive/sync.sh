@@ -14,13 +14,17 @@ cpu_affinities=(0 3 4 5)
 max_exec_time_sec=$((${num_of_jobs}*${period_msec}*2/1000))
 
 # Declare parameters for best-effort corunners
-be_access_type="read"
+be_access_type=("read", "read", "write", "write")
 be_working_set_size_kb=16384
 bw_exec="/home/nvidia/ssd/gits/BWLOCK-GPU/benchmarks/IsolBench/bench/bandwidth"
 rtg_sync_dir="/home/nvidia/ssd/gits/RT-Gang/experiments/tx2/sync/src/framework/build"
 
+# Enable the throttling framework
+echo "start 1" > /sys/kernel/debug/throttle/control
+
 # Create virtual-gang with desired members via RTG-Synch
 taskset -c ${tracing_core} ${rtg_sync_dir}/rtg_daemon &
+sleep 1
 taskset -c $((${tracing_core}+1)) ${rtg_sync_dir}/rtg_client -c ${num_of_rt_tasks}
 
 # Start tracing on denver core
@@ -32,14 +36,15 @@ sleep 1
 for task_id in `seq 0 $((${num_of_rt_tasks}-1))`; do
 	task_number=${task_numbers[${task_id}]}
 	affinity=${cpu_affinities[${task_id}]}
-	task_name="tau_rt_${task_number}"
+	task_name="../tau_rt_${task_number}"
 	compute_time=${task_number}
+	access_type=${be_access_type[${task_id}]}
 
 	# Execute best-effort corunners first
 	${bw_exec} \
 		-m ${be_working_set_size_kb} \
 		-t ${max_exec_time_sec} \
-		-a ${be_access_type} \
+		-a ${access_type} \
 		-c ${affinity} &> /dev/null &
 
 	# Execute the real-time task
@@ -53,7 +58,8 @@ for task_id in `seq 0 $((${num_of_rt_tasks}-1))`; do
 		-a ${access_type} \
 		-l ${period_msec} \
 		-j ${num_of_jobs} \
-		-c ${affinity} &
+		-c ${affinity} \
+		-x &
 
 	last_task=$!
 done
@@ -64,6 +70,8 @@ killall bandwidth &> /dev/null
 kill -s SIGINT ${trace_pid} &> /dev/null
 ${rtg_sync_dir}/rtg_client -f ${virtual_gang_id}
 ${rtg_sync_dir}/rtg_client -t
+
+echo "start 0" > /sys/kernel/debug/throttle/control
 sleep 2
 
 # Rename the trace file

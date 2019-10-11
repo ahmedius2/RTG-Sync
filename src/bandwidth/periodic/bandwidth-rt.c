@@ -256,6 +256,7 @@ void worker(void *param)
 	if (period_usec > 0) make_periodic(period_usec, info);
 	for (j = 0;; j++) {
 		unsigned int l_start, l_end, l_duration;
+		register int x;
 
 #ifdef RTG_SYNCH_DEBUG
 		if (leader) debug_log_ftrace ("gid=%d: job_start\n", vgang_id);
@@ -265,6 +266,7 @@ void worker(void *param)
 
 		// for (i = 0;; i++) {
 		i = 0;
+		x = 0;
 		job_start_time = get_usecs();
 		do {
 			switch (acc_type) {
@@ -273,7 +275,17 @@ void worker(void *param)
 					break;
 
 				case WRITE:
-					sum += bench_write(l_mem_ptr);
+					if (x >= g_mem_size) {
+						x = 0;
+						sum += 1;
+						__atomic_fetch_add(&g_nread,
+							g_mem_size,
+							__ATOMIC_SEQ_CST);
+					}
+
+					l_mem_ptr[x] = 0xff;
+					x += CACHE_LINE_SIZE;
+
 					break;
 			}
 
