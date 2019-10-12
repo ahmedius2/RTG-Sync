@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import os
+
+scenarios = ['rtgsynch', 'grand', 'nosync', 'rtgang']
+periods = [50, 75, 100]
+
+for s in scenarios:
+    for p in periods:
+        traceFile = 'trace.%s_%d' % (s, p)
+
+        print '[STATUS] Extracting trace: %s ...' % (traceFile)
+        os.system ('trace-cmd report -i %s >> k%s' % (traceFile, traceFile))
+
+print '========== DONE!'

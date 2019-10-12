@@ -30,6 +30,9 @@ class Parser:
         for line in lines:
             l = re.match (self.eventRegexP1, line)
 
+            if ('RTG-LIB' in line or 'sched_switch' in line):
+                continue
+
             if l:
                 timeStamp = float (l.group (1))
                 remString = l.group (2)
@@ -41,9 +44,6 @@ class Parser:
                     task = m.group (2)
                     rtgid = int (m.group (3))
                 else:
-                    if ('RTG-LIB' in remString):
-                        continue
-
                     n = re.match (self.eventRegexP2b, remString)
 
                     if not n:

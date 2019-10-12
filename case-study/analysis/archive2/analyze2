@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+from parser import Parser
+from cleaner import Cleaner
+from plotter import Plotter
+
+def main ():
+    source = 'logs'
+    period = [50]
+    traceFiles = ['test']
+    parser = Parser ()
+    eventDataHash = {}
+    parsedDataHash = {}
+    cleaner = Cleaner (True)
+    plotter = Plotter ()
+    lockDurationData = {}
+
+    lineStyles = {'test': 'g'}
+    gangNames = {1001: 'LP-Gang', 1002: 'HP-Gang'}
+
+    for p in period:
+        for f in traceFiles:
+            fileName = '../../experiment/ktrace.tt'
+            parsedDataHash [f], eventDataHash [f] = parser.parse (fileName)
+
+            lockDurationData [f] = cleaner.extract_lock_duration (
+                                            f,
+                                            p,
+                                            eventDataHash [f])
+
+            print '%15s : %d samples' % (f, len (lockDurationData [f]))
+            plotter.plot ('comp_%sms' % (p), lockDurationData, lineStyles, traceFiles)
+
+    return
+
+if __name__ == '__main__':
+    main ()

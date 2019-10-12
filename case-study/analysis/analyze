@@ -6,7 +6,7 @@ from plotter import Plotter
 
 def main ():
     source = 'logs'
-    period = [50, 75, 100]
+    period = [100]
     traceFiles = ['rtgsynch', 'grand', 'nosync', 'rtgang']
     parser = Parser ()
     parsedDataHash = {}
@@ -19,7 +19,7 @@ def main ():
 
     for p in period:
         for f in traceFiles:
-            fileName = '../logs/ktrace.%s_%d' % (f, p)
+            fileName = '../traces/ktrace.%s_%d' % (f, p)
             parsedDataHash [f] = parser.parse (fileName)
 
             for gang in parsedDataHash [f]:
@@ -28,6 +28,7 @@ def main ():
 
                 lockDurationData [f][gang] = cleaner.extract_metric_from_data (
                                                 f,
+                                                p,
                                                 gang,
                                                 parsedDataHash [f][gang],
                                                 'lock-duration')

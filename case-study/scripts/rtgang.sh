@@ -50,19 +50,6 @@ sleep 2
 ###############################################################################
 # Gang - 1 (3 DNN + 1 BwWrite-RT)
 ###############################################################################
-taskset -c 0 chrt -f ${dnn_gang_priority} ${bw_rt_path}/tau_rt_4 \
-		-m ${bw_rt_working_set_size_kb} \
-		-t ${bw_rt_max_exec_time_msec} \
-		-e ${bw_rt_compute_time_usec} \
-		-n ${bw_rt_num_of_threads} \
-		-l ${bw_rt_period_usec} \
-		-a ${bw_rt_access_type} \
-		-s ${bw_rt_verbose_lvl} \
-		-j ${num_of_frames} \
-		-w ${dnn_gang_id} \
-		-c 0 \
-		-g &> /dev/null &
-
 for task_id in `seq 1 $((${num_of_tasks}-1))`; do
 	output=${output_control[${task_id}]}
 	affinity=${cpu_affinities[${task_id}]}
@@ -78,6 +65,19 @@ for task_id in `seq 1 $((${num_of_tasks}-1))`; do
 			-t ${period_msec} \
 			-m ${model} 2> /dev/null &
 done
+
+taskset -c 0 chrt -f ${dnn_gang_priority} ${bw_rt_path}/tau_rt_4 \
+		-m ${bw_rt_working_set_size_kb} \
+		-t ${bw_rt_max_exec_time_msec} \
+		-e ${bw_rt_compute_time_usec} \
+		-n ${bw_rt_num_of_threads} \
+		-l ${bw_rt_period_usec} \
+		-a ${bw_rt_access_type} \
+		-s ${bw_rt_verbose_lvl} \
+		-j ${num_of_frames} \
+		-w ${dnn_gang_id} \
+		-c 0 \
+		-g &> /dev/null &
 
 sleep 1
 

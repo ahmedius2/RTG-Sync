@@ -5,9 +5,10 @@ class Cleaner:
 
         return
 
-    def extract_metric_from_data (self, case, gangId, data, metric):
+    def extract_metric_from_data (self, case, period, gangId, data, metric):
         self.case = case
         self.data = data
+        self.period = period
         self.gangId = gangId
         metricList = self.__get_lock_durations ()
 
@@ -39,7 +40,7 @@ class Cleaner:
         nextState = ''
 
         if self.debug:
-            fdo = open ('cleaner_%s_g%d.txt' % (self.case, self.gangId), 'w')
+            fdo = open ('cleaner_%s_p%d_g%d.txt' % (self.case, self.period, self.gangId), 'w')
             outputFormat = '%15s | %15s | %15s | %20s | %20s\n'
             headerLine = outputFormat % ('Timestamp',
                                          'Offset (msec)',
@@ -60,7 +61,10 @@ class Cleaner:
                 newState = 'acquire'
 
                 if periodicExecutionBegin:
-                    lockDurations.append (partialLockDuration * 1000)
+                    if not partialLockDuration:
+                        pass
+                    else:
+                        lockDurations.append (partialLockDuration * 1000)
                 else:
                     periodicExecutionBegin = True
 
@@ -91,7 +95,8 @@ class Cleaner:
         return lockDurations
 
     def __raise_value_error (self, errorMsg):
-        raise ValueError, '[Gang: %d] %s' % (self.gangId, errorMsg)
+        raise ValueError, '[C: %s | P: %d | G: %d] %s' % (self.case,
+                self.period, self.gangId, errorMsg)
 
     # Verify if transition from prev -> cur is allowed
     def __check_state_transition (self, ts, prev, cur):

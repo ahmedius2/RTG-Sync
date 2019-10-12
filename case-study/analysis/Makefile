@@ -4,7 +4,7 @@ run:
 	@./analyze
 
 clean:
-	@rm -f *.pyc
+	@rm -f *.pyc *.txt *.png
 
 ev:
 	@evince *.pdf
