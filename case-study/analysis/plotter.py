@@ -27,7 +27,7 @@ class Plotter:
 
         plt.grid (True)
         plt.plot ([0, 100], [1, 1], 'k--')
-        plt.legend (loc = 'upper center', ncol = 4, fontsize = self.legendFz)
+        plt.legend (loc = 'upper center', ncol = 2, fontsize = self.legendFz)
         plt.xlim (0, 100)
         plt.ylim (0, 1.20)
         plt.xlabel ('Gang Lock Duration Per Period (msec)', fontsize = self.labelFz, fontweight = self.labelFw)
