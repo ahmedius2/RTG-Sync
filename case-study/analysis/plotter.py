@@ -14,6 +14,8 @@ class Plotter:
     def plot (self, plotName, gang, dataHash, lineStyles, gangNames, plotOrder):
         fig = plt.figure (figsize = (7, 5))
         numOfBins = 1000
+        names = {'rtgsynch': 'RTG-Synch (Full)', 'grand': 'RT-Gang (Sync)', \
+                'nosync': 'RTG-Synch (No-Sync)', 'rtgang': 'RT-Gang'}
 
         for f in plotOrder:
             sLockTimes = sorted (dataHash [f][gang])[5:-5]
@@ -21,7 +23,7 @@ class Plotter:
                                             normed = True)
             cdf = np.cumsum (counts)
             marker = '' #'-^' if (gang % 2) else '-o'
-            plt.plot (bin_edges [1:], cdf / cdf [-1], lineStyles [f] + marker, lw = 2, label = '%s' % (f))
+            plt.plot (bin_edges [1:], cdf / cdf [-1], lineStyles [f] + marker, lw = 2, label = '%s' % (names [f]))
 
         plt.grid (True)
         plt.plot ([0, 100], [1, 1], 'k--')
