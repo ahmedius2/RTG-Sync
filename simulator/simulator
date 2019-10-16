@@ -13,8 +13,7 @@ and greedy algorithm based solutions.
 Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
-
-import sys
+import sys, random
 from tasksetGenerator import Generator
 from algorithmFactory import Heuristics
 from virtualGangFactory import CombinationGenerator
@@ -43,7 +42,6 @@ def main ():
     tasksetHash ['heavy'] = generator.create_taskset ('heavy')
 
     schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
-
     for workloadType in schedulabilityHash:
         taskset = tasksetHash [workloadType]
 
