@@ -14,11 +14,12 @@ Copyright (C) 2019 KU-CSL
 class CombinationGenerator:
     def __init__ (self, numOfSystemCores):
         self.M = numOfSystemCores
+        self.comboHash = {}
         self.gangHash = {}
 
         return
 
-    def generate_gang_combinations (self, taskset, debug = False):
+    def generate_gang_combinations (self, taskset, debug = True):
         self.candidateSet = []
         self.parallelismHash = {}
         self.computeTimeHash = {}
@@ -37,8 +38,6 @@ class CombinationGenerator:
         return combos, comboTimes
 
     def __generate_gang_combinations (self, candidateSet, lvl = 0):
-        # print '\t'*lvl, candidateSet
-
         if not candidateSet:
             return []
 
@@ -72,8 +71,13 @@ class CombinationGenerator:
             if self.__taskset_parallelism (config) > self.M:
                 continue
             else:
-                remainingTasks = list (set (candidateSet) - set (config))
-                subConfigs = self.__generate_gang_combinations (remainingTasks, lvl + 1)
+                remainingTasks = sorted (list (set (candidateSet) - set (config)))
+                remainingTasksStr = str (remainingTasks)
+                if remainingTasksStr not in self.comboHash:
+                    subConfigs = self.__generate_gang_combinations (remainingTasks, lvl + 1)
+                    self.comboHash [remainingTasksStr] = subConfigs
+                else:
+                    subConfigs = self.comboHash [remainingTasksStr]
 
                 if subConfigs:
                     if self.__has_multiple_items (subConfigs):
@@ -105,12 +109,18 @@ class CombinationGenerator:
                 for partialGang in subGangs:
                     virtualGangs.append (partialGang)
                     if self.__has_multiple_items (partialGang):
-                        virtualGangs.append ([anchorTask] + partialGang)
+                        newGang = [anchorTask] + partialGang
+                        if self.__taskset_parallelism (newGang) <= self.M:
+                            virtualGangs.append (newGang)
                     else:
-                        virtualGangs.append ([anchorTask, partialGang])
+                        newGang = [anchorTask, partialGang]
+                        if self.__taskset_parallelism (newGang) <= self.M:
+                            virtualGangs.append (newGang)
             else:
                 virtualGangs.append (subGangs)
-                virtualGangs.append ([anchorTask, subGangs])
+                newGang = [anchorTask, subGangs]
+                if self.__taskset_parallelism (newGang) <= self.M:
+                    virtualGangs.append (newGang)
 
         return virtualGangs
 
