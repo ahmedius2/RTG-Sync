@@ -14,6 +14,7 @@ Copyright (C) 2019 KU-CSL
 class CombinationGenerator:
     def __init__ (self, numOfSystemCores):
         self.M = numOfSystemCores
+        self.gangHash = {}
 
         return
 
@@ -35,7 +36,9 @@ class CombinationGenerator:
 
         return combos, comboTimes
 
-    def __generate_gang_combinations (self, candidateSet):
+    def __generate_gang_combinations (self, candidateSet, lvl = 0):
+        # print '\t'*lvl, candidateSet
+
         if not candidateSet:
             return []
 
@@ -46,7 +49,12 @@ class CombinationGenerator:
         newCandidateSet = candidateSet [1:]
 
         configSlots = [[anchorGang]]
-        virtualGangs = self.__generate_virtual_gangs (newCandidateSet)
+        newCandidateSetStr = str (newCandidateSet)
+        if newCandidateSetStr not in self.gangHash:
+            virtualGangs = self.__generate_virtual_gangs (newCandidateSet, lvl)
+            self.gangHash [newCandidateSetStr] = virtualGangs
+        else:
+            virtualGangs = self.gangHash [newCandidateSetStr]
 
         if self.__has_multiple_items (virtualGangs):
             for gang in virtualGangs:
@@ -65,7 +73,7 @@ class CombinationGenerator:
                 continue
             else:
                 remainingTasks = list (set (candidateSet) - set (config))
-                subConfigs = self.__generate_gang_combinations (remainingTasks)
+                subConfigs = self.__generate_gang_combinations (remainingTasks, lvl + 1)
 
                 if subConfigs:
                     if self.__has_multiple_items (subConfigs):
@@ -78,13 +86,19 @@ class CombinationGenerator:
 
         return combinations
 
-    def __generate_virtual_gangs (self, candidateSet):
+    def __generate_virtual_gangs (self, candidateSet, topLvl, subLvl = 1):
         if len (candidateSet) == 1:
             return candidateSet [0]
         else:
             anchorTask = candidateSet [0]
             newCandidateSet = candidateSet [1:]
-            subGangs = self.__generate_virtual_gangs (newCandidateSet)
+
+            newCandidateSetStr = str (newCandidateSet)
+            if newCandidateSetStr not in self.gangHash:
+                subGangs = self.__generate_virtual_gangs (newCandidateSet, topLvl, subLvl+1)
+                self.gangHash [newCandidateSetStr] = subGangs
+            else:
+                subGangs = self.gangHash [newCandidateSetStr]
 
             virtualGangs = [anchorTask]
             if self.__has_multiple_items (subGangs):
