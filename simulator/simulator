@@ -13,31 +13,44 @@ and greedy algorithm based solutions.
 Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
-
 import sys, random
-from taskFactory import Task
+from tasksetGenerator import Generator
 from algorithmFactory import Heuristics
 from virtualGangFactory import CombinationGenerator
 
 # All time values are in msec; unless specified otherwise
-MAX_COMPUTE_TIME = 10
-TOTAL_NUM_OF_CORES = 4
-TOTAL_NUM_OF_TASKS = int (sys.argv [1])
+PERIOD = 1000
+RTGANG_SCALING_FACTOR = 1.1
+RTG_SYNCH_SCALING_FACTOR = 1.2
+NUM_OF_CORES = int (sys.argv [1])
+
+def get_rtgsynch_schedulability (taskList):
+    heuristics = Heuristics ()
+    virtualGangGenerator = CombinationGenerator (NUM_OF_CORES)
+    gangs, computeTimes = virtualGangGenerator.generate_gang_combinations (taskList)
+    bestConfig, bestCompletionTime = heuristics.rankConfigurations (gangs, computeTimes, False)
+    scaledCompletionTime = bestCompletionTime * RTG_SYNCH_SCALING_FACTOR
+    schedulability = min (1, round (PERIOD / scaledCompletionTime, 3))
+
+    return schedulability
 
 def main ():
-    taskset = []
-    computeTimes = [random.randint (1, c) for c in range (1, TOTAL_NUM_OF_TASKS + 1)]
+    generator = Generator (NUM_OF_CORES, PERIOD)
+    tasksetHash = {}
+    tasksetHash ['light'] = generator.create_taskset ('light')
+    tasksetHash ['mixed'] = generator.create_taskset ('mixed')
+    tasksetHash ['heavy'] = generator.create_taskset ('heavy')
 
-    for idx in range (1, TOTAL_NUM_OF_TASKS + 1):
-        task = Task (idx, computeTimes [idx - 1], 1, MAX_COMPUTE_TIME, TOTAL_NUM_OF_CORES)
-        taskset.append (task)
-        print task
+    schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
+    for workloadType in schedulabilityHash:
+        taskset = tasksetHash [workloadType]
 
-    virtualGangGenerator = CombinationGenerator (TOTAL_NUM_OF_CORES)
-    gangs, computeTimes = virtualGangGenerator.generate_gang_combinations (taskset)#, True)
+        for utilization in taskset:
+            schedulabilityHash [workloadType][utilization] = {}
+            # schedulabilityHash [workloadType][utilization]['rtgang'] = get_rtgang_schedulability (taskset [utilization])
+            schedulabilityHash [workloadType][utilization]['rtgsynch'] = get_rtgsynch_schedulability (taskset [utilization])
 
-    # heuristics = Heuristics ()
-    # configTimesHash = heuristics.rankConfigurations (gangs, computeTimes)
+    print schedulabilityHash
 
     return
 
