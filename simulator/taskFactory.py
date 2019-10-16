@@ -35,4 +35,4 @@ class Task:
         return
 
     def __str__ (self):
-        return 'Task: %s \t C: %d \t m: %d' % (self.name, self.C, self.m)
+        return 'Task: %5s \t C: %3.3f \t m: %1d' % (self.name, self.C, self.m)

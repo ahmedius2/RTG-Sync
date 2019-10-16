@@ -34,12 +34,9 @@ class Heuristics:
             else:
                 configTimesHash [comboComputeTime] = {numOfMembers: [gangCombo]}
 
-        if debug:
-            self.__printRankedConfigurations (configTimesHash)
+        return self.__printRankedConfigurations (configTimesHash, debug)
 
-        return configTimesHash
-
-    def __printRankedConfigurations (self, configTimesHash):
+    def __printRankedConfigurations (self, configTimesHash, debug):
         rankedConfigs = {}
         sortedCompletionTimes = sorted (configTimesHash.keys ())
         rank = 1
@@ -47,10 +44,11 @@ class Heuristics:
         header = '%10s | %20s | %20s | %20s' % \
                 ('Rank', 'Configuration', 'Completion Time', 'Member Count')
 
-        print
-        print '-' * len (header)
-        print header
-        print '-' * len (header)
+        if debug:
+            print
+            print '-' * len (header)
+            print header
+            print '-' * len (header)
 
         for time in sortedCompletionTimes:
             sortedMemberList = sorted (configTimesHash [time])
@@ -59,21 +57,24 @@ class Heuristics:
                 configs = configTimesHash [time][numOfMembers]
 
                 for cfg in configs:
-                    print '%10d | %20s | %20d | %20d' % (rank, cfg, time,
-                            numOfMembers)
+                    if debug:
+                        print '%10d | %20s | %20d | %20d' % (rank, cfg, time,
+                                numOfMembers)
                     rankedConfigs [rank] = [cfg, time, numOfMembers]
                     rank += 1
+
+        bestConfig = rankedConfigs [1][0]
+        bestCompletionTime = rankedConfigs [1][1]
 
         print
         print '--------------------'
         print 'Brute-Force Solution'
         print '--------------------'
-        print '\tBest Combination                : ', rankedConfigs [1][0]
-        print '\tOptimal Taskset Completion Time : ', rankedConfigs [1][1]
+        print '\tBest Combination                : ', bestConfig
+        print '\tOptimal Taskset Completion Time : ', bestCompletionTime
         print
 
-
-        return
+        return bestConfig, bestCompletionTime
 
     def __combo_to_gangs (self, combo):
         return combo.split (',')
