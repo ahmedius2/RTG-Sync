@@ -13,7 +13,7 @@ and greedy algorithm based solutions.
 Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
-import sys, random
+import sys, random, math
 from tasksetGenerator import Generator
 from algorithmFactory import Heuristics
 from virtualGangFactory import CombinationGenerator
@@ -24,15 +24,54 @@ RTGANG_SCALING_FACTOR = 1.1
 RTG_SYNCH_SCALING_FACTOR = 1.2
 NUM_OF_CORES = int (sys.argv [1])
 
-def get_rtgsynch_schedulability (taskList):
-    heuristics = Heuristics ()
-    virtualGangGenerator = CombinationGenerator (NUM_OF_CORES)
-    gangs, computeTimes = virtualGangGenerator.generate_gang_combinations (taskList)
-    # bestConfig, bestCompletionTime = heuristics.rankConfigurations (gangs, computeTimes, False)
-    # scaledCompletionTime = bestCompletionTime * RTG_SYNCH_SCALING_FACTOR
-    # schedulability = min (1, round (PERIOD / scaledCompletionTime, 3))
+def get_rtgang_schedulability (taskset):
+    hpTasks = []
+    schedulableTasks = []
+    unschedulableTasks = []
+    periods = sorted (taskset.keys ())
 
-    return 1#schedulability
+    # RMS scheme: smaller period -> higher priority
+    for p in periods:
+        tasks = taskset [p]
+        for t in tasks:
+            schedulable = check_schedulability (t, hpTasks,
+                    RTGANG_SCALING_FACTOR)
+
+            if schedulable:
+                schedulableTasks.append (t)
+            else:
+                unschedulableTasks.append (t)
+
+        hpTasks += tasks
+
+    numOfSchedulableTasks = len (schedulableTasks)
+    numOfUnschedulableTasks = len (unschedulableTasks)
+    numOfTasks = numOfSchedulableTasks + numOfUnschedulableTasks
+    schedulability = round (float (numOfSchedulableTasks) / numOfTasks, 3)
+
+    return schedulability
+
+def check_schedulability (task, higherPriorityTasks, scalingFactor):
+    '''
+        r_new = task.c + sum_over_t_in_hp [(ceil (r_prev / period_of_t)) * t.c]
+    '''
+    schedulable = False
+    r_prev = task.C * scalingFactor
+
+    while (1):
+        sumTerm = 0
+        for hp in higherPriorityTasks:
+            sumTerm += math.ceil (r_prev / hp.P) * hp.C
+        r_new = task.C + sumTerm
+
+        if r_new == r_prev or r_new >= task.P:
+            if r_new == r_prev:
+                schedulable = True
+            break
+
+        r_prev = r_new
+
+    return schedulable
 
 def main ():
     generator = Generator (NUM_OF_CORES)
@@ -40,18 +79,17 @@ def main ():
     tasksetHash ['light'] = generator.create_taskset ('light')
     tasksetHash ['mixed'] = generator.create_taskset ('mixed')
     tasksetHash ['heavy'] = generator.create_taskset ('heavy')
-    generator.print_taskset (tasksetHash ['light'])
 
-    # schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
-    # for workloadType in schedulabilityHash:
-        # taskset = tasksetHash [workloadType]
+    schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
+    for workloadType in schedulabilityHash:
+        taskset = tasksetHash [workloadType]
 
-        # for utilization in taskset:
-        #     schedulabilityHash [workloadType][utilization] = {}
-        #     # schedulabilityHash [workloadType][utilization]['rtgang'] = get_rtgang_schedulability (taskset [utilization])
-        #     schedulabilityHash [workloadType][utilization]['rtgsynch'] = get_rtgsynch_schedulability (taskset [utilization])
+        for utilization in taskset:
+            schedulabilityHash [workloadType][utilization] = {}
+            schedulabilityHash [workloadType][utilization]['rtgang'] = \
+                            get_rtgang_schedulability (taskset [utilization])
 
-    # print schedulabilityHash
+    print schedulabilityHash
 
     return
 

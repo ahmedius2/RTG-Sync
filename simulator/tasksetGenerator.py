@@ -42,7 +42,7 @@ class Generator:
 
                     remUtil -= v
                     # print 'U=%d | P=%d | m=%d | e=%d | v=%f | r=%f' % (u, p, m, e, v, remUtil)
-                    taskset [u][p].append (Task (tid, e, m))
+                    taskset [u][p].append (Task (tid, e, p, m))
                     tid += 1
 
                     if remUtil < 0.001:
