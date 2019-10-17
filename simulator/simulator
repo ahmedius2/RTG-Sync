@@ -28,29 +28,30 @@ def get_rtgsynch_schedulability (taskList):
     heuristics = Heuristics ()
     virtualGangGenerator = CombinationGenerator (NUM_OF_CORES)
     gangs, computeTimes = virtualGangGenerator.generate_gang_combinations (taskList)
-    bestConfig, bestCompletionTime = heuristics.rankConfigurations (gangs, computeTimes, False)
-    scaledCompletionTime = bestCompletionTime * RTG_SYNCH_SCALING_FACTOR
-    schedulability = min (1, round (PERIOD / scaledCompletionTime, 3))
+    # bestConfig, bestCompletionTime = heuristics.rankConfigurations (gangs, computeTimes, False)
+    # scaledCompletionTime = bestCompletionTime * RTG_SYNCH_SCALING_FACTOR
+    # schedulability = min (1, round (PERIOD / scaledCompletionTime, 3))
 
-    return schedulability
+    return 1#schedulability
 
 def main ():
-    generator = Generator (NUM_OF_CORES, PERIOD)
+    generator = Generator (NUM_OF_CORES)
     tasksetHash = {}
     tasksetHash ['light'] = generator.create_taskset ('light')
     tasksetHash ['mixed'] = generator.create_taskset ('mixed')
     tasksetHash ['heavy'] = generator.create_taskset ('heavy')
+    generator.print_taskset (tasksetHash ['light'])
 
-    schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
-    for workloadType in schedulabilityHash:
-        taskset = tasksetHash [workloadType]
+    # schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
+    # for workloadType in schedulabilityHash:
+        # taskset = tasksetHash [workloadType]
 
-        for utilization in taskset:
-            schedulabilityHash [workloadType][utilization] = {}
-            # schedulabilityHash [workloadType][utilization]['rtgang'] = get_rtgang_schedulability (taskset [utilization])
-            schedulabilityHash [workloadType][utilization]['rtgsynch'] = get_rtgsynch_schedulability (taskset [utilization])
+        # for utilization in taskset:
+        #     schedulabilityHash [workloadType][utilization] = {}
+        #     # schedulabilityHash [workloadType][utilization]['rtgang'] = get_rtgang_schedulability (taskset [utilization])
+        #     schedulabilityHash [workloadType][utilization]['rtgsynch'] = get_rtgsynch_schedulability (taskset [utilization])
 
-    print schedulabilityHash
+    # print schedulabilityHash
 
     return
 
