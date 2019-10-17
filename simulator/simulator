@@ -14,6 +14,7 @@ Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
 import sys, random, math
+from plotFactory import Plotter
 from tasksetGenerator import Generator
 from algorithmFactory import Heuristics
 from virtualGangFactory import CombinationGenerator
@@ -74,22 +75,35 @@ def check_schedulability (task, higherPriorityTasks, scalingFactor):
     return schedulable
 
 def main ():
+    maxRuns = 50
+    plotter = Plotter ()
+    utils = range (1, NUM_OF_CORES + 1)
     generator = Generator (NUM_OF_CORES)
-    tasksetHash = {}
-    tasksetHash ['light'] = generator.create_taskset ('light')
-    tasksetHash ['mixed'] = generator.create_taskset ('mixed')
-    tasksetHash ['heavy'] = generator.create_taskset ('heavy')
-
     schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
+
     for workloadType in schedulabilityHash:
-        taskset = tasksetHash [workloadType]
+        block = u"\u2588"
+        print "[PROGRESS] Working on scenario: %s" % (workloadType)
 
-        for utilization in taskset:
-            schedulabilityHash [workloadType][utilization] = {}
-            schedulabilityHash [workloadType][utilization]['rtgang'] = \
-                            get_rtgang_schedulability (taskset [utilization])
+        schedulabilityHash [workloadType]['rtgang'] = {u:0 for u in utils}
+        for r in range (1, maxRuns + 1):
+            progress = r * 100 / maxRuns
+            progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % (progress,
+                    block * progress, r, maxRuns)
 
-    print schedulabilityHash
+            sys.stdout.write (progressBar)
+            sys.stdout.flush ()
+            taskset = generator.create_taskset (workloadType)
+
+            for u in utils:
+                schedulabilityHash [workloadType]['rtgang'][u] += \
+                                        get_rtgang_schedulability (taskset [u])
+
+        for u in utils:
+            schedulabilityHash [workloadType]['rtgang'][u] /= float (maxRuns)
+
+        plotter.create_schedulability_plot (schedulabilityHash [workloadType])
+        print
 
     return
 
