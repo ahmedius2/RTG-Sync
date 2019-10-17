@@ -121,7 +121,7 @@ def check_schedulability (task, higherPriorityTasks, scalingFactor):
     return schedulable, r_new
 
 def main ():
-    maxRuns = 1
+    maxRuns = 1000
     plotter = Plotter ()
     utils = range (1, NUM_OF_CORES + 1)
     generator = Generator (NUM_OF_CORES)
@@ -132,7 +132,7 @@ def main ():
         schedulabilityHash [workloadType] = {'rtgang': {}, 'rtgsynch': {}}
 
         for policy in schedulabilityHash [workloadType]:
-            print "[PROGRESS] Working on scenario: %s | policy: %s" % \
+            print "[STATUS] Working on scenario: %s | policy: %s" % \
                                                         (workloadType, policy)
             schedulabilityHash [workloadType][policy] = {u:0 for u in utils}
             for r in range (1, maxRuns + 1):

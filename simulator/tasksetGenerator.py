@@ -18,12 +18,12 @@ class Generator:
             while remUtil > 0.001:
                 tid = 1
                 while (1):
-                    p = random.randint (100, 1500)
+                    p = random.randint (500, 1500)
                     if p not in taskset [u]:
                         taskset [u][p] = []
                         break
 
-                while tid < 10:
+                while tid < 8:
                     if tasksetType == 'mixed':
                         m = random.randint (1, self.M)
                     elif tasksetType == 'light':
@@ -33,7 +33,7 @@ class Generator:
                     else:
                         raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
 
-                    e = random.randint (10,  10 + p / u / m)
+                    e = random.randint (10,  p * u / self.M)
                     v = e * m / float (p)
 
                     if v > remUtil:
@@ -41,7 +41,6 @@ class Generator:
                         v = remUtil
 
                     remUtil -= v
-                    # print 'U=%d | P=%d | m=%d | e=%d | v=%f | r=%f' % (u, p, m, e, v, remUtil)
                     taskset [u][p].append (Task (tid, e, p, m))
                     tid += 1
 
