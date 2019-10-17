@@ -11,12 +11,37 @@ Copyright (C) 2019 KU-CSL
 09-09-2019  Add functionality to estimate gang execution times
 '''
 import math
+from taskFactory import Task
 
 class CombinationGenerator:
     def __init__ (self, numOfSystemCores):
         self.M = numOfSystemCores
 
         return
+
+    def generate_virtual_taskset (self, sysConfig, p):
+        idx = 1
+        taskset = []
+        gangs = self.__config_to_gangs (sysConfig [0])
+
+        for gang in gangs:
+            tasks = self.__gang_to_tasks (gang)
+            c = self.computeTimeHash [gang]
+            n = len (tasks)
+            m = 0
+
+            for task in tasks:
+                m += self.parallelismHash [task]
+                assert (m <= self.M)
+
+            virtualGangTask = Task (idx, c, p, m, n, True)
+            # print 'Gang: ', gang, [self.computeTimeHash [t] for t in tasks]
+            # print '%s' % (virtualGangTask)
+
+            taskset.append (virtualGangTask)
+            idx += 1
+
+        return taskset
 
     def generate_gang_combinations (self, taskset, debug = False):
         self.parallelismHash = {}

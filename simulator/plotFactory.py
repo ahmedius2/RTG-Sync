@@ -13,10 +13,11 @@ class Plotter:
 
     def create_schedulability_plot (self, resultsHash):
         fig = plt.figure (figsize = (7, 5))
+        styleHash = {'rtgang': 'r-o', 'rtgsynch': 'c-^'}
 
         for policy in resultsHash:
             utils, sched = self.__stratify_data (resultsHash [policy])
-            plt.plot (utils, sched, 'r-o', label = policy.capitalize ())
+            plt.plot (utils, sched, styleHash [policy], label = policy.capitalize ())
 
         plt.grid (True)
         plt.legend (loc = 'upper center', ncol = 2, fontsize = self.legendFz)

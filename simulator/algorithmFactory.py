@@ -15,7 +15,7 @@ class Heuristics:
     def __init__ (self):
         return
 
-    def rankConfigurations (self, virtualGangs, computeTimes, debug = True):
+    def rank_configurations (self, virtualGangs, computeTimes, debug = False):
         configTimesHash = {}
 
         for gangCombo in virtualGangs:
@@ -34,9 +34,9 @@ class Heuristics:
             else:
                 configTimesHash [comboComputeTime] = {numOfMembers: [gangCombo]}
 
-        return self.__printRankedConfigurations (configTimesHash, debug)
+        return self.__print_ranked_configurations (configTimesHash, debug)
 
-    def __printRankedConfigurations (self, configTimesHash, debug):
+    def __print_ranked_configurations (self, configTimesHash, debug):
         rankedConfigs = {}
         sortedCompletionTimes = sorted (configTimesHash.keys ())
         rank = 1
@@ -66,13 +66,14 @@ class Heuristics:
         bestConfig = rankedConfigs [1][0]
         bestCompletionTime = rankedConfigs [1][1]
 
-        print
-        print '--------------------'
-        print 'Brute-Force Solution'
-        print '--------------------'
-        print '\tBest Combination                : ', bestConfig
-        print '\tOptimal Taskset Completion Time : ', bestCompletionTime
-        print
+        if debug:
+            print
+            print '--------------------'
+            print 'Brute-Force Solution'
+            print '--------------------'
+            print '\tBest Combination                : ', bestConfig
+            print '\tOptimal Taskset Completion Time : ', bestCompletionTime
+            print
 
         return bestConfig, bestCompletionTime
 
