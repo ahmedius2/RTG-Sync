@@ -10,15 +10,21 @@ Copyright (C) 2019 KU-CSL
 '''
 
 import sys
+from taskFactory import Task
+from virtualGangFactory import CombinationGenerator
 
 class Heuristics:
-    def __init__ (self):
+    def __init__ (self, M):
+        self.M = M
+
         return
 
-    def rank_configurations (self, virtualGangs, computeTimes, debug = False):
+    def brute_force (self, tasks, p, debug = False):
         configTimesHash = {}
+        gangFactory = CombinationGenerator (self.M)
+        combos, computeTimes = gangFactory.generate_gang_combinations (tasks)
 
-        for gangCombo in virtualGangs:
+        for gangCombo in combos:
             gangs = self.__combo_to_gangs (gangCombo)
             numOfMembers = len (gangs)
 
@@ -34,9 +40,12 @@ class Heuristics:
             else:
                 configTimesHash [comboComputeTime] = {numOfMembers: [gangCombo]}
 
-        return self.__print_ranked_configurations (configTimesHash, debug)
+        bestConfig = self.__get_best_config (configTimesHash, debug)
+        virtGangs = gangFactory.generate_virtual_taskset (bestConfig, p)
 
-    def __print_ranked_configurations (self, configTimesHash, debug):
+        return virtGangs
+
+    def __get_best_config (self, configTimesHash, debug):
         rankedConfigs = {}
         sortedCompletionTimes = sorted (configTimesHash.keys ())
         rank = 1
@@ -76,6 +85,56 @@ class Heuristics:
             print
 
         return bestConfig, bestCompletionTime
+
+    def greedy_packing (self, tasks, p):
+        '''
+            1. Sort tasks according to their compute times
+            2. Pick longest task and pair with next longest tasks which can run
+               with it in parallel. Continue doing this until no more tasks can
+               be paired with the originally picked task
+            3. Remove all tasks from the gang and push the gang into virt-gang
+               set
+            4. Continue from step 2 until taskset is empty
+        '''
+        # Trivial case
+        if len (tasks) <= 1:
+            return tasks
+
+        # Step-1
+        cHash = {}
+        for t in tasks:
+            if t.C in cHash:
+                cHash [t.C].append (t)
+            else:
+                cHash [t.C] = [t]
+
+        virtGangs = []
+        sortedComputeTimes = sorted (cHash.keys ())
+        sortedTasks = [t for c in sortedComputeTimes for t in cHash [c]]
+
+        # Step-2 and 4
+        while (sortedTasks):
+            idx = 1
+            task = sortedTasks.pop ()
+            nidx = len (sortedTasks) - 1
+
+            while (1):
+                if task.m == self.M or nidx < 0:
+                    # Step-3b
+                    virtGangs.append (task)
+                    idx += 1
+                    break
+
+                nTask = sortedTasks [nidx]
+                if (task.m + nTask.m) <= self.M:
+                    # Step-3a
+                    del (sortedTasks [nidx])
+                    task = Task (idx, task.C, task.P, task.m + nTask.m,
+                            task.n + 1)
+
+                nidx -= 1
+
+        return virtGangs
 
     def __combo_to_gangs (self, combo):
         return combo.split (',')

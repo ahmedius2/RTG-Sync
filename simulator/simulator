@@ -17,7 +17,6 @@ import sys, random, math
 from plotFactory import Plotter
 from tasksetGenerator import Generator
 from algorithmFactory import Heuristics
-from virtualGangFactory import CombinationGenerator
 
 # All time values are in msec; unless specified otherwise
 RTGANG_SCALING_FACTOR = 1.1
@@ -30,9 +29,8 @@ def get_rtgsynch_schedulability (taskset):
     schedulableTasks = 0
     periods = sorted (taskset.keys ())
 
-    # Instantiate heuristics and gang generator objects
-    algoFactory = Heuristics ()
-    gangFactory = CombinationGenerator (NUM_OF_CORES)
+    # Instantiate heuristics
+    algoFactory = Heuristics (NUM_OF_CORES)
 
     # RMS scheme: smaller period -> higher priority
     check = True
@@ -45,9 +43,8 @@ def get_rtgsynch_schedulability (taskset):
 
         # We are in the clear for this task group. Generate virtual-gangs using
         # brute-force approach.
-        gangs, computeTimes = gangFactory.generate_gang_combinations (tasks)
-        bestConfig = algoFactory.rank_configurations (gangs, computeTimes)
-        virtGangs = gangFactory.generate_virtual_taskset (bestConfig, p)
+        # virtGangs = algoFactory.brute_force (tasks, p)
+        virtGangs = algoFactory.greedy_packing (tasks, p)
 
         netResponseTime = 0
         for g in virtGangs:
@@ -156,7 +153,8 @@ def main ():
                                                             float (maxRuns)
             print
 
-        plotter.create_schedulability_plot (schedulabilityHash [workloadType])
+        plotter.create_schedulability_plot (schedulabilityHash [workloadType],
+                workloadType)
 
     return
 
