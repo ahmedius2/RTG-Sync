@@ -86,7 +86,7 @@ class Heuristics:
 
         return bestConfig, bestCompletionTime
 
-    def greedy_packing (self, tasks, p):
+    def greedy_packing_compute (self, tasks, p):
         '''
             1. Sort tasks according to their compute times
             2. Pick longest task and pair with next longest tasks which can run
@@ -130,7 +130,7 @@ class Heuristics:
                     # Step-3a
                     del (sortedTasks [nidx])
                     task = Task (idx, task.C, task.P, task.m + nTask.m,
-                            task.n + 1)
+                            task.u + nTask.u, task.n + 1, True)
 
                 nidx -= 1
 

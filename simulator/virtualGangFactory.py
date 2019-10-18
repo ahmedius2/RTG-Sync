@@ -28,16 +28,15 @@ class CombinationGenerator:
             tasks = self.__gang_to_tasks (gang)
             c = self.computeTimeHash [gang]
             n = len (tasks)
+            u = 0
             m = 0
 
             for task in tasks:
                 m += self.parallelismHash [task]
+                u += self.utilizationHash [task]
                 assert (m <= self.M)
 
-            virtualGangTask = Task (idx, c, p, m, n, True)
-            # print 'Gang: ', gang, [self.computeTimeHash [t] for t in tasks]
-            # print '%s' % (virtualGangTask)
-
+            virtualGangTask = Task (idx, c, p, m, u, n, True)
             taskset.append (virtualGangTask)
             idx += 1
 
@@ -45,6 +44,7 @@ class CombinationGenerator:
 
     def generate_gang_combinations (self, taskset, debug = False):
         self.parallelismHash = {}
+        self.utilizationHash = {}
         self.computeTimeHash = {}
         self.candidateSet = []
         self.configHash = {}
@@ -53,6 +53,7 @@ class CombinationGenerator:
         for task in taskset:
             self.candidateSet.append (task.name)
             self.parallelismHash [task.name] = task.m
+            self.utilizationHash [task.name] = task.u
             self.computeTimeHash [task.name] = task.C
 
         combos = self.__generate_sys_configs (self.candidateSet)
@@ -171,13 +172,6 @@ class CombinationGenerator:
                     dp [i][j] = (j * dp [i - 1][j] + dp [i - 1][j - 1])
 
         return dp [n][k]
-
-    def __calc_nCr (self, n, r):
-        nFactorial = math.factorial (n)
-        rFactorial = math.factorial (r)
-        nCr = nFactorial / math.factorial (n-r) / rFactorial
-
-        return nCr
 
     def __has_multiple_tasks (self, dataStructure):
         return isinstance (dataStructure, list)

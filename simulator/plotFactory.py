@@ -15,7 +15,7 @@ class Plotter:
 
     def create_schedulability_plot (self, resultsHash, workloadType):
         fig = plt.figure (figsize = (7, 5))
-        styleHash = {'rtgang': 'r-o', 'rtgsynch': 'c-^'}
+        styleHash = {'rtgang': 'r-o', 'rtgsynch_gpc': 'c-^', 'rtgsynch_bfc': 'g-*'}
 
         for policy in resultsHash:
             utils, sched = self.__stratify_data (resultsHash [policy])

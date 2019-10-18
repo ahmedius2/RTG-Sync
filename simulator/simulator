@@ -13,146 +13,52 @@ and greedy algorithm based solutions.
 Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
-import sys, random, math
+import sys, random
+from rtaFactory import RTA
 from plotFactory import Plotter
 from tasksetGenerator import Generator
-from algorithmFactory import Heuristics
 
 # All time values are in msec; unless specified otherwise
-RTGANG_SCALING_FACTOR = 1.1
-RTGSYNCH_SCALING_FACTOR = 1.2
 NUM_OF_CORES = int (sys.argv [1])
 
-def get_rtgsynch_schedulability (taskset):
-    hpTasks = []
-    numOfTasks = 0
-    schedulableTasks = 0
-    periods = sorted (taskset.keys ())
-
-    # Instantiate heuristics
-    algoFactory = Heuristics (NUM_OF_CORES)
-
-    # RMS scheme: smaller period -> higher priority
-    check = True
-    for p in periods:
-        tasks = taskset [p]
-        numOfTasks += len (tasks)
-
-        if not check:
-            continue
-
-        # We are in the clear for this task group. Generate virtual-gangs using
-        # brute-force approach.
-        # virtGangs = algoFactory.brute_force (tasks, p)
-        virtGangs = algoFactory.greedy_packing (tasks, p)
-
-        netResponseTime = 0
-        for g in virtGangs:
-            schedulable, responseTime = check_schedulability (g, hpTasks,
-                    RTGSYNCH_SCALING_FACTOR)
-
-            netResponseTime += responseTime
-            if schedulable and netResponseTime <= p:
-                schedulableTasks += g.n
-            else:
-                check = False
-
-        hpTasks += tasks
-
-    schedulability = round (float (schedulableTasks) / numOfTasks, 3)
-
-    return schedulability
-
-def get_rtgang_schedulability (taskset):
-    hpTasks = []
-    numOfTasks = 0
-    schedulableTasks = 0
-    periods = sorted (taskset.keys ())
-
-    # RMS scheme: smaller period -> higher priority
-    check = True
-    for p in periods:
-        tasks = taskset [p]
-        numOfTasks += len (tasks)
-
-        if not check:
-            continue
-
-        netResponseTime = 0
-        for t in tasks:
-            schedulable, responseTime = check_schedulability (t, hpTasks,
-                    RTGANG_SCALING_FACTOR)
-
-            netResponseTime += responseTime
-            if schedulable and netResponseTime <= p:
-                schedulableTasks += 1
-            else:
-                check = False
-
-        hpTasks += tasks
-
-    schedulability = round (float (schedulableTasks) / numOfTasks, 3)
-
-    return schedulability
-
-def check_schedulability (task, higherPriorityTasks, scalingFactor):
-    '''
-        r_new = task.c + sum_over_t_in_hp [(ceil (r_prev / period_of_t)) * t.c]
-    '''
-    schedulable = False
-    r_prev = task.C * scalingFactor
-
-    while (1):
-        sumTerm = 0
-        for hp in higherPriorityTasks:
-            sumTerm += math.ceil (r_prev / hp.P) * hp.C
-        r_new = task.C + sumTerm
-
-        if r_new == r_prev or r_new >= task.P:
-            if r_new == r_prev:
-                schedulable = True
-            break
-
-        r_prev = r_new
-
-    return schedulable, r_new
-
 def main ():
-    maxRuns = 1000
-    plotter = Plotter ()
+    maxRuns = 1
     utils = range (1, NUM_OF_CORES + 1)
-    generator = Generator (NUM_OF_CORES)
     schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
 
     for workloadType in schedulabilityHash:
         block = u"\u2588"
-        schedulabilityHash [workloadType] = {'rtgang': {}, 'rtgsynch': {}}
+        plotter = Plotter ()
+        rta = RTA (NUM_OF_CORES)
+        generator = Generator (NUM_OF_CORES)
+        schedulabilityHash [workloadType] = {
+                                        'rtgang':       {u: 0 for u in utils},
+                                        'rtgsynch_bfc': {u: 0 for u in utils},
+                                        'rtgsynch_gpc': {u: 0 for u in utils}}
+                                             # 'rtgsynch_gpp': {}}
+
+        print "[STATUS] Working on scenario: %s" % (workloadType.capitalize ())
+
+        for r in range (1, maxRuns + 1):
+            progress = r * 100 / maxRuns
+            progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
+                                (progress, block * progress, r, maxRuns)
+            sys.stdout.write (progressBar)
+            sys.stdout.flush ()
+
+            taskset = generator.create_taskset (workloadType)
+            for policy in schedulabilityHash [workloadType]:
+                for u in utils:
+                    schedulabilityHash [workloadType][policy][u] += \
+                            rta.get_schedulability (taskset [u], policy, u)
 
         for policy in schedulabilityHash [workloadType]:
-            print "[STATUS] Working on scenario: %s | policy: %s" % \
-                                                        (workloadType, policy)
-            schedulabilityHash [workloadType][policy] = {u:0 for u in utils}
-            for r in range (1, maxRuns + 1):
-                progress = r * 100 / maxRuns
-                progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
-                                    (progress, block * progress, r, maxRuns)
-                sys.stdout.write (progressBar)
-                sys.stdout.flush ()
-
-                taskset = generator.create_taskset (workloadType)
-                for u in utils:
-                    if policy == 'rtgang':
-                        schedulabilityHash [workloadType][policy][u] += \
-                                    get_rtgang_schedulability (taskset [u])
-                    else:
-                        schedulabilityHash [workloadType][policy][u] += \
-                                    get_rtgsynch_schedulability (taskset [u])
-
             for u in utils:
                 schedulabilityHash [workloadType][policy][u] /= \
                                                             float (maxRuns)
-            print
+        print
 
+        rta.dbg_print_heuristic_comparison ()
         plotter.create_schedulability_plot (schedulabilityHash [workloadType],
                 workloadType)
 

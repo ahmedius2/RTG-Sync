@@ -11,7 +11,7 @@ Copyright (C) 2019 KU-CSL
 import random
 
 class Task:
-    def __init__ (self, taskId, c, p, m, n = 1, gang = False):
+    def __init__ (self, taskId, c, p, m, u = 0, n = 1, gang = False):
         ''' Initialize a task object. The task object is defined by the
         following parameters:
 
@@ -29,14 +29,15 @@ class Task:
         the pre-specified range and return the task object to the caller. '''
 
         self.fmt = 't%d' if not gang else 'g%d'
-        self.name = self.fmt % (taskId)
+        self.n = n
         self.C = float (c)
         self.P = float (p)
         self.m = float (m)
-        self.n = n
+        self.name = self.fmt % (taskId)
+        self.u = u if u else (self.C * m / p)
 
         return
 
     def __str__ (self):
-        return 'Task: %5s \t C=%4.1f P=%4d m=%1d n=%1d' % (self.name, self.C,
-                                                        self.P, self.m, self.n)
+        return 'Task: %2s | C=%4.1f P=%4d m=%1d u=%.3f n=%1d' % (self.name,
+                self.C, self.P, self.m, self.u, self.n)

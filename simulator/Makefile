@@ -4,4 +4,4 @@ run:
 	@./simulator
 
 clean:
-	@rm -f *.pyc
+	@rm -f *.pyc *.pdf
