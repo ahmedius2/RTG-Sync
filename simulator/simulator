@@ -22,7 +22,7 @@ from tasksetGenerator import Generator
 NUM_OF_CORES = int (sys.argv [1])
 
 def main ():
-    maxRuns = 1
+    maxRuns = 100
     utils = range (1, NUM_OF_CORES + 1)
     schedulabilityHash = {'light': {}, 'mixed': {}, 'heavy': {}}
 
@@ -58,9 +58,9 @@ def main ():
                                                             float (maxRuns)
         print
 
-        rta.dbg_print_heuristic_comparison ()
+        # rta.dbg_print_heuristic_comparison ()
         plotter.create_schedulability_plot (schedulabilityHash [workloadType],
-                workloadType)
+                workloadType, NUM_OF_CORES)
 
     return
 

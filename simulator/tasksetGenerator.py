@@ -9,6 +9,7 @@ class Generator:
 
     def create_taskset (self, tasksetType):
         taskset = {}
+        cValues = []
         utilization = [u + 1 for u in range (self.M)]
 
         for u in utilization:
@@ -17,13 +18,14 @@ class Generator:
 
             while remUtil > 0.001:
                 tid = 1
+                # Generate a unique period
                 while (1):
                     p = random.randint (500, 1500)
                     if p not in taskset [u]:
                         taskset [u][p] = []
                         break
 
-                while tid < 8:
+                while tid < 10:
                     if tasksetType == 'mixed':
                         m = random.randint (1, self.M)
                     elif tasksetType == 'light':
@@ -33,7 +35,7 @@ class Generator:
                     else:
                         raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
 
-                    e = random.randint (10,  p * u / self.M)
+                    e = random.randint (10, 100)
                     v = e * m / float (p)
 
                     if v > remUtil:
@@ -54,7 +56,7 @@ class Generator:
         v = 0.0
         for p in taskset [u]:
             for t in taskset [u][p]:
-                v += (t.C * t.m / float (p))
+                v += t.u
 
         if (u - v) > 0.001:
             raise ValueError, 'Utilization not met: u=%.3f | v=%.3f' % (u, v)

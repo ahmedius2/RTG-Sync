@@ -13,7 +13,7 @@ class Plotter:
 
         return
 
-    def create_schedulability_plot (self, resultsHash, workloadType):
+    def create_schedulability_plot (self, resultsHash, workloadType, M):
         fig = plt.figure (figsize = (7, 5))
         styleHash = {'rtgang': 'r-o', 'rtgsynch_gpc': 'c-^', 'rtgsynch_bfc': 'g-*'}
 
@@ -27,10 +27,10 @@ class Plotter:
         plt.ylim (0, 1.1)
         plt.xlabel ('Utilization', fontsize = self.labelFz, fontweight = self.labelFw)
         plt.ylabel ('Schedulability', fontsize = self.labelFz, fontweight = self.labelFw)
-        plt.title ('%s Taskset' % workloadType.capitalize (),
+        plt.title ('%s Taskset - M = %d' % (workloadType.capitalize (), M),
                 fontsize = self.titleFz, fontweight = self.titleFw)
 
-        plt.savefig ('%s.pdf' % (workloadType), bbox_inches = 'tight')
+        plt.savefig ('%s_c%d.pdf' % (workloadType, M), bbox_inches = 'tight')
 
         return
 
