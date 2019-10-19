@@ -113,9 +113,10 @@ class Heuristics:
         sortedTasks = [t for c in sortedComputeTimes for t in cHash [c]]
 
         # Step-2 and 4
+        idx = 1
         while (sortedTasks):
-            idx = 1
             task = sortedTasks.pop ()
+            members = task.members
             nidx = len (sortedTasks) - 1
 
             while (1):
@@ -128,9 +129,10 @@ class Heuristics:
                 nTask = sortedTasks [nidx]
                 if (task.m + nTask.m) <= self.M:
                     # Step-3a
-                    del (sortedTasks [nidx])
+                    members += '-%s' % nTask.name
                     task = Task (idx, task.C, task.P, task.m + nTask.m,
-                            task.u + nTask.u, task.n + 1, True)
+                            members, task.u + nTask.u, task.n + 1, True)
+                    del (sortedTasks [nidx])
 
                 nidx -= 1
 

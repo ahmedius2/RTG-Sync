@@ -11,7 +11,7 @@ Copyright (C) 2019 KU-CSL
 import random
 
 class Task:
-    def __init__ (self, taskId, c, p, m, u = 0, n = 1, gang = False):
+    def __init__ (self, taskId, c, p, m, members, u = 0, n = 1, gang = False):
         ''' Initialize a task object. The task object is defined by the
         following parameters:
 
@@ -37,13 +37,14 @@ class Task:
         self.m = float (m)
         self.name = self.fmt % (taskId)
         self.u = u if u else (self.C * m / p)
+        self.members = members if members else self.name
 
         return
 
     def copy (self):
-        return Task (self.tid, self.C, self.P, self.m, self.u, self.n, self.g)
+        return Task (self.tid, self.C, self.P, self.m, self.members, self.u, self.n, self.g)
 
     def __str__ (self):
-        return 'Task: %2s | C=%6s P=%4d m=%2d u=%6s n=%2d' % (self.name,
+        return 'Task: %2s | C=%6s P=%4d m=%2d u=%6s n=%2d <%s>' % (self.name,
                 '{:4.1f}'.format (self.C), self.P, self.m,
-                '{:2.3f}'.format (self.u), self.n)
+                '{:2.3f}'.format (self.u), self.n, self.members)

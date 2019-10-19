@@ -5,7 +5,8 @@ RTGANG_SCALING_FACTOR = 1.1
 RTGSYNCH_SCALING_FACTOR = 1.2
 
 class RTA:
-    def __init__ (self, numOfCores):
+    def __init__ (self, numOfCores, debug = False):
+        self.debug = debug
         self.M = numOfCores
         self.utils = range (1, numOfCores + 1)
         self.comparisonHash = {'bfc': {u: {} for u in self.utils},
@@ -13,19 +14,20 @@ class RTA:
 
         return
 
-    def get_schedulability (self, taskset, scheduler, maxUtil):
-        schedulableUtil = self.__response_time_analysis (taskset, scheduler, maxUtil)
-        schedulability = schedulableUtil / float (maxUtil)
+    def get_schedulability (self, taskset, scheduler, maxUtil, w):
+        schedulableUtil = self.__response_time_analysis (taskset, scheduler, maxUtil, w)
+        schedulability = round (float (schedulableUtil) / maxUtil, 3)
 
         return schedulability
 
-    def __response_time_analysis (self, taskset, scheduler, maxUtil):
+    def __response_time_analysis (self, taskset, scheduler, maxUtil, w):
         hpTasks = []
         check = True
         schedulableUtilization = 0
         periods = sorted (taskset.keys ())
 
         # RMS scheme: smaller period -> higher priority
+        schedulableTasks = []
         for p in periods:
             tasks = [t.copy () for t in taskset [p]]
 
@@ -49,22 +51,53 @@ class RTA:
                 # Keep track of created gangs for comparison
                 self.comparisonHash [heuristic][maxUtil][p] = [taskset [p],
                                                                tasks]
+                if self.debug:
+                    with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
+                        fdo.write ('\n============== Period: %d\n' % p)
+                        fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
+                        fdo.write ('\n\t\t\t--------------\n')
+                        fdo.write ('\n'.join (['%s' % t for t in tasks]))
+
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
-            for t in tasks:
-                # Scale execution time of the gang as per the scaling-factor
-                t.C *= scalingFactor
-                schedulable, responseTime = self.__check_schedulability (t,
-                        hpTasks)
+            # Scheduling jobs of the same period - SJF policy
+            keys = sorted (list (set ([t.C for t in tasks])))
+            pQueues = {k: [] for k in keys}
 
-                if schedulable:
-                    schedulableUtilization += t.u
-                    hpTasks.append (t)
-                else:
-                    check = False
+            # Populate priority-queues
+            for k in keys:
+                for t in tasks:
+                    if t.C == k:
+                        pQueues [k].append (t)
 
-            if check == False:
+            unschedulableTasks = []
+            for k in keys:
+                for t in pQueues [k]:
+                    # Scale execution time of the gang as per the scaling-factor
+                    t.C *= scalingFactor
+                    schedulable, responseTime = self.__check_schedulability (t,
+                            hpTasks)
+
+                    if schedulable:
+                        schedulableTasks.append (t)
+                        schedulableUtilization += t.u
+                        hpTasks.append (t)
+                    else:
+                        unschedulableTasks.append (t)
+                        check = False
+
+                if not check:
+                    if self.debug and 'rtgsynch' in scheduler:
+                        with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
+                            fdo.write ('\n\n ******************* Unschedulable Tasks\n')
+                            fdo.write ('\n'.join (['%s' % t for t in unschedulableTasks]))
+
+                            fdo.write ('\n\n ******************* Schedulable Tasks\n')
+                            fdo.write ('\n'.join (['%s' % t for t in schedulableTasks]))
+                    break
+
+            if not check:
                 break
 
         return schedulableUtilization

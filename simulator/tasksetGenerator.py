@@ -36,14 +36,14 @@ class Generator:
                         raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
 
                     e = random.randint (10, 100)
-                    v = e * m / float (p)
+                    v = float (e) * m / p
 
                     if v > remUtil:
-                        e = remUtil * p / float (m)
+                        e = float (remUtil) * p / m
                         v = remUtil
 
                     remUtil -= v
-                    taskset [u][p].append (Task (tid, e, p, m))
+                    taskset [u][p].append (Task (tid, e, p, m, ''))
                     tid += 1
 
                     if remUtil < 0.001:
@@ -71,7 +71,7 @@ class Generator:
             for p in taskset [u]:
                 print
                 for t in taskset [u][p]:
-                    v += (t.C * t.m / float (p))
+                    v += (t.C * t.m / p)
                     print 'T=%2d: U=%d | P=%4d | V=%.3f | %s' % (tidx, u, p, v, t)
                     tidx += 1
 

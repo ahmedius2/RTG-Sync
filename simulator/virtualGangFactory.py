@@ -30,13 +30,16 @@ class CombinationGenerator:
             n = len (tasks)
             u = 0
             m = 0
+            memberList = []
 
             for task in tasks:
                 m += self.parallelismHash [task]
                 u += self.utilizationHash [task]
+                memberList.append (task)
                 assert (m <= self.M)
 
-            virtualGangTask = Task (idx, c, p, m, u, n, True)
+            members = '-'.join (memberList)
+            virtualGangTask = Task (idx, c, p, m, members, u, n, True)
             taskset.append (virtualGangTask)
             idx += 1
 
@@ -144,7 +147,7 @@ class CombinationGenerator:
     def __calc_max_configs (self, N, M):
         maxGangs = N
         numOfConfigs = 0
-        minGangs = int (math.ceil (N / float (M)))
+        minGangs = int (math.ceil (float (N) / M))
 
         for k in range (minGangs, maxGangs + 1):
             numOfConfigs += self.__calc_stirling_number (N, k)
