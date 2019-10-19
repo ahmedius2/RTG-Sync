@@ -30,6 +30,8 @@ class Task:
 
         self.fmt = 't%d' if not gang else 'g%d'
         self.n = n
+        self.g = gang
+        self.tid = taskId
         self.C = float (c)
         self.P = float (p)
         self.m = float (m)
@@ -37,6 +39,9 @@ class Task:
         self.u = u if u else (self.C * m / p)
 
         return
+
+    def copy (self):
+        return Task (self.tid, self.C, self.P, self.m, self.u, self.n, self.g)
 
     def __str__ (self):
         return 'Task: %2s | C=%6s P=%4d m=%2d u=%6s n=%2d' % (self.name,

@@ -13,124 +13,68 @@ class RTA:
 
         return
 
-    def get_schedulability (self, taskset, policy, maxUtil):
-        schedulability = -1
+    def get_schedulability (self, taskset, scheduler, maxUtil):
+        schedulableUtil = self.__response_time_analysis (taskset, scheduler, maxUtil)
+        schedulability = schedulableUtil / float (maxUtil)
 
-        if policy == 'rtgang':
-            schedulability = self.__get_rtgang_schedulability (taskset, maxUtil)
-        elif 'rtgsynch' in policy:
-            schedulability = self.__get_rtgsynch_schedulability (taskset,
-                                                        policy [-3:], maxUtil)
-
-        assert (schedulability >= 0)
         return schedulability
 
-    def __get_rtgsynch_schedulability (self, taskset, heuristic, maxUtil):
+    def __response_time_analysis (self, taskset, scheduler, maxUtil):
         hpTasks = []
         check = True
         schedulableUtilization = 0
         periods = sorted (taskset.keys ())
 
-        # Instantiate heuristics
-        algoEngine = Heuristics (self.M)
-
         # RMS scheme: smaller period -> higher priority
         for p in periods:
-            tasks = [t for t in taskset [p]]
+            tasks = [t.copy () for t in taskset [p]]
 
-            # Generate virtual-gangs using the specified heuristic.
-            if heuristic == 'bfc':
-                tasks = algoEngine.brute_force (tasks, p)
-            elif heuristic == 'gpc':
-                tasks = algoEngine.greedy_packing_compute (tasks, p)
-            elif heuristic == 'gpp':
-                tasks = algoEngine.greedy_packing_parallelism (tasks, p)
+            if scheduler == 'rtgang':
+                scalingFactor = RTGANG_SCALING_FACTOR
+            elif 'rtgsynch' in scheduler:
+                heuristic = scheduler [-3:]
+                algoEngine = Heuristics (self.M)
+                scalingFactor = RTGSYNCH_SCALING_FACTOR
+
+                if heuristic == 'bfc':
+                    tasks = algoEngine.brute_force (tasks, p)
+                elif heuristic == 'gpc':
+                    tasks = algoEngine.greedy_packing_compute (tasks, p)
+                elif heuristic == 'gpp':
+                    tasks = algoEngine.greedy_packing_parallelism (tasks, p)
+                else:
+                    raise ValueError, 'Unknown gang formation heuristic: %s' % \
+                                                                    (heuristic)
+
+                # Keep track of created gangs for comparison
+                self.comparisonHash [heuristic][maxUtil][p] = [taskset [p],
+                                                               tasks]
             else:
-                raise ValueError, 'Unknown gang formation heuristic: %s', \
-                                                                    heuristic
-            priorityQueues = {t.C: [] for t in tasks}
-            priorityKeys = sorted (priorityQueues.keys ())
+                raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
-            # Shortest Job First: populate priority-queues with tasks
-            for key in priorityKeys:
-                for t in tasks:
-                    if t.C == key:
-                        priorityQueues [key].append (t)
+            for t in tasks:
+                # Scale execution time of the gang as per the scaling-factor
+                t.C *= scalingFactor
+                schedulable, responseTime = self.__check_schedulability (t,
+                        hpTasks)
 
-            self.comparisonHash [heuristic][maxUtil][p] = [taskset [p], tasks]
-            for key in priorityKeys:
-                pTasks = priorityQueues [key]
-
-                for g in pTasks:
-                    schedulable, responseTime = self.__check_schedulability (g,
-                            hpTasks, RTGSYNCH_SCALING_FACTOR)
-
-                    if schedulable:
-                        schedulableUtilization += g.u
-                        hpTasks.append (g)
-                    else:
-                        check = False
-                        break
-
-                if check == False:
-                    break
-
+                if schedulable:
+                    schedulableUtilization += t.u
+                    hpTasks.append (t)
+                else:
+                    check = False
 
             if check == False:
                 break
 
-        schedulability = round (float (schedulableUtilization) / maxUtil, 3)
+        return schedulableUtilization
 
-        return schedulability
-
-    def __get_rtgang_schedulability (self, taskset, maxUtil):
-        hpTasks = []
-        check = True
-        schedulableUtilization = 0
-        periods = sorted (taskset.keys ())
-
-        # RMS scheme: smaller period -> higher priority
-        for p in periods:
-            tasks = [t for t in taskset [p]]
-            priorityQueues = {t.C: [] for t in tasks}
-            priorityKeys = sorted (priorityQueues.keys ())
-
-            # Shortest Job First: populate priority-queues with tasks
-            for key in priorityKeys:
-                for t in tasks:
-                    if t.C == key:
-                        priorityQueues [key].append (t)
-
-            for key in priorityKeys:
-                pTasks = priorityQueues [key]
-
-                for t in pTasks:
-                    schedulable, responseTime = self.__check_schedulability (t,
-                            hpTasks, RTGANG_SCALING_FACTOR)
-
-                    if schedulable:
-                        schedulableUtilization += t.u
-                        hpTasks.append (t)
-                    else:
-                        check = False
-                        break
-
-                if check == False:
-                    break
-
-            if check == False:
-                break
-
-        schedulability = round (float (schedulableUtilization) / maxUtil, 3)
-
-        return schedulability
-
-    def __check_schedulability (self, task, higherPriorityTasks, scalingFactor):
+    def __check_schedulability (self, task, higherPriorityTasks):
         '''
             r_new = task.c + sum_over_t_in_hp [(ceil (r_prev / period_of_t)) * t.c]
         '''
         schedulable = False
-        r_prev = task.C * scalingFactor
+        r_prev = task.C
 
         while (1):
             sumTerm = 0

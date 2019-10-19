@@ -24,7 +24,7 @@ NUM_OF_CORES = int (sys.argv [1])
 UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
-POLICIES = ['rtgang', 'rtgsynch_gpc', 'rtgsynch_bfc']
+POLICIES = ['rtgsynch_bfc', 'rtgsynch_gpc', 'rtgang'] #, 'gangftp']
 
 def process_work (tIdx):
     rta = RTA (NUM_OF_CORES)
