@@ -1,9 +1,11 @@
 import sys, math
+from taskFactory import Task
 from algorithmFactory import Heuristics
 
 RTGANG_SCALING_FACTOR = 1.1
-COSCHED_SCALING_FACTOR = 2.0
 RTGSYNCH_SCALING_FACTOR = 1.2
+COSCHED_GANG_SCALING_FACTOR = 2.0
+COSCHED_THREAD_SCALING_FACTOR = 3.0
 
 class RTA:
     def __init__ (self, numOfCores, debug = False):
@@ -60,9 +62,14 @@ class RTA:
                         fdo.write ('\n\t\t\t--------------\n')
                         fdo.write ('\n'.join (['%s' % t for t in tasks]))
 
-            elif scheduler == 'gangftp':
-                scalingFactor = COSCHED_SCALING_FACTOR
+            elif scheduler == 'gangftp' or scheduler == 'threadglobal':
                 rta = self.__check_schedulability_gftp
+
+                if scheduler == 'gangftp':
+                    scalingFactor = COSCHED_GANG_SCALING_FACTOR
+                elif scheduler == 'threadglobal':
+                    scalingFactor = COSCHED_THREAD_SCALING_FACTOR
+                    tasks = self.__split_gangs_into_threads (tasks)
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
@@ -106,6 +113,18 @@ class RTA:
                 break
 
         return schedulableUtilization
+
+    def __split_gangs_into_threads (self, taskset):
+        threadset = []
+        threadIdx = 1
+
+        for t in taskset:
+            for th in range (int (t.m)):
+                thread = Task (threadIdx, t.C, t.P, 1, '')
+                threadset.append (thread)
+                threadIdx += 1
+
+        return threadset
 
     def __check_schedulability (self, tk, hpTasks):
         '''
