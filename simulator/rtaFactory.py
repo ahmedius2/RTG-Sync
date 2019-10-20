@@ -2,6 +2,7 @@ import sys, math
 from algorithmFactory import Heuristics
 
 RTGANG_SCALING_FACTOR = 1.1
+COSCHED_SCALING_FACTOR = 2.0
 RTGSYNCH_SCALING_FACTOR = 1.2
 
 class RTA:
@@ -21,7 +22,7 @@ class RTA:
         return schedulability
 
     def __response_time_analysis (self, taskset, scheduler, maxUtil, w):
-        hpTasks = []
+        hpTasks = {}
         check = True
         schedulableUtilization = 0
         periods = sorted (taskset.keys ())
@@ -33,9 +34,11 @@ class RTA:
 
             if scheduler == 'rtgang':
                 scalingFactor = RTGANG_SCALING_FACTOR
+                rta = self.__check_schedulability
             elif 'rtgsynch' in scheduler:
                 heuristic = scheduler [-3:]
                 algoEngine = Heuristics (self.M)
+                rta = self.__check_schedulability
                 scalingFactor = RTGSYNCH_SCALING_FACTOR
 
                 if heuristic == 'bfc':
@@ -47,7 +50,6 @@ class RTA:
                 else:
                     raise ValueError, 'Unknown gang formation heuristic: %s' % \
                                                                     (heuristic)
-
                 # Keep track of created gangs for comparison
                 self.comparisonHash [heuristic][maxUtil][p] = [taskset [p],
                                                                tasks]
@@ -58,6 +60,9 @@ class RTA:
                         fdo.write ('\n\t\t\t--------------\n')
                         fdo.write ('\n'.join (['%s' % t for t in tasks]))
 
+            elif scheduler == 'gangftp':
+                scalingFactor = COSCHED_SCALING_FACTOR
+                rta = self.__check_schedulability_gftp
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
@@ -76,16 +81,16 @@ class RTA:
                 for t in pQueues [k]:
                     # Scale execution time of the gang as per the scaling-factor
                     t.C *= scalingFactor
-                    schedulable, responseTime = self.__check_schedulability (t,
-                            hpTasks)
+                    schedulable, responseTime = rta (t, hpTasks)
 
                     if schedulable:
                         schedulableTasks.append (t)
                         schedulableUtilization += t.u
-                        hpTasks.append (t)
+                        hpTasks [t] = responseTime
                     else:
                         unschedulableTasks.append (t)
                         check = False
+                        break
 
                 if not check:
                     if self.debug and 'rtgsynch' in scheduler:
@@ -102,27 +107,65 @@ class RTA:
 
         return schedulableUtilization
 
-    def __check_schedulability (self, task, higherPriorityTasks):
+    def __check_schedulability (self, tk, hpTasks):
         '''
-            r_new = task.c + sum_over_t_in_hp [(ceil (r_prev / period_of_t)) * t.c]
+            r_new = tk.c + sum_over_t_in_hp [(ceil (r_prev / period_of_t)) * t.c]
         '''
         schedulable = False
-        r_prev = task.C
+        rk_prev = tk.C
 
         while (1):
-            sumTerm = 0
-            for hp in higherPriorityTasks:
-                sumTerm += math.ceil (r_prev / hp.P) * hp.C
-            r_new = task.C + sumTerm
+            interferenceFactor = \
+                    sum ([math.ceil (rk_prev / ti.P) * ti.C for ti in hpTasks])
+            rk_new = tk.C + interferenceFactor
 
-            if r_new == r_prev or r_new >= task.P:
-                if r_new == r_prev:
+            if rk_new == rk_prev or rk_new >= tk.P:
+                if rk_new == rk_prev:
                     schedulable = True
                 break
+            rk_prev = rk_new
 
-            r_prev = r_new
+        return schedulable, rk_new
 
-        return schedulable, r_new
+    def __check_schedulability_gftp (self, tk, hpTasks):
+        schedulable = False
+        rk_prev = tk.C
+
+        iIk = self.__calc_task_iIk (tk, hpTasks)
+        while (1):
+            iWk = self.__calc_workload_iWk (rk_prev, hpTasks)
+            interferenceFactor = sum ([iIk [ti] * iWk [ti] for ti in hpTasks])
+            rk_new = tk.C + math.floor (interferenceFactor)
+
+            if rk_new == rk_prev or rk_new > tk.P:
+                if rk_new == rk_prev:
+                    schedulable = True
+                break
+            rk_prev = rk_new
+
+        return schedulable, rk_new
+
+    def __calc_workload_iWk (self, t, hpTasks):
+        iWk = {}
+        for ti in hpTasks:
+            delta_i = ti.P - hpTasks [ti] + ti.C
+
+            if t <= delta_i:
+                iWk [ti] = min (t, ti.C)
+            else:
+                iWk [ti] = ti.C + ti.C * \
+                           math.floor (float (t - delta_i) / ti.P) + \
+                           min (ti.C, (t - delta_i) % ti.P)
+
+        return iWk
+
+    def __calc_task_iIk (self, tk, hpTasks):
+        iIk = {}
+        for ti in hpTasks:
+            iIk [ti] = float (min (ti.m, self.M - tk.m + 1)) / \
+                    (self.M - tk.m + 1)
+
+        return iIk
 
     def dbg_print_heuristic_comparison (self):
         heuristics = self.comparisonHash.keys ()
