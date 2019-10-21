@@ -11,7 +11,8 @@ def main ():
     dataHash = {s: {nn: [] for nn in neuralNets} for s in scenarios}
 
     for scn in scenarios:
-        runLogs = ['%s/%s' % (scn, rl) for rl in os.listdir (scn)
+        logDir = '../logs/%s' % (scn)
+        runLogs = ['%s/%s' % (logDir, rl) for rl in os.listdir (logDir)
                 if 'run__' in rl]
         runName = {runLogs [idx]: neuralNets [idx] for idx in
                 range (len (neuralNets))}

@@ -45,6 +45,6 @@ class Plotter:
         plt.ylabel (axes ['y']['lbl'], fontsize = self.labelFz,
                 fontweight = self.labelFw)
 
-        plt.savefig ('cdf.pdf', bbox_inches = 'tight')
+        plt.savefig ('../figs/cdf.pdf', bbox_inches = 'tight')
 
         return
