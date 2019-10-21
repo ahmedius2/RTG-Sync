@@ -1,7 +1,3 @@
-###############################################################################
-# Script for recording the base-line data for the case-study workload under
-# Linux default scheduling
-###############################################################################
 # Misc. parameters
 tracing_core=1
 results_folder=case-study/global
@@ -9,14 +5,14 @@ results_folder=case-study/global
 # Parameters for the DNN tasks
 # Solo WCET of these tasks is ~8.12-msec
 dnn_priority=10
-num_of_frames=100
+num_of_frames=1000
 dnn_period_msec=50
 num_of_dnn_tasks=2
+startup_jitter=0.01
 output_control=( ""		""	)
 core_assignment=("0,3" 	  	"4,5"	)
 model_files=(	 "m1.pb"  	"m2.pb"	)
 input_files=(	 "v1.avi" 	"v2.avi")
-startup_jitter=0.01
 
 # Parameters for the Bw-RT task
 # Tasks are designed to have a utilization ~50%
