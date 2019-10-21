@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+import os
+from parser import Parser
+from plotter import Plotter
+
+def main ():
+    parser = Parser ()
+    plotter = Plotter ()
+    neuralNets = ['DNN-1', 'DNN-2']
+    scenarios = ['rtgang', 'rtgsynch', 'global']
+    dataHash = {s: {nn: [] for nn in neuralNets} for s in scenarios}
+
+    for scn in scenarios:
+        runLogs = ['%s/%s' % (scn, rl) for rl in os.listdir (scn)
+                if 'run__' in rl]
+        runName = {runLogs [idx]: neuralNets [idx] for idx in
+                range (len (neuralNets))}
+
+        for rl in runLogs:
+            dataHash [scn][runName [rl]] = parser.extract_dnn_job_durations (rl)
+
+    # We have 3 scenarios. For each scenario, we have two DNN tasks.
+    # In the plot, we mark each scenario by a different color and each task by
+    # a different line-style
+    styleHash = {
+          'global':   {'DNN-1': {'name': 'Global',            'style': 'r-'},
+                       'DNN-2': {'name': 'Global (DNN-2)',    'style': 'r--'}},
+          'rtgang':   {'DNN-1': {'name': 'RT-Gang',           'style': 'g-'},
+                       'DNN-2': {'name': 'RT-Gang (DNN-2)',   'style': 'g--'}},
+          'rtgsynch': {'DNN-1': {'name': 'RTG-Synch',         'style': 'b-'},
+                       'DNN-2': {'name': 'RTG-Synch (DNN-2)', 'style': 'b--'}}
+          }
+
+    axesHash = {'x': {'lim': [6, 16],  'lbl': 'DNN Job Duration (msec)'},
+                'y': {'lim': [0, 1.12], 'lbl': 'CDF'}}
+
+    orderHash = {'l1': scenarios, 'l2': [neuralNets [0]]}
+    plotter.create_cdf_plot (dataHash, styleHash, axesHash, orderHash)
+
+    return
+
+if __name__ == '__main__':
+    main ()
