@@ -28,8 +28,8 @@ def main ():
                        'DNN-2': {'name': 'Global (DNN-2)',    'style': 'r--'}},
           'rtgang':   {'DNN-1': {'name': 'RT-Gang',           'style': 'g-'},
                        'DNN-2': {'name': 'RT-Gang (DNN-2)',   'style': 'g--'}},
-          'rtgsynch': {'DNN-1': {'name': 'RTG-Synch',         'style': 'b-'},
-                       'DNN-2': {'name': 'RTG-Synch (DNN-2)', 'style': 'b--'}}
+          'rtgsynch': {'DNN-1': {'name': 'RTG-Sync',         'style': 'b-'},
+                       'DNN-2': {'name': 'RTG-Sync (DNN-2)', 'style': 'b--'}}
           }
 
     axesHash = {'x': {'lim': [6, 16],  'lbl': 'DNN Job Duration (msec)'},
