@@ -4,8 +4,8 @@ from algorithmFactory import Heuristics
 
 RTGANG_SCALING_FACTOR = 1.1
 RTGSYNCH_SCALING_FACTOR = 1.2
-COSCHED_GANG_SCALING_FACTOR = 2.0
-COSCHED_THREAD_SCALING_FACTOR = 3.0
+COSCHED_GANG_SCALING_FACTOR = 1.0
+COSCHED_THREAD_SCALING_FACTOR = 1.0
 
 class RTA:
     def __init__ (self, numOfCores, debug = False):
@@ -70,6 +70,13 @@ class RTA:
                 elif scheduler == 'threadglobal':
                     scalingFactor = COSCHED_THREAD_SCALING_FACTOR
                     tasks = self.__split_gangs_into_threads (tasks)
+
+                    if self.debug:
+                        with open ('debug/%s_tg_%d.txt' % (w, maxUtil), 'a') as fdo:
+                            fdo.write ('\n============== Period: %d\n' % p)
+                            fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
+                            fdo.write ('\n\t\t\t--------------\n')
+                            fdo.write ('\n'.join (['%s' % t for t in tasks]))
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
