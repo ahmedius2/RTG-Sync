@@ -170,7 +170,7 @@ static void delete_shared_file (char* shared_file)
  */
 static inline uint64_t budget_to_events (unsigned int budget)
 {
-	uint64_t events;
+	int events;
 
 	/*
 	 * Given budget is in MB/sec. We want to convert it into number of LLC
@@ -195,21 +195,24 @@ static inline uint64_t budget_to_events (unsigned int budget)
  * registering a virtual gang with the given parameters with the kernel.
  *
  * @id			Integer id issued by RT-Gang daemon
+ * @color_mask		Required page-colors for the RT task
  * @mem_read_budget	Memory usage budget (read traffic) for corunning
  * 			best-effort processes in MBytes/sec
  * @mem_write_budget	Memory usage budget (write traffic) for corunning
  * 			best-effort processes in MBytes/sec
  */
-void register_gang_with_kernel (int id, unsigned int mem_read_budget,
-				unsigned int mem_write_budget)
+void register_gang_with_kernel (int id, unsigned long color_mask,
+		unsigned int mem_read_budget, unsigned int mem_write_budget)
 {
 	int ret;
-	uint64_t mem_read_events, mem_write_events;
+	struct rtg_resource_info info;
 
-	mem_read_events = budget_to_events (mem_read_budget);
-	mem_write_events = budget_to_events (mem_write_budget);
+	info.gid = id;
+	info.bins = color_mask;
+	info.rd_th = budget_to_events (mem_read_budget);
+	info.wr_th = budget_to_events (mem_write_budget);
 
-	ret = syscall (NR_RTG_SYSCALL, 0, id, mem_read_events, mem_write_events);
+	ret = syscall (NR_RTG_SYSCALL, 0, &info);
 	rtg_assert (ret >= 0, "Failed to register virtual gang. Make sure "
 			"that the process is real-time (FIFO or Deadline)");
 
@@ -266,14 +269,15 @@ pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count)
  * barrier into the caller's address space.
  *
  * @id			Integer id issued by RT-Gang daemon
+ * @color_mask		Required page-colors for the RT task
  * @mem_read_budget	Memory usage budget (read traffic) for corunning
  * 			best-effort processes in MBytes/sec
  * @mem_write_budget	Memory usage budget (write traffic) for corunning
  * 			best-effort processes in MBytes/sec
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
-				unsigned int mem_write_budget)
+pthread_barrier_t* rtg_member_setup (int id, unsigned long color_mask,
+		unsigned int mem_read_budget, unsigned int mem_write_budget)
 {
 	int fd;
 	pthread_barrier_t *shmem_barrier;
@@ -281,11 +285,47 @@ pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
 
 	rtg_assert (CHECK_BUDGET (mem_read_budget), BUDGET_ERROR_MSG);
 	rtg_assert (CHECK_BUDGET (mem_write_budget), BUDGET_ERROR_MSG);
-	register_gang_with_kernel (id, mem_read_budget, mem_write_budget);
+	rtg_assert (CHECK_COLORS (color_mask), COLOR_ERROR_MSG);
+
+	register_gang_with_kernel (id, color_mask, mem_read_budget,
+			mem_write_budget);
 	fd = open_shared_file (barrier_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
 
 	return shmem_barrier;
+}
+
+/* Convert a string of color-bins into color-mask
+ *
+ * Valid formats for the color-string:
+ * 	c	Set bit (c) in color-mask
+ * 	c,d	Set bits <c, d> in color-mask
+ * 	c-d	Set bits from bit (c) to bit (d) in color-mask
+ */
+unsigned long parse_color_string (char *buf)
+{
+	char c;
+	unsigned long color_mask = 0;
+	int prev_color, last_color, i;
+
+	while (c = *buf++) {
+		switch (c) {
+			case '-':
+				last_color = INT (*buf);
+				for (i = (prev_color + 1); i < last_color; i++)
+					color_mask |= (1 << i);
+				break;
+
+			default:
+				if (c != ',') {
+					prev_color = INT (c);
+					color_mask |= (1 << prev_color);
+				}
+		}
+
+	}
+
+	return color_mask;
 }
 
 #ifdef RTG_SYNCH_DEBUG
@@ -365,7 +405,6 @@ void debug_setup_ftrace (void)
 		printf ("Cannot open trace_marker file %s", tmp);
 		exit (EXIT_FAILURE);
 	}
-
 
 	return;
 }

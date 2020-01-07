@@ -71,6 +71,7 @@ typedef struct {
 } sched_t;
 
 typedef struct {
+	unsigned long		cmask;
 	stats_t			stats;
 	sched_t			sched;
 	mem_t			memory;
@@ -81,25 +82,26 @@ typedef struct {
 /**************************************************************************
  * Global Variables
  **************************************************************************/
-global_vars_t		globals;
+global_vars_t globals;
 
 /**************************************************************************
  * Function Prototypes
  **************************************************************************/
 void quit(int param);
-static inline void bench_read(void);
-static inline void bench_write(void);
-static inline void print_setup(void);
-static inline void usage(char* argv[]);
-static inline void setup_signals(void);
-static inline void allocate_memory(void);
-static inline void populate_memory(void);
-static inline void set_affinity (int cpu);
-static inline int  get_timestamp_us(void);
-static inline void setup_experiment(void);
-static inline void set_priority (int priority);
-static inline void perform_memory_accesses(void);
-static inline void parse_cmd_args(int argc, char* argv[]);
+static void bench_read(void);
+static void bench_write(void);
+static void print_setup(void);
+static void usage(char* argv[]);
+static void setup_signals(void);
+static void allocate_memory(void);
+static void populate_memory(void);
+static void set_affinity (int cpu);
+static int  get_timestamp_us(void);
+static void setup_experiment(void);
+static void set_priority (int priority);
+static void perform_memory_accesses(void);
+static void parse_cmd_args(int argc, char* argv[]);
+extern void pagetype(char *pid_s);
 
 static inline void set_affinity (int cpu)
 {
@@ -243,21 +245,21 @@ static inline void perform_memory_accesses(void)
 static inline void setup_virtual_gang (void)
 {
 	globals.sched.barrier = rtg_member_setup(globals.sched.vid,
-					globals.sched.mem_read_budget,
-					globals.sched.mem_write_budget);
+			globals.cmask, globals.sched.mem_read_budget,
+			globals.sched.mem_write_budget);
 
 	return;
 }
 
 void setup_experiment(void)
 {
+	if (IS_VIRTUAL_GANG())
+		setup_virtual_gang();
+
 	allocate_memory();
 	populate_memory();
 	print_setup();
 	setup_signals();
-
-	if (IS_VIRTUAL_GANG())
-		setup_virtual_gang();
 
 	return;
 }
@@ -266,7 +268,7 @@ static inline void parse_cmd_args(int argc, char* argv[])
 {
 	int opt;
 
-	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:r:w:h")) != -1) {
+	while ((opt = getopt(argc, argv, "m:a:t:i:c:p:v:r:w:k:h")) != -1) {
 		switch (opt) {
 			case 'm':
 				globals.memory.size = 1024 * strtol(optarg, NULL, 0);
@@ -297,6 +299,10 @@ static inline void parse_cmd_args(int argc, char* argv[])
 			case 'p':
 				globals.sched.prio = strtol(optarg, NULL, 0);
 				set_priority(globals.sched.prio);
+				break;
+
+			case 'k':
+				globals.cmask = parse_color_string(optarg);
 				break;
 
 			case 'v':
@@ -344,6 +350,8 @@ static inline void initialize_globals(void)
 void quit(int param)
 {
 	float bw;
+	int my_pid;
+	char pid_s [256];
 	float dur_in_sec;
 	float dur_in_usec;
 
@@ -355,6 +363,11 @@ void quit(int param)
 	printf("elapsed = %.2f sec ( %.0f usec )\n", dur_in_sec, dur_in_usec);
 	printf("B/W = %.2f MB/s | ", bw);
 	printf("average = %.2f ns\n", (dur_in_usec*1000)/(globals.stats.bytes_accessed/CACHE_LINE_SIZE));
+
+	my_pid = getpid();
+	sprintf(pid_s, "%d", my_pid);
+	pagetype(pid_s);
+
 	exit(0);
 }
 

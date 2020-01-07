@@ -14,9 +14,17 @@
 #include <stdbool.h>
 #include <sys/mman.h>
 
+struct rtg_resource_info {
+	int gid;
+	int rd_th;
+	int wr_th;
+	unsigned long bins;
+};
+
 /*
  * These macros are used in debugging related code.
  */
+#define INT(c)		(c - '0')
 #define PATH_LENGTH 	256
 #define BUF_SIZE 	100
 
@@ -63,6 +71,12 @@ do {									\
 #define LLC_LINE_SIZE_SHIFT	(6)
 
 /*
+ * LLC bins for page-coloring for this platform are 8 i.e., there are at max 8
+ * page-colors.
+ */
+#define MAX_LLC_BINS		(8)
+
+/*
  * These values are defined to sanity check the (corun) memory usage budget
  * requested by a virtual gang. A budget greater than the max below does not
  * make sense for the platform at hand.
@@ -72,8 +86,12 @@ do {									\
  */
 #define MAX_BUDGET_MBPS		(100000)
 #define CHECK_BUDGET(x)		(x <= MAX_BUDGET_MBPS)
+#define CHECK_COLORS(x)		(x < (1UL << (MAX_LLC_BINS + 1)))
+
 #define BUDGET_ERROR_MSG					\
 	("Given budget is out of bounds for this platform")
+#define COLOR_ERROR_MSG						\
+	("Please specify a valid color-mask")
 #else
 #error Platform ID not supported
 #endif
@@ -92,10 +110,11 @@ static inline void rtg_assert (bool assertion, char* msg)
  * The functions declared below are meant to be called by other programs (which
  * link this library) that want to use this library's services
  */
-void register_gang_with_kernel (int id, unsigned int mem_read_budget,
-				unsigned int mem_write_budget);
-pthread_barrier_t* rtg_member_setup (int id, unsigned int mem_read_budget,
-				unsigned int mem_write_budget);
+unsigned long parse_color_string (char *buf);
+void register_gang_with_kernel (int id, unsigned long color_mask,
+		unsigned int mem_read_budget, unsigned int mem_write_budget);
+pthread_barrier_t* rtg_member_setup (int id, unsigned long color_mask,
+		unsigned int mem_read_budget, unsigned int mem_write_budget);
 void rtg_member_sync (pthread_barrier_t* barrier);
 pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count);
 void rtg_daemon_cleanup (pthread_barrier_t* barrier, int id);
