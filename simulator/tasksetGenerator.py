@@ -10,58 +10,44 @@ class Generator:
     def create_taskset (self, tasksetType):
         taskset = {}
         cValues = []
-        utilization = [u + 1 for u in range (self.M)]
+        utilization = [u / 2.0 for u in range (1, 2 * self.M + 1)]
 
         for u in utilization:
             remUtil = u
             taskset [u] = {}
 
-            while remUtil > 0.001:
+            while 1:
                 tid = 1
-                # Generate a unique period
-                while (1):
-                    p = random.randint (500, 1500)
-                    if p not in taskset [u]:
-                        taskset [u][p] = []
-                        break
 
-                while tid < 10:
-                    if tasksetType == 'mixed':
-                        m = random.randint (1, self.M)
-                    elif tasksetType == 'light':
-                        m = random.randint (1, math.ceil (0.3 * self.M))
-                    elif tasksetType == 'heavy':
-                        m = random.randint (math.ceil (0.3 * self.M), self.M)
-                    else:
-                        raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
+                # Pick length: L_i
+                L = random.randint (10, 150)
 
-                    e = random.randint (10, 100)
-                    v = float (e) * m / p
+                # Pick period: T_i
+                T = random.randint (L, 10*L)
+                if T not in taskset [u]:
+                    taskset [u][T] = []
 
-                    if v > remUtil:
-                        e = float (remUtil) * p / m
-                        v = remUtil
+                # Pick height based on taskset type
+                if tasksetType == 'mixed':
+                    h = random.randint (1, self.M)
+                elif tasksetType == 'light':
+                    h = random.randint (1, math.ceil (0.3 * self.M))
+                elif tasksetType == 'heavy':
+                    h = random.randint (math.ceil (0.3 * self.M), self.M)
+                else:
+                    raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
 
-                    remUtil -= v
-                    taskset [u][p].append (Task (tid, e, p, m, ''))
-                    tid += 1
+                # Calculate utilization: U_i
+                v = float (L) * h / T
 
-                    if remUtil < 0.001:
-                        self.__verify_taskset (taskset, u)
-                        break
+                if v > remUtil:
+                    break
+
+                remUtil -= v
+                taskset [u][T].append (Task (tid, L, T, h, ''))
+                tid += 1
 
         return taskset
-
-    def __verify_taskset (self, taskset, u):
-        v = 0.0
-        for p in taskset [u]:
-            for t in taskset [u][p]:
-                v += t.u
-
-        if (u - v) > 0.001:
-            raise ValueError, 'Utilization not met: u=%.3f | v=%.3f' % (u, v)
-
-        return
 
     def print_taskset (self, taskset):
         tidx = 1

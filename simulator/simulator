@@ -21,10 +21,10 @@ from tasksetGenerator import Generator
 # All time values are in msec; unless specified otherwise
 MAX_RUNS = int (sys.argv [3])
 NUM_OF_CORES = int (sys.argv [1])
-UTILS = range (1, NUM_OF_CORES + 1)
+UTILS = [u / 2.0 for u in range (1, 2 * NUM_OF_CORES + 1)]
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
-POLICIES = ['rtgsynch_bfc', 'rtgsynch_gpc', 'rtgang'] #, 'threadglobal', 'gangftp']
+POLICIES = ['rtgang', 'gangftp']
 
 def process_work (tIdx):
     rta = RTA (NUM_OF_CORES)
@@ -36,9 +36,7 @@ def process_work (tIdx):
 
         for p in POLICIES:
             for u in UTILS:
-                trs [w][p][u] = rta.get_schedulability (taskset [u], p, u, w)
-            # print '%s | %12s | ' % (w, p), '\t'.join (['%s : %.3f' % (u, trs [w][p][u]) for u in trs [w][p]])
-        # rta.dbg_print_heuristic_comparison ()
+                trs [w][p][u] = rta.analysis (taskset [u], p, u)
 
     with open ('json/p%d.json' % tIdx, 'w') as fdo:
         json.dump (trs, fdo)

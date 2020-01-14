@@ -2,8 +2,8 @@ import sys, math
 from taskFactory import Task
 from algorithmFactory import Heuristics
 
-RTGANG_SCALING_FACTOR = 1.1
-RTGSYNCH_SCALING_FACTOR = 1.2
+RTGANG_SCALING_FACTOR = 1.0
+RTGSYNCH_SCALING_FACTOR = 1.0
 COSCHED_GANG_SCALING_FACTOR = 1.0
 COSCHED_THREAD_SCALING_FACTOR = 1.0
 
@@ -17,16 +17,8 @@ class RTA:
 
         return
 
-    def get_schedulability (self, taskset, scheduler, maxUtil, w):
-        schedulableUtil = self.__response_time_analysis (taskset, scheduler, maxUtil, w)
-        schedulability = round (float (schedulableUtil) / maxUtil, 3)
-
-        return schedulability
-
-    def __response_time_analysis (self, taskset, scheduler, maxUtil, w):
+    def analysis (self, taskset, scheduler, maxUtil):
         hpTasks = {}
-        check = True
-        schedulableUtilization = 0
         periods = sorted (taskset.keys ())
 
         # RMS scheme: smaller period -> higher priority
@@ -50,17 +42,10 @@ class RTA:
                 elif heuristic == 'gpp':
                     tasks = algoEngine.greedy_packing_parallelism (tasks, p)
                 else:
-                    raise ValueError, 'Unknown gang formation heuristic: %s' % \
-                                                                    (heuristic)
+                    raise ValueError, 'Unknown gang formation heuristic: %s' % (heuristic)
+
                 # Keep track of created gangs for comparison
-                self.comparisonHash [heuristic][maxUtil][p] = [taskset [p],
-                                                               tasks]
-                if self.debug:
-                    with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
-                        fdo.write ('\n============== Period: %d\n' % p)
-                        fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
-                        fdo.write ('\n\t\t\t--------------\n')
-                        fdo.write ('\n'.join (['%s' % t for t in tasks]))
+                self.comparisonHash [heuristic][maxUtil][p] = [taskset [p], tasks]
 
             elif scheduler == 'gangftp' or scheduler == 'threadglobal':
                 rta = self.__check_schedulability_gftp
@@ -70,13 +55,6 @@ class RTA:
                 elif scheduler == 'threadglobal':
                     scalingFactor = COSCHED_THREAD_SCALING_FACTOR
                     tasks = self.__split_gangs_into_threads (tasks)
-
-                    if self.debug:
-                        with open ('debug/%s_tg_%d.txt' % (w, maxUtil), 'a') as fdo:
-                            fdo.write ('\n============== Period: %d\n' % p)
-                            fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
-                            fdo.write ('\n\t\t\t--------------\n')
-                            fdo.write ('\n'.join (['%s' % t for t in tasks]))
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
@@ -93,33 +71,16 @@ class RTA:
             unschedulableTasks = []
             for k in keys:
                 for t in pQueues [k]:
-                    # Scale execution time of the gang as per the scaling-factor
                     t.C *= scalingFactor
                     schedulable, responseTime = rta (t, hpTasks)
 
                     if schedulable:
                         schedulableTasks.append (t)
-                        schedulableUtilization += t.u
                         hpTasks [t] = responseTime
                     else:
-                        unschedulableTasks.append (t)
-                        check = False
-                        break
+                        return 0
 
-                if not check:
-                    if self.debug and 'rtgsynch' in scheduler:
-                        with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
-                            fdo.write ('\n\n ******************* Unschedulable Tasks\n')
-                            fdo.write ('\n'.join (['%s' % t for t in unschedulableTasks]))
-
-                            fdo.write ('\n\n ******************* Schedulable Tasks\n')
-                            fdo.write ('\n'.join (['%s' % t for t in schedulableTasks]))
-                    break
-
-            if not check:
-                break
-
-        return schedulableUtilization
+        return 1
 
     def __split_gangs_into_threads (self, taskset):
         threadset = []
