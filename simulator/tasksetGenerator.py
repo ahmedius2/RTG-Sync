@@ -19,13 +19,13 @@ class Generator:
             while 1:
                 tid = 1
 
-                # Pick length: L_i
-                L = random.randint (10, 150)
-
                 # Pick period: T_i
-                T = random.randint (L, 10*L)
+                T = random.randint (10, 1500)
                 if T not in taskset [u]:
                     taskset [u][T] = []
+
+                # Pick length: L_i
+                L = random.randint (T / 10, T)
 
                 # Pick height based on taskset type
                 if tasksetType == 'mixed':
