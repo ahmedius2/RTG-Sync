@@ -10,14 +10,14 @@ class Generator:
     def create_taskset (self, tasksetType):
         taskset = {}
         cValues = []
-        utilization = [u / 2.0 for u in range (1, 2 * self.M + 1)]
+        utilization = range (1, self.M + 1)
 
         for u in utilization:
+            tid = 1
             remUtil = u
             taskset [u] = {}
 
-            while 1:
-                tid = 1
+            while remUtil > 0.01:
 
                 # Pick length: L_i
                 L = random.randint (10, 150)
@@ -40,8 +40,10 @@ class Generator:
                 # Calculate utilization: U_i
                 v = float (L) * h / T
 
+                # Make the last task use the remaining utilization
                 if v > remUtil:
-                    break
+                    L = remUtil * T / h
+                    v = float (L) * h / T
 
                 remUtil -= v
                 taskset [u][T].append (Task (tid, L, T, h, ''))
