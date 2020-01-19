@@ -8,7 +8,7 @@ class Plotter:
         self.data = {}
         self.labelFz =  'x-large'
         self.labelFw =  'bold'
-        self.legendFz = 'large'
+        self.legendFz = 10
         self.titleFz =  'xx-large'
         self.titleFw =  'bold'
 

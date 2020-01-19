@@ -11,7 +11,7 @@ class RTA:
     def __init__ (self, numOfCores, debug = False):
         self.debug = debug
         self.M = numOfCores
-        self.utils = range (1, numOfCores + 1)
+        self.utils = [u / 4.0 for u in range (4, 4 * numOfCores + 1)]
         self.comparisonHash = {'bfc': {u: {} for u in self.utils},
                                'gpc': {u: {} for u in self.utils}}
 
