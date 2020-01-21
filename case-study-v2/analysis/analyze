@@ -11,7 +11,7 @@ def main ():
     dataHash = {s: {nn: [] for nn in neuralNets} for s in scenarios}
 
     for scn in scenarios:
-        logDir = '../logs/%s' % (scn)
+        logDir = '../logs2/%s' % (scn)
         runLogs = ['%s/%s' % (logDir, rl) for rl in os.listdir (logDir)
                 if 'run__' in rl]
         runName = {runLogs [idx]: neuralNets [idx] for idx in
@@ -24,18 +24,18 @@ def main ():
     # In the plot, we mark each scenario by a different color and each task by
     # a different line-style
     styleHash = {
-          'global':   {'DNN-1': {'name': 'Global',            'style': 'r-'},
-                       'DNN-2': {'name': 'Global (DNN-2)',    'style': 'r--'}},
-          'rtgang':   {'DNN-1': {'name': 'RT-Gang',           'style': 'g-'},
-                       'DNN-2': {'name': 'RT-Gang (DNN-2)',   'style': 'g--'}},
-          'rtgsynch': {'DNN-1': {'name': 'RTG-Sync',         'style': 'b-'},
-                       'DNN-2': {'name': 'RTG-Sync (DNN-2)', 'style': 'b--'}}
+          'global':   {'DNN-1': {'name': 'Global',    'style': 'r-'},
+                       'DNN-2': {'name': 'Global',    'style': 'r-'}},
+          'rtgang':   {'DNN-1': {'name': 'RT-Gang',   'style': 'g-'},
+                       'DNN-2': {'name': 'RT-Gang',   'style': 'g-'}},
+          'rtgsynch': {'DNN-1': {'name': 'RTG-Sync',  'style': 'b-'},
+                       'DNN-2': {'name': 'RTG-Sync',  'style': 'b-'}}
           }
 
     axesHash = {'x': {'lim': [6, 16],  'lbl': 'DNN Job Duration (msec)'},
                 'y': {'lim': [0, 1.12], 'lbl': 'CDF'}}
 
-    orderHash = {'l1': scenarios, 'l2': [neuralNets [0]]}
+    orderHash = {'l1': scenarios, 'l2': [neuralNets [1]]}
     plotter.create_cdf_plot (dataHash, styleHash, axesHash, orderHash)
 
     return
