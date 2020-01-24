@@ -2,17 +2,17 @@ import math, random
 from taskFactory import Task
 
 class Generator:
-    def __init__ (self, numOfCores):
+    def __init__ (self, numOfCores, utils):
         self.M = numOfCores
+        self.U = utils
 
         return
 
     def create_taskset (self, tasksetType):
         taskset = {}
         cValues = []
-        utilization = [u / 4.0 for u in range (4, 4 * self.M + 1)]
 
-        for u in utilization:
+        for u in self.U:
             tid = 1
             remUtil = u
             taskset [u] = {}
@@ -23,21 +23,22 @@ class Generator:
                 if T not in taskset [u]:
                     taskset [u][T] = []
 
-                while (tid % 5):
-                    L, h, v, stop = self.gen_task_params (tasksetType, remUtil, T)
-                    remUtil -= v
-                    taskset [u][T].append (Task (tid, L, T, h, ''))
+                # Randomly select the number of tasks to generate for the current period
+                tasks_per_period = random.randint (2, 5)
+
+                while (tid % tasks_per_period):
+                    task, remUtil, stop = self.gen_task_params (tasksetType, remUtil, T, tid)
+                    taskset [u][T].append (task)
                     tid += 1
                     if stop: break
                 else:
-                    L, h, v, stop = self.gen_task_params (tasksetType, remUtil, T)
-                    remUtil -= v
-                    taskset [u][T].append (Task (tid, L, T, h, ''))
+                    task, remUtil, stop = self.gen_task_params (tasksetType, remUtil, T, tid)
+                    taskset [u][T].append (task)
                     tid += 1
 
         return taskset
 
-    def gen_task_params (self, tasksetType, remUtil, T):
+    def gen_task_params (self, tasksetType, remUtil, T, tid):
         stop = False
 
         # Pick length: L_i
@@ -61,18 +62,26 @@ class Generator:
             v = float (L) * h / T
             stop = True
 
-        return L, h, v, stop
+        # Generate resource demand factor based on random distribution
+        r = random.randint (1, 100)
+
+        # Create the task object with the selected parameters
+        task = Task (tid, L, T, h, r, '')
+        remUtil -= v
+
+        return task, remUtil, stop
 
     def print_taskset (self, taskset):
         tidx = 1
         for u in taskset:
+            print '=' * 100
             v = 0
             print
             for p in taskset [u]:
-                print
+                print '*' * 50
                 for t in taskset [u][p]:
                     v += (t.C * t.m / p)
-                    print 'T=%2d: U=%d | P=%4d | V=%.3f | %s' % (tidx, u, p, v, t)
+                    print 'T=%2d: U=%2d | P=%4d | V=%.3f | %s' % (tidx, u, p, v, t)
                     tidx += 1
 
         return

@@ -14,19 +14,23 @@ class Plotter:
 
         return
 
-    def create_schedulability_plot (self, resultsHash, workloadType, M):
+    def create_schedulability_plot (self, policies, resultsHash, workloadType, M):
         fig = plt.figure (figsize = (6, 5))
-        styleHash = {'rtgang'      : {'lbl': 'RT-Gang',       'mrk': 'r-o'},
-                     'gangftp'     : {'lbl': 'Gang-FTP',      'mrk': 'm-p'},
-                     'rtgsynch_gpc': {'lbl': 'RTG-Sync-GPC', 'mrk': 'g-^'},
-                     'rtgsynch_bfc': {'lbl': 'RTG-Sync-BFC', 'mrk': 'b-x'},
-                     'threadglobal': {'lbl': 'Thread-Global', 'mrk': 'c-D'}}
+        styleHash = {'rtgang'               : {'lbl': 'RT-Gang',             'mrk': 'r-o'},
+                     'gftp'                 : {'lbl': 'Gang-FTP',            'mrk': 'm-p'},
+                     'gftp-ideal'           : {'lbl': 'Gang-FTP (Ideal)',    'mrk': 'm--p'},
+                     'threaded'             : {'lbl': 'Threaded',            'mrk': 'c-D'},
+                     'threaded-ideal'       : {'lbl': 'Threaded (Ideal)',    'mrk': 'c--D'},
+                     'rtgsync-gpc'          : {'lbl': 'RTG-Sync(GPC)',       'mrk': 'g-^'},
+                     'rtgsync-ideal-gpc'    : {'lbl': 'RTG-Sync(Ideal-GPC)', 'mrk': 'g--^'},
+                     'rtgsync-bfc'          : {'lbl': 'RTG-Sync(BFC)',       'mrk': 'b-x'},
+                     'rtgsync-ideal-bfc'    : {'lbl': 'RTG-Sync(Ideal-BFC)', 'mrk': 'b--x'}}
 
         workloadLabel = {'mixed': 'Mixed',
                          'light': 'Lightly Parallel',
                          'heavy': 'Heavily Parallel'}
 
-        for policy in resultsHash:
+        for policy in policies:
             utils, sched = self.__stratify_data (resultsHash [policy])
             plt.plot (utils, sched, styleHash [policy]['mrk'],
                     label = styleHash [policy]['lbl'])
