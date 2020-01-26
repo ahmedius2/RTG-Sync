@@ -14,39 +14,42 @@ class RTA:
 
     def analysis (self, taskset, scheduler, maxUtil):
         hpTasks = {}
+        schedulableTasks = []
         periods = sorted (taskset.keys ())
 
+        if 'threaded' in scheduler:
+            taskset = self.__split_gangs_into_threads (taskset)
+
+        if scheduler in ['gftp', 'threaded']:
+            taskset = self.__deep_copy_taskset (taskset)
+
+            if scheduler == 'gftp':
+                taskset = self.__scale_taskset (taskset)
+            elif scheduler == 'threaded':
+                taskset = self.__scale_threadset (taskset)
+
         # RMS scheme: smaller period -> higher priority
-        schedulableTasks = []
         for p in periods:
             tasks = [t.copy () for t in taskset [p]]
 
-            if scheduler == 'rtgang':
-                rta = self.__check_schedulability
-            elif 'rtgsync' in scheduler:
-                heuristic = scheduler [-3:]
-                algoEngine = Heuristics (self.M)
+            if scheduler == 'rtgang' or 'rtgsync' in scheduler:
                 rta = self.__check_schedulability
 
-                if heuristic == 'bfc':
-                    scaling = 0 if 'ideal' in scheduler else 1
-                    tasks = algoEngine.brute_force (tasks, p, scaling)
-                elif heuristic == 'gpc':
-                    scaling = 'ideal' not in scheduler
-                    tasks = algoEngine.greedy_packing_compute (tasks, p, scaling)
-                else:
-                    raise ValueError, 'Unknown gang formation heuristic: %s' % (heuristic)
+                if 'rtgsync' in scheduler:
+                    heuristic = scheduler [-3:]
+                    algoEngine = Heuristics (self.M)
+
+                    if heuristic == 'bfc':
+                        scaling = 0 if 'ideal' in scheduler else 1
+                        tasks = algoEngine.brute_force (tasks, p, scaling)
+                    elif heuristic == 'gpc':
+                        scaling = 'ideal' not in scheduler
+                        tasks = algoEngine.greedy_packing_compute (tasks, p, scaling)
+                    else:
+                        raise ValueError, 'Unknown gang formation heuristic: %s' % (heuristic)
 
             elif scheduler in ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal']:
                 rta = self.__check_schedulability_gftp
-
-                if 'threaded' in scheduler:
-                    tasks = self.__split_gangs_into_threads (tasks)
-
-                if scheduler == 'gftp':
-                    tasks = self.__scale_taskset (tasks)
-                elif scheduler == 'threaded':
-                    tasks = self.__scale_threadset (tasks)
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
@@ -74,16 +77,29 @@ class RTA:
         return 1
 
     def __split_gangs_into_threads (self, taskset):
-        threadset = []
+        threadset = {}
         threadIdx = 1
 
-        for t in taskset:
-            for th in range (int (t.m)):
-                thread = Task (threadIdx, t.C, t.P, 1, t.r / t.m, '')
-                threadset.append (thread)
-                threadIdx += 1
+        for p in taskset:
+            threadset [p] = []
+            for t in taskset [p]:
+                for th in range (int (t.m)):
+                    thread = Task (threadIdx, t.C, t.P, 1, t.r / t.m, '')
+                    threadset [p].append (thread)
+                    threadIdx += 1
 
         return threadset
+
+    def __deep_copy_taskset (self, taskset):
+        copied_taskset = {}
+
+        for p in taskset:
+            copied_taskset [p] = []
+
+            for t in taskset [p]:
+                copied_taskset [p].append (t.copy ())
+
+        return copied_taskset
 
     def __check_schedulability (self, tk, hpTasks):
         '''
@@ -148,8 +164,8 @@ class RTA:
     def __scale_threadset (self, taskset):
         sorted_tasks = []
         scaling_factors = {}
-        temp_taskset = [t for t in taskset]
-        sorted_resource_demands = sorted ([t.r for t in taskset], reverse = True)
+        temp_taskset = [t for p in taskset for t in taskset [p]]
+        sorted_resource_demands = list (set (sorted ([t.r for t in temp_taskset], reverse = True)))
 
         for r in sorted_resource_demands:
             for t in temp_taskset:
@@ -157,47 +173,51 @@ class RTA:
                     sorted_tasks.append (t)
                     temp_taskset.remove (t)
 
-        for t in taskset:
-            worst_corunners = sorted_tasks [:self.M]
+        for p in taskset:
+            for t in taskset [p]:
+                worst_corunners = sorted_tasks [:self.M]
 
-            if t in worst_corunners:
-                worst_corunners.remove (t)
-            else:
-                del (worst_corunners [-1])
+                if t in worst_corunners:
+                    worst_corunners.remove (t)
+                else:
+                    del (worst_corunners [-1])
 
-            max_demand = t.r + sum ([w.r for w in worst_corunners])
-            scaling_factors [t] = max (1, max_demand / 100.0)
+                max_demand = t.r + sum ([w.r for w in worst_corunners])
+                scaling_factors [t] = max (1, max_demand / 100.0)
 
-        for t in taskset:
-            t.C *= scaling_factors [t]
+        for p in taskset:
+            for t in taskset [p]:
+                t.C *= scaling_factors [t]
 
         return taskset
 
     def __scale_taskset (self, taskset):
         scaling_factors = {}
 
-        for t in taskset:
-            if t.m == self.M:
-                # There cannot be any corunners of this task since it requires
-                # all the cores
+        for p in taskset:
+            for t in taskset [p]:
+                if t.m == self.M:
+                    # There cannot be any corunners of this task since it requires
+                    # all the cores
+                    scaling_factors [t] = 1.0
+                    continue
+
+                corunner_taskset = self.__get_corunners_of_task (t, taskset)
+
+                if corunner_taskset != []:
+                    scaling_factors [t] = self.__calc_task_scaling_factor (t, corunner_taskset)
+                    continue
+
                 scaling_factors [t] = 1.0
-                continue
 
-            corunner_taskset = self.__get_corunners_of_task (t, taskset)
-
-            if corunner_taskset != []:
-                scaling_factors [t] = self.__calc_task_scaling_factor (t, corunner_taskset)
-                continue
-
-            scaling_factors [t] = 1.0
-
-        for t in taskset:
-            t.C *= scaling_factors [t]
+        for p in taskset:
+            for t in taskset [p]:
+                t.C *= scaling_factors [t]
 
         return taskset
 
     def __calc_task_scaling_factor (self, task, corunners):
-        worst_gang, max_demand = self.gangFactory.find_worst_corunner_gang (task, corunners) #, True)
+        worst_gang, max_demand = self.gangFactory.find_worst_corunner_gang (task, corunners)
         scaling_factor = max (1, max_demand / 100.0)
 
         return scaling_factor
@@ -205,18 +225,21 @@ class RTA:
     def __get_corunners_of_task (self, subject_task, taskset):
         corunner_taskset = []
 
-        for t in taskset:
-            if t == subject_task:
-                continue
+        for p in taskset:
+            for t in taskset [p]:
+                if t == subject_task:
+                    continue
 
-            if (t.m + subject_task.m) <= self.M:
-                corunner_taskset.append (t)
+                if (t.m + subject_task.m) <= self.M:
+                    corunner_taskset.append (t)
 
         return corunner_taskset
 
-    def __dbg_print_taskset (self, taskset, lvl = 0):
-        for t in taskset:
-            print '\t' * lvl, t
+    def __dbg_print_taskset (self, taskset):
+        for p in taskset:
+            print '\tPeriod:', p
+            for t in taskset [p]:
+                print '\t\t', t
 
         return
 

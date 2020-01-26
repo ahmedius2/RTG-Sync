@@ -50,6 +50,7 @@ class CombinationGenerator:
     def find_worst_corunner_gang (self, subjectTask, corunners):
         self.resourceDemandHash = {subjectTask.name: subjectTask.r}
         self.parallelismHash = {subjectTask.name: subjectTask.m}
+        self.M -= subjectTask.m
         self.candidateSet = []
         self.gangHash = {}
         worstGang = ''
@@ -69,9 +70,6 @@ class CombinationGenerator:
             else:
                 m = self.parallelismHash [g]
 
-            if (subjectTask.m + m) > self.M:
-                continue
-
             gang = '%s+%s' % (subjectTask.name, g)
             gangTasks = self.__gang_to_tasks (gang)
             demand = self.__calc_gang_demand (gangTasks)
@@ -79,6 +77,9 @@ class CombinationGenerator:
             if demand > maxDemand:
                 maxDemand = demand
                 worstGang = gang
+
+        # Restore M
+        self.M += subjectTask.m
 
         return worstGang, maxDemand
 

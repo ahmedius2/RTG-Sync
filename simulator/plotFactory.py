@@ -4,13 +4,14 @@ from matplotlib import mlab
 import matplotlib.pyplot as plt
 
 class Plotter:
-    def __init__ (self):
+    def __init__ (self, tasks_per_period):
         self.data = {}
-        self.labelFz =  'x-large'
+        self.legendFz = 8
         self.labelFw =  'bold'
-        self.legendFz = 10
-        self.titleFz =  'xx-large'
         self.titleFw =  'bold'
+        self.labelFz =  'x-large'
+        self.titleFz =  'xx-large'
+        self.tpp = tasks_per_period
 
         return
 
@@ -27,8 +28,12 @@ class Plotter:
                      'rtgsync-ideal-bfc'    : {'lbl': 'RTG-Sync(Ideal-BFC)', 'mrk': 'b--x'}}
 
         workloadLabel = {'mixed': 'Mixed',
-                         'light': 'Lightly Parallel',
-                         'heavy': 'Heavily Parallel'}
+                         'light': 'Light',
+                         'heavy': 'Heavy'}
+
+        legendLocation = {'light': 'upper right',
+                          'mixed': 'lower left',
+                          'heavy': 'lower left'}
 
         for policy in policies:
             utils, sched = self.__stratify_data (resultsHash [policy])
@@ -36,16 +41,17 @@ class Plotter:
                     label = styleHash [policy]['lbl'])
 
         plt.grid (True)
-        plt.ylim (0, 1.1)
+        plt.ylim (-0.1, 1.1)
         plt.xlim (1, utils [-1])
-        if workloadType == 'mixed':
-            plt.legend (loc = 'lower left', ncol = 1,
-                    fontsize = self.legendFz)
+        # if workloadType == 'mixed':
+        plt.legend (loc = legendLocation [workloadType], ncol = 1,
+                fontsize = self.legendFz)
         plt.xlabel ('Utilization', fontsize = self.labelFz,
                 fontweight = self.labelFw)
         plt.ylabel ('Schedulability', fontsize = self.labelFz,
                 fontweight = self.labelFw)
-        plt.title ('%s' % (workloadLabel [workloadType]),
+        additional_title = '' if not self.tpp else ' | Tasks Per Period = %s' % (self.tpp)
+        plt.title ('%s' % (workloadLabel [workloadType] + additional_title),
                 fontsize = self.titleFz, fontweight = self.titleFw)
 
         ax = plt.gca ()
@@ -56,7 +62,8 @@ class Plotter:
             tick.label1.set_fontsize(15)
             # tick.label1.set_fontweight('bold')
 
-        plt.savefig ('%s_c%d.pdf' % (workloadType, M), bbox_inches = 'tight')
+        additional_name = '' if not self.tpp else '_t%s' % (self.tpp)
+        plt.savefig ('%s_c%d%s.pdf' % (workloadType, M, additional_name), bbox_inches = 'tight')
 
         return
 

@@ -2,7 +2,8 @@ import math, random
 from taskFactory import Task
 
 class Generator:
-    def __init__ (self, numOfCores, utils):
+    def __init__ (self, numOfCores, utils, tasks_per_period = False):
+        self.tpp = tasks_per_period
         self.M = numOfCores
         self.U = utils
 
@@ -24,7 +25,7 @@ class Generator:
                     taskset [u][T] = []
 
                 # Randomly select the number of tasks to generate for the current period
-                tasks_per_period = random.randint (2, 5)
+                tasks_per_period = random.randint (2, 5) if not self.tpp else int (self.tpp)
 
                 while (tid % tasks_per_period):
                     task, remUtil, stop = self.gen_task_params (tasksetType, remUtil, T, tid)

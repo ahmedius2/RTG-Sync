@@ -20,16 +20,19 @@ from tasksetGenerator import Generator
 
 # All time values are in msec; unless specified otherwise
 MAX_RUNS = int (sys.argv [3])
-POLICIES = ['gftp', 'threaded', 'rtgang', 'rtgsync-gpc', 'rtgsync-bfc']
 NUM_OF_CORES = int (sys.argv [1])
+UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
-UTILS = range (1, NUM_OF_CORES + 1)
+TASKS_PER_PERIOD = False if (len (sys.argv) < 5) else sys.argv [4]
+POLICIES =  ['gftp-ideal', 'gftp', 'threaded', 'threaded-ideal',
+             'rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
+             'rtgsync-ideal-bfc', 'rtgang']
 
 def process_work (tIdx):
     rta = RTA (NUM_OF_CORES, UTILS)
-    generator = Generator (NUM_OF_CORES, UTILS)
     trs = {w: {p: {} for p in POLICIES} for w in WORKLOADS}
+    generator = Generator (NUM_OF_CORES, UTILS, TASKS_PER_PERIOD)
 
     for w in WORKLOADS:
         taskset = generator.create_taskset (w)
@@ -62,7 +65,7 @@ def aggregate_results ():
 def main ():
     processes = {}
     block = u"\u2588"
-    plotter = Plotter ()
+    plotter = Plotter (TASKS_PER_PERIOD)
     manager = multiprocessing.Manager ()
 
     for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
@@ -80,10 +83,15 @@ def main ():
             sys.stdout.flush ()
 
     print
+    print "---> Aggregating results..."
     schedulabilityHash = aggregate_results ()
+
+    print "---> Creating schedulability plots..."
     for w in WORKLOADS:
         plotter.create_schedulability_plot (POLICIES, schedulabilityHash [w], w,
                 NUM_OF_CORES)
+
+    print "Done!"
 
     return
 
