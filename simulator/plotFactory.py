@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class Plotter:
     def __init__ (self, tasks_per_period):
         self.data = {}
-        self.legendFz = 6
+        self.legendFz = 7.5
         self.labelFw =  'bold'
         self.titleFw =  'bold'
         self.labelFz =  'x-large'
@@ -44,8 +44,8 @@ class Plotter:
         plt.ylim (-0.1, 1.1)
         plt.xlim (1, utils [-1])
         if workloadType == 'mixed':
-            plt.legend (loc = legendLocation [workloadType], ncol = 2,
-                    fontsize = self.legendFz)
+            plt.legend (loc = legendLocation [workloadType], ncol = 1,
+                    fontsize = self.legendFz, handlelength = 4)
         plt.xlabel ('Utilization', fontsize = self.labelFz,
                 fontweight = self.labelFw)
         plt.ylabel ('Schedulability', fontsize = self.labelFz,
