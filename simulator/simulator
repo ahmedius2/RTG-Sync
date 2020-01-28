@@ -14,6 +14,7 @@ Copyright (C) 2019 KU-CSL
 09-08-2019  Integrate combination generator with taskset simulator
 '''
 from rtaFactory import RTA
+from taskFactory import Task
 from plotFactory import Plotter
 import sys, multiprocessing, json
 from tasksetGenerator import Generator
@@ -25,6 +26,8 @@ NUM_OF_CORES = int (sys.argv [1])
 UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
+LOAD = False if (len (sys.argv) < 7) else (sys.argv [6] != 0)
+DEBUG = False if (len (sys.argv) < 6) else (sys.argv [5] != 0)
 SENSITIVITY = False if (len (sys.argv) < 5) else (sys.argv [4] != 0)
 
 if SENSITIVITY:
@@ -37,13 +40,47 @@ else:
 
 def process_work (tIdx):
     rta = RTA (NUM_OF_CORES, UTILS)
+    taskset = {}
+    taskDict = {}
 
     if SENSITIVITY:
         trs = {t: {p: {} for p in POLICIES} for t in TASKS_PER_PERIOD}
 
         for t in TASKS_PER_PERIOD:
             generator = Generator (NUM_OF_CORES, UTILS, t)
-            taskset = generator.create_taskset ('mixed')
+
+            if LOAD:
+                with open ('taskset.json', 'r') as fdi:
+                    taskDict = json.load (fdi)
+
+                for u in taskDict:
+                    util = int (u)
+                    if util not in taskset: taskset [util] = {}
+                    for tid in taskDict [u]:
+                        c = int (taskDict [u][tid]['c'])
+                        p = int (taskDict [u][tid]['p'])
+                        m = int (taskDict [u][tid]['m'])
+                        r = int (taskDict [u][tid]['r'])
+                        task = Task (int (tid), c, p, m, r, '')
+
+                        if p in taskset [util]:
+                            taskset [util][p].append (task)
+                        else:
+                            taskset [util][p] = [task]
+            else:
+                taskset = generator.create_taskset ('mixed')
+
+                if DEBUG:
+                    print "---> Taskset"
+                    for u in taskset:
+                        taskDict [u] = {}
+                        for p in taskset [u]:
+                            for tk in taskset [u][p]:
+                                print "\t", tk
+                                taskDict [u][tk.tid] = {'c': tk.C, 'p': tk.P, 'm': tk.m, 'r': tk.r}
+
+                    with open ('taskset.json', 'w') as fdo:
+                        json.dump (taskDict, fdo)
 
             for p in POLICIES:
                 for u in UTILS:
@@ -100,21 +137,21 @@ def main ():
     plotter = Plotter (TASKS_PER_PERIOD)
     manager = multiprocessing.Manager ()
 
-    # for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
-    #     for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
-    #         processes [t] = multiprocessing.Process (target = process_work, args = (t,))
-    #         processes [t].start ()
+    for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
+        for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
+            processes [t] = multiprocessing.Process (target = process_work, args = (t,))
+            processes [t].start ()
 
-    #     for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
-    #         processes [t].join ()
+        for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
+            processes [t].join ()
 
-    #         progress = (t + 1) * 100 / MAX_RUNS
-    #         progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
-    #                             (progress, block * progress, t + 1, MAX_RUNS)
-    #         sys.stdout.write (progressBar)
-    #         sys.stdout.flush ()
+            progress = (t + 1) * 100 / MAX_RUNS
+            progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
+                                (progress, block * progress, t + 1, MAX_RUNS)
+            sys.stdout.write (progressBar)
+            sys.stdout.flush ()
 
-    # print
+    print
     print "---> Aggregating results..."
     schedulabilityHash = aggregate_results ()
 

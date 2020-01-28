@@ -19,7 +19,7 @@ class CombinationGenerator:
 
         return
 
-    def generate_virtual_taskset (self, sysConfig, p):
+    def generate_virtual_taskset (self, sysConfig, p, scaling = False):
         idx = 1
         taskset = []
         gangs = self.__config_to_gangs (sysConfig [0])
@@ -39,6 +39,9 @@ class CombinationGenerator:
                 r += self.resourceDemandHash [task]
                 memberList.append (task)
                 assert (m <= self.M)
+
+            if scaling:
+                c *= max (1, r / 100.0)
 
             members = '-'.join (memberList)
             virtualGangTask = Task (idx, c, p, m, r, members, u, n, True)
@@ -257,7 +260,7 @@ class CombinationGenerator:
                 self.resourceDemandHash [gang] = gangDemand
 
         for g in self.resourceDemandHash:
-            scalingFactors [g] = 1 - max (self.resourceDemandHash [g] / 100, 1)
+            scalingFactors [g] = max (self.resourceDemandHash [g] / 100.0, 1)
 
         return scalingFactors
 

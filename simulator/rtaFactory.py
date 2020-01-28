@@ -38,12 +38,11 @@ class RTA:
                 if 'rtgsync' in scheduler:
                     heuristic = scheduler [-3:]
                     algoEngine = Heuristics (self.M)
+                    scaling = 'ideal' not in scheduler
 
                     if heuristic == 'bfc':
-                        scaling = 0 if 'ideal' in scheduler else 1
                         tasks = algoEngine.brute_force (tasks, p, scaling)
                     elif heuristic == 'gpc':
-                        scaling = 'ideal' not in scheduler
                         tasks = algoEngine.greedy_packing_compute (tasks, p, scaling)
                     else:
                         raise ValueError, 'Unknown gang formation heuristic: %s' % (heuristic)
@@ -240,29 +239,5 @@ class RTA:
             print '\tPeriod:', p
             for t in taskset [p]:
                 print '\t\t', t
-
-        return
-
-    def dbg_print_heuristic_comparison (self):
-        heuristics = self.comparisonHash.keys ()
-
-        for u in self.utils:
-            for p in self.comparisonHash [heuristics [0]][u]:
-                report = 'U: %2d | P:%4d\n' % (u, p)
-                compHash = {h: 0 for h in heuristics}
-                report += '\t\t\t\tCandidate-Set\n\t\t'
-                report += '\n\t\t'.join (["%s" % t for t in self.comparisonHash [heuristics [0]][u][p][0]])
-                report += '\n\n'
-
-                for h in heuristics:
-                    report += '\t%s\tGangs: ' % (h)
-                    report += '\t'.join (['%s' % g for g in self.comparisonHash [h][u][p][1]])
-                    compHash [h] += round (sum ([g.C for g in self.comparisonHash [h][u][p][1]]), 3)
-                    report += '\n'
-
-                if (sum (compHash.values ()) / compHash.values ()[0] / len (compHash.keys ())) != 1.0:
-                    print '======> Watch Out!', compHash
-                    print report
-                    print '-----------------------------'
 
         return

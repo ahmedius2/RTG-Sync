@@ -19,7 +19,7 @@ class Heuristics:
 
         return
 
-    def brute_force (self, tasks, p, scaling = 0, debug = False):
+    def brute_force (self, tasks, p, scaling = False, debug = False):
         configTimesHash = {}
         gangFactory = CombinationGenerator (self.M)
         combos, computeTimes, scalingFactors = gangFactory.generate_gang_combinations (tasks)
@@ -30,7 +30,10 @@ class Heuristics:
 
             comboComputeTime = 0
             for gang in gangs:
-                comboComputeTime += (computeTimes [gang] + (computeTimes [gang] * scaling * scalingFactors [gang]))
+                if scaling:
+                    comboComputeTime += (computeTimes [gang] * scalingFactors [gang])
+                else:
+                    comboComputeTime += computeTimes [gang]
 
             if comboComputeTime in configTimesHash:
                 if numOfMembers in configTimesHash [comboComputeTime]:
@@ -41,7 +44,7 @@ class Heuristics:
                 configTimesHash [comboComputeTime] = {numOfMembers: [gangCombo]}
 
         bestConfig = self.__get_best_config (configTimesHash, debug)
-        virtGangs = gangFactory.generate_virtual_taskset (bestConfig, p)
+        virtGangs = gangFactory.generate_virtual_taskset (bestConfig, p, scaling)
 
         return virtGangs
 
@@ -123,7 +126,7 @@ class Heuristics:
                 if task.m == self.M or nidx < 0:
                     # Step-3b
                     if scaling:
-                        task.C *= max (task.r / 100, 1)
+                        task.C *= max (task.r / 100.0, 1)
                     virtGangs.append (task)
                     idx += 1
                     break
