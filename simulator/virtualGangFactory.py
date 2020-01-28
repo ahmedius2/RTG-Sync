@@ -10,7 +10,7 @@ Copyright (C) 2019 KU-CSL
 09-07-2019  Define generator class and its methods
 09-09-2019  Add functionality to estimate gang execution times
 '''
-import math
+import sys, math
 from taskFactory import Task
 
 class CombinationGenerator:
@@ -30,22 +30,61 @@ class CombinationGenerator:
             n = len (tasks)
             u = 0
             m = 0
+            r = 0
             memberList = []
 
             for task in tasks:
                 m += self.parallelismHash [task]
                 u += self.utilizationHash [task]
+                r += self.resourceDemandHash [task]
                 memberList.append (task)
                 assert (m <= self.M)
 
             members = '-'.join (memberList)
-            virtualGangTask = Task (idx, c, p, m, members, u, n, True)
+            virtualGangTask = Task (idx, c, p, m, r, members, u, n, True)
             taskset.append (virtualGangTask)
             idx += 1
 
         return taskset
 
+    def find_worst_corunner_gang (self, subjectTask, corunners):
+        self.resourceDemandHash = {subjectTask.name: subjectTask.r}
+        self.parallelismHash = {subjectTask.name: subjectTask.m}
+        self.M -= subjectTask.m
+        self.candidateSet = []
+        self.gangHash = {}
+        worstGang = ''
+        maxDemand = 0
+
+        for task in corunners:
+            self.candidateSet.append (task.name)
+            self.parallelismHash [task.name] = task.m
+            self.resourceDemandHash [task.name] = task.r
+
+        corunner_gangs = self.__generate_virtual_gangs (self.candidateSet)
+
+        for g in corunner_gangs:
+            if self.__has_multiple_tasks (g):
+                m = self.__taskset_parallelism (g)
+                g = '+'.join (g)
+            else:
+                m = self.parallelismHash [g]
+
+            gang = '%s+%s' % (subjectTask.name, g)
+            gangTasks = self.__gang_to_tasks (gang)
+            demand = self.__calc_gang_demand (gangTasks)
+
+            if demand > maxDemand:
+                maxDemand = demand
+                worstGang = gang
+
+        # Restore M
+        self.M += subjectTask.m
+
+        return worstGang, maxDemand
+
     def generate_gang_combinations (self, taskset, debug = False):
+        self.resourceDemandHash = {}
         self.parallelismHash = {}
         self.utilizationHash = {}
         self.computeTimeHash = {}
@@ -58,14 +97,16 @@ class CombinationGenerator:
             self.parallelismHash [task.name] = task.m
             self.utilizationHash [task.name] = task.u
             self.computeTimeHash [task.name] = task.C
+            self.resourceDemandHash [task.name] = task.r
 
         combos = self.__generate_sys_configs (self.candidateSet)
         comboTimes = self.__calc_combination_times (combos)
+        scalingFactors = self.__calc_combination_scaling_factor (combos)
 
         if debug:
             self.__dbg_print_gang_combinations (combos, len (taskset))
 
-        return combos, comboTimes
+        return combos, comboTimes, scalingFactors
 
     def __generate_sys_configs (self, candidateSet):
         if len (candidateSet) == 1:
@@ -201,6 +242,25 @@ class CombinationGenerator:
 
         return self.computeTimeHash
 
+    def __calc_combination_scaling_factor (self, configs):
+        scalingFactors = {}
+
+        for config in configs:
+            gangs = self.__config_to_gangs (config)
+
+            for gang in gangs:
+                if gang in self.resourceDemandHash:
+                    continue
+
+                gangTasks = self.__gang_to_tasks (gang)
+                gangDemand = self.__calc_gang_demand (gangTasks)
+                self.resourceDemandHash [gang] = gangDemand
+
+        for g in self.resourceDemandHash:
+            scalingFactors [g] = 1 - max (self.resourceDemandHash [g] / 100, 1)
+
+        return scalingFactors
+
     def __config_to_gangs (self, config):
         return config.split (',')
 
@@ -214,6 +274,14 @@ class CombinationGenerator:
             gangExecTime = max (self.computeTimeHash [task], gangExecTime)
 
         return gangExecTime
+
+    def __calc_gang_demand (self, gang):
+        gangDemand = 0
+
+        for task in gang:
+            gangDemand += self.resourceDemandHash [task]
+
+        return gangDemand
 
     def __dbg_configs_to_slots (self, configs):
         slots = {}

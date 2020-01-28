@@ -24,21 +24,22 @@ NUM_OF_CORES = int (sys.argv [1])
 UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
-POLICIES = ['rtgsynch_bfc', 'rtgsynch_gpc', 'rtgang'] #, 'threadglobal', 'gangftp']
+TASKS_PER_PERIOD = False if (len (sys.argv) < 5) else sys.argv [4]
+POLICIES =  ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal',
+             'rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
+             'rtgsync-ideal-bfc', 'rtgang']
 
 def process_work (tIdx):
-    rta = RTA (NUM_OF_CORES)
-    generator = Generator (NUM_OF_CORES)
+    rta = RTA (NUM_OF_CORES, UTILS)
     trs = {w: {p: {} for p in POLICIES} for w in WORKLOADS}
+    generator = Generator (NUM_OF_CORES, UTILS, TASKS_PER_PERIOD)
 
     for w in WORKLOADS:
         taskset = generator.create_taskset (w)
 
         for p in POLICIES:
             for u in UTILS:
-                trs [w][p][u] = rta.get_schedulability (taskset [u], p, u, w)
-            # print '%s | %12s | ' % (w, p), '\t'.join (['%s : %.3f' % (u, trs [w][p][u]) for u in trs [w][p]])
-        # rta.dbg_print_heuristic_comparison ()
+                trs [w][p][u] = rta.analysis (taskset [u], p, u)
 
     with open ('json/p%d.json' % tIdx, 'w') as fdo:
         json.dump (trs, fdo)
@@ -64,7 +65,7 @@ def aggregate_results ():
 def main ():
     processes = {}
     block = u"\u2588"
-    plotter = Plotter ()
+    plotter = Plotter (TASKS_PER_PERIOD)
     manager = multiprocessing.Manager ()
 
     for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
@@ -82,10 +83,13 @@ def main ():
             sys.stdout.flush ()
 
     print
+    print "---> Aggregating results..."
     schedulabilityHash = aggregate_results ()
-    for w in WORKLOADS:
-        plotter.create_schedulability_plot (schedulabilityHash [w], w,
-                NUM_OF_CORES)
+
+    print "---> Creating schedulability plots..."
+    plotter.create_schedulability_plot (POLICIES, schedulabilityHash, WORKLOADS, NUM_OF_CORES)
+
+    print "Done!"
 
     return
 

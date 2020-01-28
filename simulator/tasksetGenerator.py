@@ -2,77 +2,87 @@ import math, random
 from taskFactory import Task
 
 class Generator:
-    def __init__ (self, numOfCores):
+    def __init__ (self, numOfCores, utils, tasks_per_period = False):
+        self.tpp = tasks_per_period
         self.M = numOfCores
+        self.U = utils
 
         return
 
     def create_taskset (self, tasksetType):
         taskset = {}
         cValues = []
-        utilization = [u + 1 for u in range (self.M)]
 
-        for u in utilization:
+        for u in self.U:
+            tid = 1
             remUtil = u
             taskset [u] = {}
 
-            while remUtil > 0.001:
-                tid = 1
-                # Generate a unique period
-                while (1):
-                    p = random.randint (500, 1500)
-                    if p not in taskset [u]:
-                        taskset [u][p] = []
-                        break
+            while remUtil > 0.01:
+                # Pick period: T_i
+                T = random.randint (10, 1500)
+                if T not in taskset [u]:
+                    taskset [u][T] = []
 
-                while tid < 10:
-                    if tasksetType == 'mixed':
-                        m = random.randint (1, self.M)
-                    elif tasksetType == 'light':
-                        m = random.randint (1, math.ceil (0.3 * self.M))
-                    elif tasksetType == 'heavy':
-                        m = random.randint (math.ceil (0.3 * self.M), self.M)
-                    else:
-                        raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
+                # Randomly select the number of tasks to generate for the current period
+                tasks_per_period = random.randint (2, 5) if not self.tpp else int (self.tpp)
 
-                    e = random.randint (10, 100)
-                    v = float (e) * m / p
-
-                    if v > remUtil:
-                        e = float (remUtil) * p / m
-                        v = remUtil
-
-                    remUtil -= v
-                    taskset [u][p].append (Task (tid, e, p, m, ''))
+                while (tid % tasks_per_period):
+                    task, remUtil, stop = self.gen_task_params (tasksetType, remUtil, T, tid)
+                    taskset [u][T].append (task)
                     tid += 1
-
-                    if remUtil < 0.001:
-                        self.__verify_taskset (taskset, u)
-                        break
+                    if stop: break
+                else:
+                    task, remUtil, stop = self.gen_task_params (tasksetType, remUtil, T, tid)
+                    taskset [u][T].append (task)
+                    tid += 1
 
         return taskset
 
-    def __verify_taskset (self, taskset, u):
-        v = 0.0
-        for p in taskset [u]:
-            for t in taskset [u][p]:
-                v += t.u
+    def gen_task_params (self, tasksetType, remUtil, T, tid):
+        stop = False
 
-        if (u - v) > 0.001:
-            raise ValueError, 'Utilization not met: u=%.3f | v=%.3f' % (u, v)
+        # Pick length: L_i
+        L = random.randint (T / 10, T / 5)
 
-        return
+        # Pick height based on taskset type
+        if tasksetType == 'mixed':
+            h = random.randint (1, self.M)
+        elif tasksetType == 'light':
+            h = random.randint (1, math.ceil (0.3 * self.M))
+        elif tasksetType == 'heavy':
+            h = random.randint (math.ceil (0.3 * self.M), self.M)
+        else:
+            raise ValueError, 'Unexpected taskset type: %s' % (tasksetType)
+
+        # Calculate utilization: U_i
+        v = float (L) * h / T
+
+        if v > remUtil:
+            L = remUtil * T / h
+            v = float (L) * h / T
+            stop = True
+
+        # Generate resource demand factor based on random distribution
+        r = random.randint (1, 100)
+
+        # Create the task object with the selected parameters
+        task = Task (tid, L, T, h, r, '')
+        remUtil -= v
+
+        return task, remUtil, stop
 
     def print_taskset (self, taskset):
         tidx = 1
         for u in taskset:
+            print '=' * 100
             v = 0
             print
             for p in taskset [u]:
-                print
+                print '*' * 50
                 for t in taskset [u][p]:
                     v += (t.C * t.m / p)
-                    print 'T=%2d: U=%d | P=%4d | V=%.3f | %s' % (tidx, u, p, v, t)
+                    print 'T=%2d: U=%2d | P=%4d | V=%.3f | %s' % (tidx, u, p, v, t)
                     tidx += 1
 
         return

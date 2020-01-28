@@ -1,82 +1,55 @@
 import sys, math
 from taskFactory import Task
 from algorithmFactory import Heuristics
-
-RTGANG_SCALING_FACTOR = 1.1
-RTGSYNCH_SCALING_FACTOR = 1.2
-COSCHED_GANG_SCALING_FACTOR = 1.0
-COSCHED_THREAD_SCALING_FACTOR = 1.0
+from virtualGangFactory import CombinationGenerator
 
 class RTA:
-    def __init__ (self, numOfCores, debug = False):
+    def __init__ (self, numOfCores, utils, debug = False):
         self.debug = debug
         self.M = numOfCores
-        self.utils = range (1, numOfCores + 1)
-        self.comparisonHash = {'bfc': {u: {} for u in self.utils},
-                               'gpc': {u: {} for u in self.utils}}
+        self.gangFactory = CombinationGenerator (self.M)
+        self.utils = utils
 
         return
 
-    def get_schedulability (self, taskset, scheduler, maxUtil, w):
-        schedulableUtil = self.__response_time_analysis (taskset, scheduler, maxUtil, w)
-        schedulability = round (float (schedulableUtil) / maxUtil, 3)
-
-        return schedulability
-
-    def __response_time_analysis (self, taskset, scheduler, maxUtil, w):
+    def analysis (self, taskset, scheduler, maxUtil):
         hpTasks = {}
-        check = True
-        schedulableUtilization = 0
+        schedulableTasks = []
         periods = sorted (taskset.keys ())
 
+        if 'threaded' in scheduler:
+            taskset = self.__split_gangs_into_threads (taskset)
+
+        if scheduler in ['gftp', 'threaded']:
+            taskset = self.__deep_copy_taskset (taskset)
+
+            if scheduler == 'gftp':
+                taskset = self.__scale_taskset (taskset)
+            elif scheduler == 'threaded':
+                taskset = self.__scale_threadset (taskset)
+
         # RMS scheme: smaller period -> higher priority
-        schedulableTasks = []
         for p in periods:
             tasks = [t.copy () for t in taskset [p]]
 
-            if scheduler == 'rtgang':
-                scalingFactor = RTGANG_SCALING_FACTOR
+            if scheduler == 'rtgang' or 'rtgsync' in scheduler:
                 rta = self.__check_schedulability
-            elif 'rtgsynch' in scheduler:
-                heuristic = scheduler [-3:]
-                algoEngine = Heuristics (self.M)
-                rta = self.__check_schedulability
-                scalingFactor = RTGSYNCH_SCALING_FACTOR
 
-                if heuristic == 'bfc':
-                    tasks = algoEngine.brute_force (tasks, p)
-                elif heuristic == 'gpc':
-                    tasks = algoEngine.greedy_packing_compute (tasks, p)
-                elif heuristic == 'gpp':
-                    tasks = algoEngine.greedy_packing_parallelism (tasks, p)
-                else:
-                    raise ValueError, 'Unknown gang formation heuristic: %s' % \
-                                                                    (heuristic)
-                # Keep track of created gangs for comparison
-                self.comparisonHash [heuristic][maxUtil][p] = [taskset [p],
-                                                               tasks]
-                if self.debug:
-                    with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
-                        fdo.write ('\n============== Period: %d\n' % p)
-                        fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
-                        fdo.write ('\n\t\t\t--------------\n')
-                        fdo.write ('\n'.join (['%s' % t for t in tasks]))
+                if 'rtgsync' in scheduler:
+                    heuristic = scheduler [-3:]
+                    algoEngine = Heuristics (self.M)
 
-            elif scheduler == 'gangftp' or scheduler == 'threadglobal':
+                    if heuristic == 'bfc':
+                        scaling = 0 if 'ideal' in scheduler else 1
+                        tasks = algoEngine.brute_force (tasks, p, scaling)
+                    elif heuristic == 'gpc':
+                        scaling = 'ideal' not in scheduler
+                        tasks = algoEngine.greedy_packing_compute (tasks, p, scaling)
+                    else:
+                        raise ValueError, 'Unknown gang formation heuristic: %s' % (heuristic)
+
+            elif scheduler in ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal']:
                 rta = self.__check_schedulability_gftp
-
-                if scheduler == 'gangftp':
-                    scalingFactor = COSCHED_GANG_SCALING_FACTOR
-                elif scheduler == 'threadglobal':
-                    scalingFactor = COSCHED_THREAD_SCALING_FACTOR
-                    tasks = self.__split_gangs_into_threads (tasks)
-
-                    if self.debug:
-                        with open ('debug/%s_tg_%d.txt' % (w, maxUtil), 'a') as fdo:
-                            fdo.write ('\n============== Period: %d\n' % p)
-                            fdo.write ('\n\t\t'.join (['%s' % t for t in taskset [p]]))
-                            fdo.write ('\n\t\t\t--------------\n')
-                            fdo.write ('\n'.join (['%s' % t for t in tasks]))
             else:
                 raise ValueError, 'Unkown scheduler: %s' % (scheduler)
 
@@ -93,45 +66,40 @@ class RTA:
             unschedulableTasks = []
             for k in keys:
                 for t in pQueues [k]:
-                    # Scale execution time of the gang as per the scaling-factor
-                    t.C *= scalingFactor
                     schedulable, responseTime = rta (t, hpTasks)
 
                     if schedulable:
                         schedulableTasks.append (t)
-                        schedulableUtilization += t.u
                         hpTasks [t] = responseTime
                     else:
-                        unschedulableTasks.append (t)
-                        check = False
-                        break
+                        return 0
 
-                if not check:
-                    if self.debug and 'rtgsynch' in scheduler:
-                        with open ('debug/%s_%s_%d.txt' % (w, heuristic, maxUtil), 'a') as fdo:
-                            fdo.write ('\n\n ******************* Unschedulable Tasks\n')
-                            fdo.write ('\n'.join (['%s' % t for t in unschedulableTasks]))
-
-                            fdo.write ('\n\n ******************* Schedulable Tasks\n')
-                            fdo.write ('\n'.join (['%s' % t for t in schedulableTasks]))
-                    break
-
-            if not check:
-                break
-
-        return schedulableUtilization
+        return 1
 
     def __split_gangs_into_threads (self, taskset):
-        threadset = []
+        threadset = {}
         threadIdx = 1
 
-        for t in taskset:
-            for th in range (int (t.m)):
-                thread = Task (threadIdx, t.C, t.P, 1, '')
-                threadset.append (thread)
-                threadIdx += 1
+        for p in taskset:
+            threadset [p] = []
+            for t in taskset [p]:
+                for th in range (int (t.m)):
+                    thread = Task (threadIdx, t.C, t.P, 1, t.r / t.m, '')
+                    threadset [p].append (thread)
+                    threadIdx += 1
 
         return threadset
+
+    def __deep_copy_taskset (self, taskset):
+        copied_taskset = {}
+
+        for p in taskset:
+            copied_taskset [p] = []
+
+            for t in taskset [p]:
+                copied_taskset [p].append (t.copy ())
+
+        return copied_taskset
 
     def __check_schedulability (self, tk, hpTasks):
         '''
@@ -192,6 +160,88 @@ class RTA:
                     (self.M - tk.m + 1)
 
         return iIk
+
+    def __scale_threadset (self, taskset):
+        sorted_tasks = []
+        scaling_factors = {}
+        temp_taskset = [t for p in taskset for t in taskset [p]]
+        sorted_resource_demands = list (set (sorted ([t.r for t in temp_taskset], reverse = True)))
+
+        for r in sorted_resource_demands:
+            for t in temp_taskset:
+                if t.r == r:
+                    sorted_tasks.append (t)
+                    temp_taskset.remove (t)
+
+        for p in taskset:
+            for t in taskset [p]:
+                worst_corunners = sorted_tasks [:self.M]
+
+                if t in worst_corunners:
+                    worst_corunners.remove (t)
+                else:
+                    del (worst_corunners [-1])
+
+                max_demand = t.r + sum ([w.r for w in worst_corunners])
+                scaling_factors [t] = max (1, max_demand / 100.0)
+
+        for p in taskset:
+            for t in taskset [p]:
+                t.C *= scaling_factors [t]
+
+        return taskset
+
+    def __scale_taskset (self, taskset):
+        scaling_factors = {}
+
+        for p in taskset:
+            for t in taskset [p]:
+                if t.m == self.M:
+                    # There cannot be any corunners of this task since it requires
+                    # all the cores
+                    scaling_factors [t] = 1.0
+                    continue
+
+                corunner_taskset = self.__get_corunners_of_task (t, taskset)
+
+                if corunner_taskset != []:
+                    scaling_factors [t] = self.__calc_task_scaling_factor (t, corunner_taskset)
+                    continue
+
+                scaling_factors [t] = 1.0
+
+        for p in taskset:
+            for t in taskset [p]:
+                t.C *= scaling_factors [t]
+
+        return taskset
+
+    def __calc_task_scaling_factor (self, task, corunners):
+        worst_gang, max_demand = self.gangFactory.find_worst_corunner_gang (task, corunners)
+        scaling_factor = max (1, max_demand / 100.0)
+
+        return scaling_factor
+
+    def __get_corunners_of_task (self, subject_task, taskset):
+        corunner_taskset = []
+
+        for p in taskset:
+            for t in taskset [p]:
+                if t == subject_task:
+                    continue
+
+                if (t.m + subject_task.m) <= self.M:
+                    corunner_taskset.append (t)
+
+        return corunner_taskset
+
+    def __dbg_print_taskset (self, taskset):
+        for p in taskset:
+            print '\tPeriod:', p
+            for t in taskset [p]:
+                print '\t\t', t
+
+        return
 
     def dbg_print_heuristic_comparison (self):
         heuristics = self.comparisonHash.keys ()

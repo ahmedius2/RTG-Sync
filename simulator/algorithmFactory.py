@@ -19,10 +19,10 @@ class Heuristics:
 
         return
 
-    def brute_force (self, tasks, p, debug = False):
+    def brute_force (self, tasks, p, scaling = 0, debug = False):
         configTimesHash = {}
         gangFactory = CombinationGenerator (self.M)
-        combos, computeTimes = gangFactory.generate_gang_combinations (tasks)
+        combos, computeTimes, scalingFactors = gangFactory.generate_gang_combinations (tasks)
 
         for gangCombo in combos:
             gangs = self.__combo_to_gangs (gangCombo)
@@ -30,7 +30,7 @@ class Heuristics:
 
             comboComputeTime = 0
             for gang in gangs:
-                comboComputeTime += computeTimes [gang]
+                comboComputeTime += (computeTimes [gang] + (computeTimes [gang] * scaling * scalingFactors [gang]))
 
             if comboComputeTime in configTimesHash:
                 if numOfMembers in configTimesHash [comboComputeTime]:
@@ -86,7 +86,7 @@ class Heuristics:
 
         return bestConfig, bestCompletionTime
 
-    def greedy_packing_compute (self, tasks, p):
+    def greedy_packing_compute (self, tasks, p, scaling = False):
         '''
             1. Sort tasks according to their compute times
             2. Pick longest task and pair with next longest tasks which can run
@@ -122,6 +122,8 @@ class Heuristics:
             while (1):
                 if task.m == self.M or nidx < 0:
                     # Step-3b
+                    if scaling:
+                        task.C *= max (task.r / 100, 1)
                     virtGangs.append (task)
                     idx += 1
                     break
@@ -131,7 +133,8 @@ class Heuristics:
                     # Step-3a
                     members += '-%s' % nTask.name
                     task = Task (idx, task.C, task.P, task.m + nTask.m,
-                            members, task.u + nTask.u, task.n + 1, True)
+                            task.r + nTask.r, members, task.u + nTask.u,
+                            task.n + 1, True)
                     del (sortedTasks [nidx])
 
                 nidx -= 1
