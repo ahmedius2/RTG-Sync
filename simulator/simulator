@@ -25,7 +25,7 @@ UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
 TASKS_PER_PERIOD = False if (len (sys.argv) < 5) else sys.argv [4]
-POLICIES =  ['gftp-ideal', 'gftp', 'threaded', 'threaded-ideal',
+POLICIES =  ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal',
              'rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
              'rtgsync-ideal-bfc', 'rtgang']
 
@@ -87,9 +87,7 @@ def main ():
     schedulabilityHash = aggregate_results ()
 
     print "---> Creating schedulability plots..."
-    for w in WORKLOADS:
-        plotter.create_schedulability_plot (POLICIES, schedulabilityHash [w], w,
-                NUM_OF_CORES)
+    plotter.create_schedulability_plot (POLICIES, schedulabilityHash, WORKLOADS, NUM_OF_CORES)
 
     print "Done!"
 
