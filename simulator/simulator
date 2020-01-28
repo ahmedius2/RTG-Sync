@@ -19,27 +19,45 @@ import sys, multiprocessing, json
 from tasksetGenerator import Generator
 
 # All time values are in msec; unless specified otherwise
+TASKS_PER_PERIOD = [2, 5, 10]
 MAX_RUNS = int (sys.argv [3])
 NUM_OF_CORES = int (sys.argv [1])
 UTILS = range (1, NUM_OF_CORES + 1)
 NUM_OF_PROCESSES = int (sys.argv [2])
 WORKLOADS = ['light', 'mixed', 'heavy']
-TASKS_PER_PERIOD = False if (len (sys.argv) < 5) else sys.argv [4]
-POLICIES =  ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal',
-             'rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
-             'rtgsync-ideal-bfc', 'rtgang']
+SENSITIVITY = False if (len (sys.argv) < 5) else (sys.argv [4] != 0)
+
+if SENSITIVITY:
+    POLICIES =  ['rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
+                 'rtgsync-ideal-bfc', 'rtgang']
+else:
+    POLICIES =  ['gftp', 'gftp-ideal', 'threaded', 'threaded-ideal',
+                 'rtgsync-gpc', 'rtgsync-ideal-gpc', 'rtgsync-bfc',
+                 'rtgsync-ideal-bfc', 'rtgang']
 
 def process_work (tIdx):
     rta = RTA (NUM_OF_CORES, UTILS)
-    trs = {w: {p: {} for p in POLICIES} for w in WORKLOADS}
-    generator = Generator (NUM_OF_CORES, UTILS, TASKS_PER_PERIOD)
 
-    for w in WORKLOADS:
-        taskset = generator.create_taskset (w)
+    if SENSITIVITY:
+        trs = {t: {p: {} for p in POLICIES} for t in TASKS_PER_PERIOD}
 
-        for p in POLICIES:
-            for u in UTILS:
-                trs [w][p][u] = rta.analysis (taskset [u], p, u)
+        for t in TASKS_PER_PERIOD:
+            generator = Generator (NUM_OF_CORES, UTILS, t)
+            taskset = generator.create_taskset ('mixed')
+
+            for p in POLICIES:
+                for u in UTILS:
+                    trs [t][p][u] = rta.analysis (taskset [u], p, u)
+    else:
+        trs = {w: {p: {} for p in POLICIES} for w in WORKLOADS}
+        generator = Generator (NUM_OF_CORES, UTILS, False)
+
+        for w in WORKLOADS:
+            taskset = generator.create_taskset (w)
+
+            for p in POLICIES:
+                for u in UTILS:
+                    trs [w][p][u] = rta.analysis (taskset [u], p, u)
 
     with open ('json/p%d.json' % tIdx, 'w') as fdo:
         json.dump (trs, fdo)
@@ -47,18 +65,32 @@ def process_work (tIdx):
     return
 
 def aggregate_results ():
-    schedulabilityHash = {w: {p: {u: 0 for u in UTILS} for p in POLICIES} for w
-            in WORKLOADS}
+    if SENSITIVITY:
+        schedulabilityHash = {t: {p: {u: 0 for u in UTILS} for p in POLICIES} for t
+                in TASKS_PER_PERIOD}
 
-    for w in WORKLOADS:
-        for p in POLICIES:
-            for u in UTILS:
-                for t in range (MAX_RUNS):
-                    with open ('json/p%d.json' % t, 'r') as fdi:
-                        trs = json.load (fdi)
-                        schedulabilityHash [w][p][u] += trs [w][p][str (u)]
+        for tpp in TASKS_PER_PERIOD:
+            for p in POLICIES:
+                for u in UTILS:
+                    for t in range (MAX_RUNS):
+                        with open ('json/p%d.json' % t, 'r') as fdi:
+                            trs = json.load (fdi)
+                            schedulabilityHash [tpp][p][u] += trs [str (tpp)][p][str (u)]
 
-                schedulabilityHash [w][p][u] = float (schedulabilityHash [w][p][u]) / MAX_RUNS
+                    schedulabilityHash [tpp][p][u] = float (schedulabilityHash [tpp][p][u]) / MAX_RUNS
+    else:
+        schedulabilityHash = {w: {p: {u: 0 for u in UTILS} for p in POLICIES} for w
+                in WORKLOADS}
+
+        for w in WORKLOADS:
+            for p in POLICIES:
+                for u in UTILS:
+                    for t in range (MAX_RUNS):
+                        with open ('json/p%d.json' % t, 'r') as fdi:
+                            trs = json.load (fdi)
+                            schedulabilityHash [w][p][u] += trs [w][p][str (u)]
+
+                    schedulabilityHash [w][p][u] = float (schedulabilityHash [w][p][u]) / MAX_RUNS
 
     return schedulabilityHash
 
@@ -68,26 +100,29 @@ def main ():
     plotter = Plotter (TASKS_PER_PERIOD)
     manager = multiprocessing.Manager ()
 
-    for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
-        for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
-            processes [t] = multiprocessing.Process (target = process_work, args = (t,))
-            processes [t].start ()
+    # for r in range (0, MAX_RUNS, NUM_OF_PROCESSES):
+    #     for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
+    #         processes [t] = multiprocessing.Process (target = process_work, args = (t,))
+    #         processes [t].start ()
 
-        for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
-            processes [t].join ()
+    #     for t in range (r, min (r + NUM_OF_PROCESSES, MAX_RUNS)):
+    #         processes [t].join ()
 
-            progress = (t + 1) * 100 / MAX_RUNS
-            progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
-                                (progress, block * progress, t + 1, MAX_RUNS)
-            sys.stdout.write (progressBar)
-            sys.stdout.flush ()
+    #         progress = (t + 1) * 100 / MAX_RUNS
+    #         progressBar = '  Progress: %3d %% %-100s | %3d / %3d\r' % \
+    #                             (progress, block * progress, t + 1, MAX_RUNS)
+    #         sys.stdout.write (progressBar)
+    #         sys.stdout.flush ()
 
-    print
+    # print
     print "---> Aggregating results..."
     schedulabilityHash = aggregate_results ()
 
     print "---> Creating schedulability plots..."
-    plotter.create_schedulability_plot (POLICIES, schedulabilityHash, WORKLOADS, NUM_OF_CORES)
+    if SENSITIVITY:
+        plotter.create_sensitivity_plot (POLICIES, schedulabilityHash, TASKS_PER_PERIOD, NUM_OF_CORES)
+    else:
+        plotter.create_schedulability_plot (POLICIES, schedulabilityHash, WORKLOADS, NUM_OF_CORES)
 
     print "Done!"
 
