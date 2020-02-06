@@ -29,12 +29,12 @@ class Plotter:
         plt.grid (True)
 
         # Manual annotation on the final plot
-        plt.plot ([8.9], [0.51], marker = 'o', markersize = 5, color = 'green')
-        plt.annotate (u'\u03bc = 8.9', [8.9, 0.50], [7.6, 0.50])
+        plt.plot ([8.48], [0.51], marker = 'o', markersize = 5, color = 'green')
+        plt.annotate (u'\u03bc = 8.5', [8.5, 0.51], [7.0, 0.5])
         plt.plot ([9.13], [0.51], marker = 'o', markersize = 5, color = 'blue')
         plt.annotate (u'\u03bc = 9.1', [9.1, 0.495], [9.4, 0.495])
-        plt.plot ([11.68], [0.51], marker = 'o', markersize = 5, color = 'red')
-        plt.annotate (u'\u03bc = 11.7', [11.3, 0.495], [11.9, 0.495])
+        plt.plot ([11.31], [0.498], marker = 'o', markersize = 5, color = 'red')
+        plt.annotate (u'\u03bc = 11.3', [11.31, 0.49], [10.56, 0.44])
 
         plt.plot (axes ['x']['lim'], [1, 1], 'k--', lw = 1)
         plt.legend (loc = 'upper center', ncol = 3, fontsize = self.legendFz)

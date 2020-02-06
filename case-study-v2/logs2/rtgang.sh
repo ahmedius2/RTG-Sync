@@ -4,14 +4,11 @@ results_folder=case-study/rtgang
 
 # Parameters for the DNN tasks
 # Solo WCET of these tasks is ~8.12-msec
-dnn_gang_id=1
-dnn_read_bw=10
-dnn_write_bw=5
 dnn_priority=10
 num_of_frames=1000
 dnn_period_msec=50
 num_of_dnn_tasks=2
-startup_jitter=0.93
+startup_jitter=0.01
 output_control=( ""		""	)
 core_assignment=("0,3" 	  	"4,5"	)
 model_files=(	 "m1.pb"  	"m2.pb"	)
@@ -22,13 +19,13 @@ input_files=(	 "v1.avi" 	"v2.avi")
 verbose_lvl=0
 bwt_priority=5
 num_of_threads=4
-bwt_iterations=18
 access_type="write"
 working_set_size_kb=16384
 num_of_jobs=${num_of_frames}
-bwt_period_msec=$((${dnn_period_msec}*4))
+bwt_compute_usec=$((${dnn_period_msec}*1000))
+bwt_period_usec=$((${dnn_period_msec}*2*1000))
 rtgang_dir_path="/home/nvidia/ssd/gits/RT-Gang"
-max_exec_time_sec=$((${num_of_jobs}*${bwt_period_usec}*2/1000))
+max_exec_time_sec=$((${num_of_jobs}*${bwt_period_usec}*2/1000000))
 bwt_dir_path=${rtgang_dir_path}/experiments/tx2/sync/src/bandwidth/periodic
 
 # Parameters for the best-effort tasks from the Parboil benchmark suite
@@ -68,8 +65,8 @@ sleep 1
 chrt -f ${bwt_priority} ${bwt_dir_path}/tau_rt_1 \
 	-m ${working_set_size_kb} \
 	-t ${max_exec_time_sec} \
-	-l ${bwt_period_msec} \
-	-i ${bwt_iterations} \
+	-e ${bwt_compute_usec} \
+	-l ${bwt_period_usec} \
 	-n ${num_of_threads} \
 	-a ${access_type} \
 	-s ${verbose_lvl} \
@@ -90,10 +87,7 @@ for tId in `seq 0 $((${num_of_dnn_tasks}-1))`; do
 		-t ${dnn_period_msec} \
 		-i ${input} ${output} \
 		-l ${num_of_frames} \
-		-w ${dnn_write_bw} \
-		-r ${dnn_read_bw} \
-		-m ${model} \
-		-x $((${tId}+1)) 2> /dev/null &
+		-m ${model} 2> /dev/null &
 
 	sleep ${startup_jitter}
 done
@@ -107,7 +101,6 @@ done
 
 # Cleanly exit tracing to get recorded data
 kill -s SIGINT ${trace_pid} &> /dev/null
-killall tau_rt_1 &> /dev/null
 sleep 5
 
 # Discard previous data if exists and move new data from this experiment to a

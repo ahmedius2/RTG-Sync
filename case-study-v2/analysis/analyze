@@ -35,7 +35,7 @@ def main ():
     axesHash = {'x': {'lim': [6, 16],  'lbl': 'DNN Job Duration (msec)'},
                 'y': {'lim': [0, 1.12], 'lbl': 'CDF'}}
 
-    orderHash = {'l1': scenarios, 'l2': [neuralNets [1]]}
+    orderHash = {'l1': scenarios, 'l2': [neuralNets [0]]}
     plotter.create_cdf_plot (dataHash, styleHash, axesHash, orderHash)
 
     return
