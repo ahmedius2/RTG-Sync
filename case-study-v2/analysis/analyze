@@ -24,8 +24,8 @@ def main ():
     # In the plot, we mark each scenario by a different color and each task by
     # a different line-style
     styleHash = {
-          'global':   {'DNN-1': {'name': 'Global',    'style': 'r-'},
-                       'DNN-2': {'name': 'Global',    'style': 'r-'}},
+          'global':   {'DNN-1': {'name': 'Linux',    'style': 'r-'},
+                       'DNN-2': {'name': 'Linux',    'style': 'r-'}},
           'rtgang':   {'DNN-1': {'name': 'RT-Gang',   'style': 'g-'},
                        'DNN-2': {'name': 'RT-Gang',   'style': 'g-'}},
           'rtgsynch': {'DNN-1': {'name': 'RTG-Sync',  'style': 'b-'},

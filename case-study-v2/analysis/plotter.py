@@ -1,6 +1,9 @@
+import matplotlib
 import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
+
+matplotlib.rc('font', family='Arial')
 
 class Plotter:
     def __init__ (self):
@@ -30,11 +33,11 @@ class Plotter:
 
         # Manual annotation on the final plot
         plt.plot ([8.48], [0.51], marker = 'o', markersize = 5, color = 'green')
-        plt.annotate (u'\u03bc = 8.5', [8.5, 0.51], [7.0, 0.5])
-        plt.plot ([9.13], [0.51], marker = 'o', markersize = 5, color = 'blue')
-        plt.annotate (u'\u03bc = 9.1', [9.1, 0.495], [9.4, 0.495])
+        plt.annotate (u'\u03bc = 8.5', [6.7, 0.51], [7.2, 0.5])
+        plt.plot ([9.13], [0.52], marker = 'o', markersize = 5, color = 'blue')
+        plt.annotate (u'\u03bc = 9.0', [9.1, 0.52], [9.4, 0.51])
         plt.plot ([11.31], [0.498], marker = 'o', markersize = 5, color = 'red')
-        plt.annotate (u'\u03bc = 11.3', [11.31, 0.49], [10.56, 0.44])
+        plt.annotate (u'\u03bc = 11.3', [10.4, 0.49], [10.8, 0.44])
 
         plt.plot (axes ['x']['lim'], [1, 1], 'k--', lw = 1)
         plt.legend (loc = 'upper center', ncol = 3, fontsize = self.legendFz)
@@ -45,6 +48,6 @@ class Plotter:
         plt.ylabel (axes ['y']['lbl'], fontsize = self.labelFz,
                 fontweight = self.labelFw)
 
-        plt.savefig ('../figs/cdf.pdf', bbox_inches = 'tight')
+        plt.savefig ('../figs/cdf.pdf' , bbox_inches = 'tight')
 
         return
