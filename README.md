@@ -1,27 +1,68 @@
-# RTG-Synch: Virtual Gang Management Framework for RT-Gang
-This is a supplementary repository for [RT-Gang](https://github.com/CSL-KU/RT-Gang). It contains the framework designed to support the **virtual gang** concept introduced in RT-Gang.
+# RTG-Sync: Virtual Gang based Scheduling of Parallel Real-Time Tasks
+RTG-Sync is a scheduling framework which enables static grouping of real-time
+tasks into singular schedulable entities, called virtual gangs, which are
+executed one-at-a-time on all cores of a multicore platform. The **goal** of
+RTG-Sync is to enable completely deterministic scheduling of real-time tasks on
+COTS multicore platforms while preserving high system utilization in the
+presence of shared hardware resource interference.
 
-## What is a virtual gang?
-Under RT-Gang framework, a virtual gang is a group of processes which are allowed to execute simultaneously on different cores of a multicore platform. The membership of a virtual gang is decided by the programmer; provided that all members of a single virtual gang obey the following restrictions:
-  - must have the same period
-  - must not contend for the same set of CPU cores
-  - must have the same real-time scheduler
+This repository contains the code and instructions for deploying RTG-Sync in a
+Linux based system.
 
-## Why virtual gang abstraction is needed?
-The strict gang scheduling policy (i.e., one-gang-at-a-time) of RT-Gang runs the risk of under-utilizing the multicore platform; in case of imperfectly parallelized applications which cannot fully utilize all the CPU cores. With virtual gang abstraction, a programmer can improve system utilization by designating other application(s) to run alongside a given application. Since the membership of virtual gang is pre-determined, the intra-gang interference effects can be accurately analyzed; giving a realistic real-time system.
+# Setup
+RTG-Sync was developed and tested on the following platform and software:
+  - **Hardware**: NVIDIA Jetson TX-2
+  - **SOftware**: Linux for Tegra r28.2.1 (Kernel v4.4.38)
 
-## Challenges
-Following challenges are involved in creating the virtual gang abstraction:
-  - How to mark different processes as part of one virtual gang?
-> For real-gangs (i.e., threads belonging to a single process), the RT-Gang framework uses the ```tgid``` value in the Linux task data-structure to ascertain gang membership. A different criterion is needed for virtual gangs; for obvious reasons.
+To use RTG-Sync on a different Linux based platform, moderate porting effort
+should be expected to change the patch for the respective kernel.
 
-  - How to synchronize between members of virtual gang?
-> Synchronization between threads of (real) gangs is managed by the applications themselves under RT-Gang. Among virtual gang members, no inherent synchronization is present. A trivial solution is to start different processes which form a virtual gang at the same time in a script. However, this leads to poor results because of non-deterministic process creation delays on different cores. Moreover, this solution does not provide *job-level synchronization* between virtual gang members. If left unmanaged, the members of virtual gang can get completely out-of-phase with each other.
+# Instructions
+Following are the instructions for deploying RTG-Sync on L4T of Jetson TX-2.
+For any other platform, please use the steps as appropriate for that platform.
 
-## Virtual Gang Management Framework
-This brings us to the framework designed to address the challenges involved in providing the virtual gang abstraction. This framework consists of three components:
-  - [Daemon](src/framework/manager/daemon)
-  - [Client](src/framework/manager/client)
-  - [Shared Library](src/framework/lib)
-  
-Each of these components are described in detail below.
+## Kernel Setup
+1. Flash the TX-2 board with OS image and drivers from
+   [Jetpack-3.1](https://developer.nvidia.com/embedded/dlc/jetpack-l4t-3_1)
+
+2. Once the board has rebooted, clone this repository into the board
+
+```bash
+sudo bash
+apt install git
+git clone https://github.com/wali-ku/RTG-Synch.git
+```
+
+3. Goto the *kernel* folder in this repository. Enter the *tx2* folder and
+   execute the [RUN-ME.sh](./kernel/tx2/RUN-ME.sh) script which will fetch the
+   kernel source code of L4T from NVIDIA's repositories,
+   [patch](./kernel/tx2/misc/rtgsync.patch) it with changes required for
+   deploying RTG-Sync, build the kernel on the board and replace the kernel
+   image on the board with the updated kernel image
+
+> If you are doing this step manually, please note that the following configuration options must be enabled before building the **patched** kernel: ```CONFIG_SCHED_DEBUG```, ```CONFIG_SCHED_RTGANG```. Moreover, enable ```CONFIG_SCHED_THROTTLE``` to use best-effort task throttling feature and ```CONFIG_SCHED_PALLOC``` to enable page-coloring (further instructions in the next section)
+
+```bash
+cd RTG-Synch/kernel/tx2
+./RUN-ME.sh
+```
+
+4. Reboot the board if everything went correctly in the previous step. Make
+   sure that you see ```NO_RT_GANG_LOCK``` in the ```sched_features``` file:
+
+```bash
+sudo bash
+cat /sys/kernel/debug/sched_features
+```
+
+### Sanity Tests
+Follow the instructions here to perform a simple sanity test to verify your
+installation of RTG-Sync components. Before proceeding with the tests, please
+install the following tools which will be used to record / visualize test
+results: ```trace-cmd, kernelshark```
+
+```bash
+apt install trace-cmd kernelshark
+```
+
+1. **Gang Scheduling**:

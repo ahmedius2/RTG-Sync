@@ -1,0 +1,6 @@
+assigned to cpu 4
+memsize=16384 KB, type=read, cpuid=4
+stop at 8
+g_nread(bytes read) = 15082717184
+elapsed = 8.00 sec ( 8000002 usec )
+CPU4: B/W = 1798.00 MB/s | CPU4: average = 33.95 ns
