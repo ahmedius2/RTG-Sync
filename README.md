@@ -36,7 +36,7 @@ git clone https://github.com/wali-ku/RTG-Synch.git
 3. Goto the *kernel* folder in this repository. Enter the *tx2* folder and
    execute the [RUN-ME.sh](./kernel/tx2/RUN-ME.sh) script which will fetch the
    kernel source code of L4T from NVIDIA's repositories,
-   [patch](./kernel/tx2/misc/rtgsync.patch) it with changes required for
+   [patch](./kernel/tx2/miscs/rtgsync.patch) it with changes required for
    deploying RTG-Sync, build the kernel on the board and replace the kernel
    image on the board with the updated kernel image
 
