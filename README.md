@@ -9,7 +9,7 @@ presence of shared hardware resource interference.
 This repository contains the code and instructions for deploying RTG-Sync in a
 Linux based system.
 
-# Setup
+# Pre-Requisites
 RTG-Sync was developed and tested on the following platform and software:
   - **Hardware**: NVIDIA Jetson TX-2
   - **Software**: Linux for Tegra r28.2.1 (Kernel v4.4.38)
@@ -55,7 +55,7 @@ sudo bash
 cat /sys/kernel/debug/sched_features
 ```
 
-## Sanity Tests
+# Sanity Tests
 Follow the instructions here to perform simple sanity tests to verify your
 installation of RTG-Sync components. Before proceeding with the tests, please
 install the following tools which will be used to record / visualize test
@@ -65,12 +65,11 @@ results: ```trace-cmd, kernelshark```
 sudo apt install trace-cmd kernelshark
 ```
 
-### Gang Scheduling via RT-Gang
-**Goal**: Enforce one-gang-at-a-time scheduling policy on real-time tasks
+## Gang Scheduling via RT-Gang
+The goal of RT-Gang is to enforce one-gang-at-a-time scheduling policy on real-time tasks. Under this policy, only one (highest priority) real-time task (unser SCHED_FIFO)---single threaded or parallel---is allowed to execute across all cores of a multicore platform.
 
-Under this policy, only one (highest priority) real-time task (unser SCHED_FIFO)---single threaded or parallel---is allowed to execute across all cores of a multicore platform.
-
-**Test**: The test to verify RT-Gang comprises the following steps:
+### Test
+The test to verify RT-Gang comprises the following steps:
 
 - Create two real-time tasks with the following parameters:
 
@@ -83,7 +82,8 @@ Under this policy, only one (highest priority) real-time task (unser SCHED_FIFO)
 - Record a 10-second execution trace
 - Repeat the experiment but this time, enable RT-Gang
 
-**Script**: The test-case is automated via this [script](./kernel/sanity_tests/rtgang/test.sh). To run the script, do the following:
+### Script
+The test-case is automated via this [script](./kernel/sanity_tests/rtgang/test.sh). To run the script, do the following:
 
 ```bash
 sudo bash
@@ -92,7 +92,8 @@ make
 . test.sh
 ```
 
-**Expected Outcome**: When executed without RT-Gang, the real-time tasks can run simultaneously across different cores. Following is the trace snapshot of this case on Jetson TX-2:
+### Expected Outcome
+When executed without RT-Gang, the real-time tasks can run simultaneously across different cores. Following is the trace snapshot of this case on Jetson TX-2:
 
 ![Execution Trace without RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/rtgang/example_output/wo_rtgang.png)
 
@@ -100,13 +101,11 @@ With RT-Gang, only the highest-priority real-time task executes at any given tim
 
 ![Execution Trace with RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/rtgang/example_output/with_rtgang.png)
 
----
-### Virtual Gangs
-**Goal**: Allow synchronous co-execution of pre-determined groups of real-time tasks under RT-Gang
+## Virtual Gangs
+Virtual gang abstraction allows synchronous co-execution of pre-determined groups of real-time tasks under RT-Gang.
 
-Virtual gangs allow static grouping of different real-time tasks for co-execution under one-gang-at-a-time scheduling policy. They also align the periodic execution of member real-time tasks via synchronization barriers.
-
-**Test**: The test to verify virtual gang scheduling consists of the following steps:
+### Test
+The test to verify virtual gang scheduling consists of the following steps:
 
 - Create two real-time tasks with the following parameters:
 
@@ -120,7 +119,8 @@ Virtual gangs allow static grouping of different real-time tasks for co-executio
 - Record a 10-second execution trace
 - Repeat the experiment but this time, use RTG-Sync library to create a virtual gang out of the two tasks
 
-**Script**: The test-case is automated via this [script](./kernel/sanity_tests/virtual_gang/test.sh). To run the script, do the following:
+### Script
+The test-case is automated via this [script](./kernel/sanity_tests/virtual_gang/test.sh). To run the script, do the following:
 
 ```bash
 sudo bash
@@ -129,7 +129,8 @@ make
 . test.sh
 ```
 
-**Expected Outcome**: When executed without creating virtual gang first, the real-time tasks execute one-at-a-time due to RT-Gang. Following is the trace snapshot of this case on Jetson TX-2:
+### Expected Outcome
+When executed without creating virtual gang first, the real-time tasks execute one-at-a-time due to RT-Gang. Following is the trace snapshot of this case on Jetson TX-2:
 
 ![Execution Trace without Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/virtual_gang/example_output/wo_vgang.png)
 
@@ -137,17 +138,18 @@ When virtual gang is created, both tau_1 and tau_2 can execute simultaneously. M
 
 ![Execution Trace with Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/virtual_gang/example_output/with_vgang.png)
 
----
-### Page-Coloring via PALLOC
-**Goal**: Allow partitioning of LLC between best-effort tasks and real-time tasks and between member real-time tasks of a virtual gang
+## Page-Coloring via PALLOC
+The goal of PALLOC is to allow partitioning of LLC between best-effort tasks and real-time tasks and between member real-time tasks of a virtual gang.
 
-**Test**: We use bandwidth benchmark from IsolBench suite as our real-time task. The benchmark accesses a linear chunk of memory of specific size and prints the page-colors associated with that memory chunk once the execution is complete. The test to verify page-coloring under RTG-Sync framework proceeds as follows:
+### Test
+We use bandwidth benchmark from IsolBench suite as our real-time task. The benchmark accesses a linear chunk of memory of specific size and prints the page-colors associated with that memory chunk once the execution is complete. The test to verify page-coloring under RTG-Sync framework proceeds as follows:
 
 - Setup PALLOC to enforce 1/4th (best-effort) and 3/4th (real-time) static partitioning of LLC via CGROUPS
 - Register bandwidth as a virtual gang and make it use 1/2 of the real-time LLC partition
 - Execute bandwidth for 10-seconds and examine the page-colors printed by it after the execution completes
 
-**Script**: The test-case is automated via this [script](./kernel/sanity_tests/palloc/test.sh). To run the script, do the following:
+### Script
+The test-case is automated via this [script](./kernel/sanity_tests/palloc/test.sh). To run the script, do the following:
 
 ```bash
 sudo bash
@@ -156,7 +158,8 @@ make
 . test.sh
 ```
 
-**Expected Outcome**: If the target platform has N page-colors available for LLC partitioning, bandwidth benchmark should use 3\*N / 8 of those page-colors. On Jetson TX-2, there are 8 page-colors in total, so bandwidth is allowed to use 3 of those colors as per the setup of this experiment ([output.txt](./kernel/sanity_tests/palloc/example_output/output.txt)):
+### Expected Outcome
+If the target platform has N page-colors available for LLC partitioning, bandwidth benchmark should use 3\*N / 8 of those page-colors. On Jetson TX-2, there are 8 page-colors in total, so bandwidth is allowed to use 3 of those colors as per the setup of this experiment ([output.txt](./kernel/sanity_tests/palloc/example_output/output.txt)):
 
 ```
 ===========================================================
@@ -174,11 +177,11 @@ make
 
 ```
 
----
-### Throttling of Best-Effort Tasks
-**Goal**: Limit the memory usage budgets of co-executing best-effort tasks while a virtual gang is running
+## Throttling of Best-Effort Tasks
+Throttling framework can be used to limit the memory usage budgets of co-executing best-effort tasks while a virtual gang is running.
 
-**Test**: To verify throttling of best-effort tasks under RTG-Sync, we do the following:
+### Test
+To verify throttling of best-effort tasks under RTG-Sync, we do the following:
 
 - Create a single real-time task with the following parameters:
 
@@ -190,7 +193,8 @@ make
 - Spawn a memory intensive best-effort task on a different CPU core
 - Collect execution trace for 10-seconds
 
-**Script**: The test-case is automated via this [script](./kernel/sanity_tests/throttling/test.sh). To run the script, do the following:
+### Script
+The test-case is automated via this [script](./kernel/sanity_tests/throttling/test.sh). To run the script, do the following:
 
 ```bash
 sudo bash
@@ -199,6 +203,7 @@ make
 . test.sh
 ```
 
-**Expected Outcome**: The best-effort task should get throttled whenever its execution overlaps with the execution of tau_1. On Jetson TX-2, the resulting execution timeline looks like this:
+### Expected Outcome
+The best-effort task should get throttled whenever its execution overlaps with the execution of tau_1. On Jetson TX-2, the resulting execution timeline looks like this:
 
 ![Execution Trace with Throttling of BE Tasks](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/throttling/example_output/throttle.png)
