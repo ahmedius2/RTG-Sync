@@ -100,14 +100,14 @@ int main (void)
 ```
 
 The application is compiled using the following command:
-```
+```bash
 gcc tau_1.c -o tau_1
 ```
 
 In order to achieve our desired goal in this use-case, we do the following:
 
 1. Create a virtual gang with two member tasks
-```
+```bash
 sudo bash
 cd src/framework/build
 ./rtg_daemon &
@@ -163,7 +163,7 @@ int main (void)
 ```
 
 To compile the application now, we must specify the include path for RTG-Sync header and we must link with RTG-Sync shared library.
-```
+```bash
 CFLAGS += -I<RTG-Sync-Repo-Path>/src/framework/include
 LDFLAGS += -lrt
 LIBS += -lrtg -lpthread
@@ -172,7 +172,7 @@ gcc $(CFLAGS) $(LDFLAGS) tau_1.c -o tau_1 $(LIBS)
 ```
 
 3. Enable kernel level gang-scheduling:
-```
+```bash
 echo RT_GANG_LOCK > /sys/kernel/debug/sched_features
 ```
 
@@ -193,7 +193,7 @@ echo "6,7" > /sys/fs/cgroup/palloc/part_be/palloc.bins
 ```
 
 5. Enable best-effort task throttling:
-```
+```bash
 echo "start 1" > /sys/kernel/debug/throttle/control
 ```
 
@@ -205,22 +205,22 @@ taskset -c 1 chrt -f 5 ./tau_2 ...
 ```
 
 7. Once both tau_1 and tau_2 have exited, do the following to destroy the virtual gang (1001):
-```
+```bash
 ./rtg_client -f 1001
 ```
 
 8. To properly kill the rtg_daemon, do the following:
-```
+```bash
 ./rtg_client -t
 ```
 
 9. To stop best-effort task throttling:
-```
+```bash
 echo "start 0" > /sys/kernel/debug/throttle/control
 ```
 
 10. To disable page-coloring and gang-scheduling:
-```
+```bash
 echo 0 > /sys/kernel/debug/palloc/use_palloc
 echo NO_RT_GANG_LOCK > /sys/kernel/debug/sched_features
 ```
