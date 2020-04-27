@@ -73,8 +73,8 @@ RTG-Sync framework provides two APIs which can be used by linking with our share
 
 | API              | Description                                               |
 |------------------|-----------------------------------------------------------|
-| [rtg_member_setup](https://github.com/wali-ku/RTG-Synch/blob/d176d06444ab6e9b625d7a86268139f2037bc0a8/src/framework/lib/rtg_lib.c#L279) | Register as a member tasks of an established virtual gang |
-| [rtg_member_sync](https://github.com/wali-ku/RTG-Synch/blob/d176d06444ab6e9b625d7a86268139f2037bc0a8/src/framework/lib/rtg_lib.c#L419)  | Synchronize with other member tasks of my virtual gang    |
+| [rtg_member_setup](https://github.com/wali-ku/RTG-Synch/blob/4753be6da10e6578ac0917dd92845f7e43ae6387/src/framework/lib/rtg_lib.c#L279) | Register as a member tasks of an established virtual gang |
+| [rtg_member_sync](https://github.com/wali-ku/RTG-Synch/blob/4753be6da10e6578ac0917dd92845f7e43ae6387/src/framework/lib/rtg_lib.c#L419)  | Synchronize with other member tasks of my virtual gang    |
 
 ## Example Usecase
 To illustrate how RTG-Sync framework can be used, we consider the following use-case: We need to create a virtual gang out of two periodic real-time tasks (tau_1 and tau_2). The virtual gang can tolerate 100-MB/s interfering memory traffic from best-effort tasks (i.e., throttling budget). We also want to statically partition the LLC between real-time and best-effort tasks with a ratio 3 (real-time) : 1 (best-effort). Finally, we want to partition the real-time LLC partition equally between tau_1 and tau_2. For this purpose, we assume that the target platform has 8 page-colors available for LLC partitioning. Hence, colors 0-5 should be assigned to real-time tasks and colors 6, 7 should be given to best-effort tasks. Among tau_1 and tau_2, tau_1 should get colors 0, 1, 2 and tau_2 should get colors 3, 4, 5.
@@ -265,11 +265,11 @@ make
 ### Expected Outcome
 When executed without RT-Gang, the real-time tasks can run simultaneously across different cores. Following is the trace snapshot of this case on Jetson TX-2:
 
-![Execution Trace without RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/rtgang/example_output/wo_rtgang.png)
+![Execution Trace without RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/master/kernel/sanity_tests/rtgang/example_output/wo_rtgang.png)
 
 With RT-Gang, only the highest-priority real-time task executes at any given time. In this test-case, tau_2 is higher priority (due to shorter period and RMS priority assignment).
 
-![Execution Trace with RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/rtgang/example_output/with_rtgang.png)
+![Execution Trace with RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/master/kernel/sanity_tests/rtgang/example_output/with_rtgang.png)
 
 ## Virtual Gangs
 Virtual gang abstraction allows synchronous co-execution of pre-determined groups of real-time tasks under RT-Gang.
@@ -302,11 +302,11 @@ make
 ### Expected Outcome
 When executed without creating virtual gang first, the real-time tasks execute one-at-a-time due to RT-Gang. Following is the trace snapshot of this case on Jetson TX-2:
 
-![Execution Trace without Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/virtual_gang/example_output/wo_vgang.png)
+![Execution Trace without Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/master/kernel/sanity_tests/virtual_gang/example_output/wo_vgang.png)
 
 When virtual gang is created, both tau_1 and tau_2 can execute simultaneously. Moreover, their periodic execution is perfectly aligned.
 
-![Execution Trace with Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/virtual_gang/example_output/with_vgang.png)
+![Execution Trace with Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/master/kernel/sanity_tests/virtual_gang/example_output/with_vgang.png)
 
 ## Page-Coloring via PALLOC
 The goal of PALLOC is to allow partitioning of LLC between best-effort tasks and real-time tasks and between member real-time tasks of a virtual gang.
@@ -376,4 +376,4 @@ make
 ### Expected Outcome
 The best-effort task should get throttled whenever its execution overlaps with the execution of tau_1. On Jetson TX-2, the resulting execution timeline looks like this:
 
-![Execution Trace with Throttling of BE Tasks](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/throttling/example_output/throttle.png)
+![Execution Trace with Throttling of BE Tasks](https://github.com/wali-ku/RTG-Synch/blob/master/kernel/sanity_tests/throttling/example_output/throttle.png)
