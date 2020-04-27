@@ -281,8 +281,8 @@ The test to verify virtual gang scheduling consists of the following steps:
 
 | Task  | WCET (ms) | Period (ms) | Threads |
 |-------|-----------|-------------|---------|
-| tau_1 | 30        | 50          | 1       |
-| tau_2 | 20        | 50          | 1       |
+| tau_1 | 20        | 50          | 1       |
+| tau_2 | 10        | 50          | 1       |
 
 - Enable RT-Gang
 - Run the tasks on two disjoint CPU cores of the target platform

@@ -6,8 +6,8 @@
 #   policy of our kernel level gang scheduler. To verify virtual gang
 #   scheduling, we do the following:
 #   1. Create two real-time tasks with the following parameters:
-#      t1: (C = 40, T = 100, h = 1)
-#      t2: (C = 20, T = 50,  h = 1) => high priority
+#      t1: (C = 20, T = 50, h = 1)
+#      t2: (C = 10, T = 50, h = 1) => high priority
 #   2. Execute the tasks on different CPU cores in two schemes. In
 #      "without_vgang" scheme, enable RT-Gang but do not form virtual gang. In
 #      "with_vgang", create a virtual gang with two members and make t1 and t2
@@ -41,10 +41,10 @@ taskset -c 1 trace-cmd record -e "sched_switch" &> /dev/null &
 trace_pid=$!
 sleep 5
 
-chrt -f 5 ./tau_1 -c 3 -t 10 -m 16 -n 1 --period 100 --jobs 100 \
-	-i $((TX2_ITERS_16KB_10MS*4)) &> /dev/null &
-chrt -f 6 ./tau_2 -c 4 -t 10 -m 16 -n 1 --period 50  --jobs 200 \
-	-i $((TX2_ITERS_16KB_10MS*2)) &> /dev/null
+chrt -f 5 ./tau_1 -c 3 -t 10 -m 16 -n 1 --period 50 --jobs 200 \
+	-i $((TX2_ITERS_16KB_10MS*2)) &> /dev/null &
+chrt -f 6 ./tau_2 -c 4 -t 10 -m 16 -n 1 --period 50 --jobs 200 \
+	-i ${TX2_ITERS_16KB_10MS} &> /dev/null
 
 kill -s SIGINT ${trace_pid}
 while [ ! -f "trace.dat" ]; do
@@ -62,10 +62,10 @@ taskset -c 1 trace-cmd record -e "sched_switch" &> /dev/null &
 trace_pid=$!
 sleep 5
 
-chrt -f 5 ./tau_1 -c 3 -t 10 -m 16 -n 1 --period 100 --jobs 100 \
-	-i $((TX2_ITERS_16KB_10MS*4)) -g 1001 &> /dev/null &
-chrt -f 6 ./tau_2 -c 4 -t 10 -m 16 -n 1 --period 50  --jobs 200 \
-	-i $((TX2_ITERS_16KB_10MS*2)) -g 1001 &> /dev/null
+chrt -f 5 ./tau_1 -c 3 -t 10 -m 16 -n 1 --period 50 --jobs 200 \
+	-i $((TX2_ITERS_16KB_10MS*2)) -g 1001 &> /dev/null &
+chrt -f 6 ./tau_2 -c 4 -t 10 -m 16 -n 1 --period 50 --jobs 200 \
+	-i ${TX2_ITERS_16KB_10MS} -g 1001 &> /dev/null
 
 kill -s SIGINT ${trace_pid}
 while [ ! -f "trace.dat" ]; do
