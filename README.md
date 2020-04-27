@@ -55,6 +55,176 @@ sudo bash
 cat /sys/kernel/debug/sched_features
 ```
 
+## User-Level Middleware
+Once the kernel has been successfully patched with RTG-Sync, the programmer can use the RTG-Sync middleware daemon and user-library calls to use the services provided by our framework.
+
+### Compilation
+To compile the user-level framework of RTG-Sync, do the following:
+
+```bash
+sudo bash
+cd RTG-Synch/src/framework
+make
+```
+This should create a ```build``` folder containing three executables: ```rtg_client, rtg_daemon, librtg.so```
+
+### API Calls
+RTG-Sync framework provides two APIs which can be used by linking with our shared library (```librtg.so```).
+
+| API              | Description                                               |
+|------------------|-----------------------------------------------------------|
+| [rtg_member_setup](https://github.com/wali-ku/RTG-Synch/blob/d176d06444ab6e9b625d7a86268139f2037bc0a8/src/framework/lib/rtg_lib.c#L279) | Register as a member tasks of an established virtual gang |
+| [rtg_member_sync](https://github.com/wali-ku/RTG-Synch/blob/d176d06444ab6e9b625d7a86268139f2037bc0a8/src/framework/lib/rtg_lib.c#L419)  | Synchronize with other member tasks of my virtual gang    |
+
+## Example Usecase
+To illustrate how RTG-Sync framework can be used, we consider the following use-case: We need to create a virtual gang out of two periodic real-time tasks (tau_1 and tau_2). The virtual gang can tolerate 100-MB/s interfering memory traffic from best-effort tasks (i.e., throttling budget). We also want to statically partition the LLC between real-time and best-effort tasks with a ratio 3 (real-time) : 1 (best-effort). Finally, we want to partition the real-time LLC partition equally between tau_1 and tau_2. For this purpose, we assume that the target platform has 8 page-colors available for LLC partitioning. Hence, colors 0-5 should be assigned to real-time tasks and colors 6, 7 should be given to best-effort tasks. Among tau_1 and tau_2, tau_1 should get colors 0, 1, 2 and tau_2 should get colors 3, 4, 5.
+
+Assume that the real-time tasks have the following template source-code:
+```C
+#include <...>
+
+int main (void)
+{
+    int var1, var2, ...;
+    
+    setup_resources (...);
+    
+    /* Periodic execution starts here */
+    while (1) {
+         do_something ();
+	 wait_till_next_period ();
+    }
+    
+    return;
+}
+```
+
+The application is compiled using the following command:
+```
+gcc tau_1.c -o tau_1
+```
+
+In order to achieve our desired goal in this use-case, we do the following:
+
+1. Create a virtual gang with two member tasks
+```
+sudo bash
+cd src/framework/build
+./rtg_daemon &
+./rtg_client -c 2
+```
+The last command should print the ID value of the virtual gang if it was created successfully. Let us assume that the ID is **1001**.
+
+2. Modify the source code of tau_1 and tau_2 to register as member tasks of the virtual gang just created and to synchronize with each other before their periodic execution starts:
+```C
+#include <...>
+
+/* Include RTG-Sync library header to use the APIs */
+#include "rtg_lib.h"
+
+int main (void)
+{
+    int var1, var2, ...;
+    
+    /* 
+     * This variable is used to transform raw page-colors to a color-mask
+     * value appropriate for the target platform.
+    */
+    unsigned long color_mask;
+    
+    /* Declare pthread barrier variable */
+    pthread_barrier_t *barrier;
+    
+    setup_resources (...);
+    
+    /* Create color-mask for using page-colors 0,1,2 (3,4,5 for tau_2) */
+    color_mask = parse_color_string ("0-2");
+    
+    /*
+     * Register as virtual gang member with the desired parameters:
+     *   pthread_barrier_t* rtg_member_setup (int id,
+     *                                        unsigned long color_mask,
+     *                                        unsigned int mem_read_budget,
+     *                                        unsigned int mem_write_budget);
+    */
+    barrier = rtg_member_setup (1001, color_mask, 100, 100);
+    
+    /* Synchronize on the barrier before periodic execution begins */
+    rtg_member_sync (barrier);
+    
+    /* Periodic execution starts here */
+    while (1) {
+         do_something ();
+	 wait_till_next_period ();
+    }
+    
+    return;
+}
+```
+
+To compile the application now, we must specify the include path for RTG-Sync header and we must link with RTG-Sync shared library.
+```
+CFLAGS += -I<RTG-Sync-Repo-Path>/src/framework/include
+LDFLAGS += -lrt
+LIBS += -lrtg -lpthread
+
+gcc $(CFLAGS) $(LDFLAGS) tau_1.c -o tau_1 $(LIBS)
+```
+
+3. Enable kernel level gang-scheduling:
+```
+echo RT_GANG_LOCK > /sys/kernel/debug/sched_features
+```
+
+4. Setup page-coloring via PALLOC:
+```bash
+# Specify color-mask for the target platform
+echo 0x0001c000 > /sys/kernel/debug/palloc/color_mask
+
+# Enable PALLOC
+echo 1 > /sys/kernel/debug/palloc/use_palloc
+
+# Create static LLC partitions for real-time and best-effort tasks
+mkdir /sys/fs/cgroup/palloc/part_rt
+mkdir /sys/fs/cgroup/palloc/part_be
+
+echo "0-5" > /sys/fs/cgroup/palloc/part_rt/palloc.bins
+echo "6,7" > /sys/fs/cgroup/palloc/part_be/palloc.bins
+```
+
+5. Enable best-effort task throttling:
+```
+echo "start 1" > /sys/kernel/debug/throttle/control
+```
+
+6. When tau_1 and tau_2 are now executed on different CPU cores in the real-time PALLOC CGROUP, they will run simultaneously and their periodic execution will be aligned.
+```bash
+echo $$ > /sys/fs/cgroup/palloc/part_rt/tasks
+taskset -c 0 chrt -f 5 ./tau_1 ... &
+taskset -c 1 chrt -f 5 ./tau_2 ...
+```
+
+7. Once both tau_1 and tau_2 have exited, do the following to destroy the virtual gang (1001):
+```
+./rtg_client -f 1001
+```
+
+8. To properly kill the rtg_daemon, do the following:
+```
+./rtg_client -t
+```
+
+9. To stop best-effort task throttling:
+```
+echo "start 0" > /sys/kernel/debug/throttle/control
+```
+
+10. To disable page-coloring and gang-scheduling:
+```
+echo 0 > /sys/kernel/debug/palloc/use_palloc
+echo NO_RT_GANG_LOCK > /sys/kernel/debug/sched_features
+```
+
 # Sanity Tests
 Follow the instructions here to perform simple sanity tests to verify your
 installation of RTG-Sync components. Before proceeding with the tests, please
