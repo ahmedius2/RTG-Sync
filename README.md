@@ -12,7 +12,7 @@ Linux based system.
 # Setup
 RTG-Sync was developed and tested on the following platform and software:
   - **Hardware**: NVIDIA Jetson TX-2
-  - **SOftware**: Linux for Tegra r28.2.1 (Kernel v4.4.38)
+  - **Software**: Linux for Tegra r28.2.1 (Kernel v4.4.38)
 
 To use RTG-Sync on a different Linux based platform, moderate porting effort
 should be expected to change the patch for the respective kernel.
@@ -100,6 +100,7 @@ With RT-Gang, only the highest-priority real-time task executes at any given tim
 
 ![Execution Trace with RT-Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/rtgang/example_output/with_rtgang.png)
 
+---
 ### Virtual Gangs
 **Goal**: Allow synchronous co-execution of pre-determined groups of real-time tasks under RT-Gang
 
@@ -136,6 +137,7 @@ When virtual gang is created, both tau_1 and tau_2 can execute simultaneously. M
 
 ![Execution Trace with Virtual Gang](https://github.com/wali-ku/RTG-Synch/blob/kernel/kernel/sanity_tests/virtual_gang/example_output/with_vgang.png)
 
+---
 ### Page-Coloring via PALLOC
 **Goal**: Allow partitioning of LLC between best-effort tasks and real-time tasks and between member real-time tasks of a virtual gang
 
@@ -172,6 +174,7 @@ make
 
 ```
 
+---
 ### Throttling of Best-Effort Tasks
 **Goal**: Limit the memory usage budgets of co-executing best-effort tasks while a virtual gang is running
 
