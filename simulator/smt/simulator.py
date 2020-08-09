@@ -1,26 +1,155 @@
 #!/usr/bin/env python
 
 from tasksetGenerator import Generator
+from subprocess import Popen, PIPE
 from taskFactory import Task
+from random import randint
+import re
 
-tpp = 3
+tpp = 4
 M = 4
-DEBUG = True
+DEBUG = 2
 
 def main():
-    if DEBUG:
+    if DEBUG == 1:
         # Generate SMT script for sample taskset
         period = 100
         candidate_set = [Task(1, 30, period, 3, 30),
                          Task(2, 20, period, 2, 50),
                          Task(3, 40, period, 2, 70)]
+    elif DEBUG == 2:
+        period = 248
+        candidate_set = [Task(1, 29, period, 3, 10),
+                         Task(2, 37, period, 2, 47),
+                         Task(3, 27, period, 1, 57),
+                         Task(4, 34, period, 4, 31)]
     else:
         # Generate taskset and then create SMT script
         taskFactory = Generator(M, [M], tpp)
         taskset = taskFactory.create_taskset('mixed')
-        candidate_set, period = test_candidate_set(taskset[M], False)
+        candidate_set, period = test_candidate_set(taskset[M], True)
 
-    gen_smt_script(candidate_set, period)
+    dbg_print_set(candidate_set)
+    smt_script = gen_smt_script(candidate_set, period)
+    run_smt_script(smt_script)
+
+    return
+
+def dbg_print_config(gdict):
+    tbl_fmt = "%-20s | %-10s | %-10s | %-5s"
+    header = tbl_fmt % ("Virtual-Gang ID", "Members", "L", "r")
+    hrule = "-" * len(header)
+
+    print hrule
+    print header
+    print hrule
+
+    for g in gdict:
+        members = '+'.join(["t%s" % (tid) for tid in gdict[g]["members"]])
+        print tbl_fmt % (g, members, gdict[g]["C"], gdict[g]["r"])
+    print hrule
+
+    return
+
+def stratify_data(vgangs):
+    # vgangs is a list of tuples.
+    # Each tuple has the following format:
+    #   ( <Type: l = length | m = membership | s = slowdown>, <ID>, <value> )
+    #
+    # For example:
+    #   ('m', '4', '8') means:
+    #     - Task 4 was assigned to virtual-gang # 8.
+    #   ('l', '6', '8000') means:
+    #     - The virtual-gang # 6 has a length (i.e., C) of 80 TUs.
+    #   ('s', '7', '126') means:
+    #     - Each task in virtual-gang will have 1.26x slowdown.
+    #
+    # We want to convert this data into the following dictionary:
+    # {
+    #   key = Gang-ID,
+    #   value = {
+    #               key = "members",
+    #               value = [IDs of member tasks],
+    #               key = "C",
+    #               value = Gang length,
+    #               key = "r",
+    #               value = Resource demand (i.e., Slowdown) factor of gang
+    #           }
+    # }
+    #
+    # For example: gang_dict [1]["members"] => list of member tasks of gang # 1
+    gang_dict = {}
+
+    for (t, i, v) in vgangs:
+        if t == 'm':
+            if v not in gang_dict:
+                gang_dict [v] = {"members": [i]}
+                continue
+            gang_dict [v]["members"].append(i)
+        elif t == 'l' or t == 's':
+            if i not in gang_dict:
+                gang_dict [i] = {"members": []}
+
+            if t == 'l':
+                gang_dict [i]["C"] = int(v) / 100.0
+            else:
+                gang_dict [i]["r"] = v
+        else:
+            raise ValueError, "Unexpected entry in SMT solution: ", t
+
+    # We may get gangs with no members since the SMT solver tries to create a
+    # fixed number of gangs and gives one solution that satisfies the problem.
+    # We delete the empty gangs here.
+    empty_gangs = []
+    for g in gang_dict:
+        if not gang_dict[g]["members"]:
+            empty_gangs.append(g)
+
+    for vg in empty_gangs:
+        del gang_dict[vg]
+
+    return gang_dict
+
+def parse_script_output(output):
+    regex = "define-fun ([mls])([\d]+).*\n[\D]+([\d]+)"
+    vgangs = re.findall(regex, output)
+
+    gang_dict = stratify_data(vgangs)
+    dbg_print_config(gang_dict)
+
+    return
+
+def run_smt_script(script_name):
+    p = Popen(["z3", script_name], stdout = PIPE, stderr = PIPE)
+    stdout, stderr = p.communicate()
+
+    if stderr:
+        raise IOError, "Unexpected output from z3: ", stderr
+
+    # parse_script_output(stdout)
+    if "sat" not in stdout:
+        raise ValueError, "Model not satisfied: ", stdout
+
+    # print stdout
+    parse_script_output(stdout)
+
+    return
+
+def dbg_print_taskset(taskset):
+    print "================ DEBUG ==============="
+    for T in taskset:
+        print "Period=%d" % (T)
+        for t in taskset[T]:
+            print "  ", t
+        print "-" * 25
+
+    return
+
+def dbg_print_set(candidate_set, debug = True):
+    if debug:
+        print "\n============== Candidate Set =============="
+        for t in candidate_set: print t
+        print
 
     return
 
@@ -36,12 +165,8 @@ def test_candidate_set(taskset, debug = False):
             break
 
     if not candidate_set:
+        dbg_print_taskset(taskset)
         raise ValueError, "Candidate set cannot be empty!"
-
-    if debug:
-        print "\n============== Candidate Set =============="
-        for t in candidate_set: print t
-        print
 
     return candidate_set, period
 
