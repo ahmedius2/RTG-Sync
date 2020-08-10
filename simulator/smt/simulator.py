@@ -4,13 +4,16 @@ from tasksetGenerator import Generator
 from subprocess import Popen, PIPE
 from taskFactory import Task
 from random import randint
+from time import time
 import re
 
-tpp = 4
-M = 4
-DEBUG = 2
+tpp = 8
+M = 8
+DEBUG = False
 
 def main():
+    optimal_solution = None
+
     if DEBUG == 1:
         # Generate SMT script for sample taskset
         period = 100
@@ -26,17 +29,86 @@ def main():
     else:
         # Generate taskset and then create SMT script
         taskFactory = Generator(M, [M], tpp)
-        taskset = taskFactory.create_taskset('mixed')
+        taskset = taskFactory.create_taskset('light')
         candidate_set, period = test_candidate_set(taskset[M], True)
 
     dbg_print_set(candidate_set)
-    smt_script = gen_smt_script(candidate_set, period)
-    run_smt_script(smt_script)
+    start = time()
+    optimal_solution = smt_binary_search_length(candidate_set, period, True)
+    duration = "%.3f" % (time() - start)
+
+    print "=== Optimal Solution obtained in: %s seconds!" % (duration)
+    parse_script_output(optimal_solution)
 
     return
 
+def update_gang_length(cur_length, prev_length, down):
+    step = abs(cur_length - prev_length) / 2
+    prev_length = cur_length
+    cur_length = (cur_length - step) if down else (cur_length + step)
+
+    return cur_length, prev_length
+
+def smt_binary_search_length(candidate_set, period, debug = False):
+    '''
+      Generate SMT script, with the total gang length constraint set to the
+      max. value at start and reducing it by half in each iteration until it
+      can't be reduced further. The solution with minimal gang length is the
+      best for the given problem.
+    '''
+    max_gang_length = sum([t.c for t in candidate_set]) * 100
+    prev_gang_length = 0
+    optimal_solution = None
+
+    if debug:
+        iteration = 0
+        tbl_fmt = "%-10s | %-15s | %-15s | %-15s"
+        tbl_hdr = tbl_fmt % ("Iteration", "Cur. Length", "Next Length",
+                "Time (sec)")
+        hdr_len = len(tbl_hdr) - 1
+        hrule = "-" * hdr_len
+
+        print "=================== SMT Binary Search Debug ==================="
+        print tbl_hdr
+        print hrule
+
+    while (1):
+        smt_script = gen_smt_script(candidate_set, max_gang_length, period)
+
+        start = time()
+        solution = run_smt_script(smt_script)
+        duration = "%.3f" % (time() - start)
+
+        if not solution:
+            if not optimal_solution:
+                raise ValueError, "SMT not able to find any solutions!"
+
+            # Model not satisfied. Search up.
+            max_gang_length, prev_gang_length = \
+                update_gang_length(max_gang_length, prev_gang_length, False)
+        else:
+            # The model was satisifed. Search down.
+            optimal_solution = solution
+
+            max_gang_length, prev_gang_length = \
+                update_gang_length(max_gang_length, prev_gang_length, True)
+
+        if debug:
+            iteration += 1
+            print tbl_fmt % (iteration, prev_gang_length, max_gang_length,
+                    duration)
+
+        if (max_gang_length == prev_gang_length):
+            break
+
+    if debug:
+        print hrule
+        print
+
+    return optimal_solution
+
 def dbg_print_config(gdict):
-    tbl_fmt = "%-20s | %-10s | %-10s | %-5s"
+    tbl_fmt = "%-20s | %-20s | %-10s | %-5s"
     header = tbl_fmt % ("Virtual-Gang ID", "Members", "L", "r")
     hrule = "-" * len(header)
 
@@ -52,32 +124,34 @@ def dbg_print_config(gdict):
     return
 
 def stratify_data(vgangs):
-    # vgangs is a list of tuples.
-    # Each tuple has the following format:
-    #   ( <Type: l = length | m = membership | s = slowdown>, <ID>, <value> )
-    #
-    # For example:
-    #   ('m', '4', '8') means:
-    #     - Task 4 was assigned to virtual-gang # 8.
-    #   ('l', '6', '8000') means:
-    #     - The virtual-gang # 6 has a length (i.e., C) of 80 TUs.
-    #   ('s', '7', '126') means:
-    #     - Each task in virtual-gang will have 1.26x slowdown.
-    #
-    # We want to convert this data into the following dictionary:
-    # {
-    #   key = Gang-ID,
-    #   value = {
-    #               key = "members",
-    #               value = [IDs of member tasks],
-    #               key = "C",
-    #               value = Gang length,
-    #               key = "r",
-    #               value = Resource demand (i.e., Slowdown) factor of gang
-    #           }
-    # }
-    #
-    # For example: gang_dict [1]["members"] => list of member tasks of gang # 1
+    '''
+      vgangs is a list of tuples.
+      Each tuple has the following format:
+        ( <Type: l = length | m = membership | s = slowdown>, <ID>, <value> )
+
+      For example:
+        ('m', '4', '8') means:
+          - Task 4 was assigned to virtual-gang # 8.
+        ('l', '6', '8000') means:
+          - The virtual-gang # 6 has a length (i.e., C) of 80 TUs.
+        ('s', '7', '126') means:
+          - Each task in virtual-gang will have 1.26x slowdown.
+
+      We want to convert this data into the following dictionary:
+      {
+        key = Gang-ID,
+        value = {
+                    key = "members",
+                    value = [IDs of member tasks],
+                    key = "C",
+                    value = Gang length,
+                    key = "r",
+                    value = Resource demand (i.e., Slowdown) factor of gang
+                }
+      }
+
+      For example: gang_dict [1]["members"] => list of member tasks of gang # 1
+    '''
     gang_dict = {}
 
     for (t, i, v) in vgangs:
@@ -126,14 +200,10 @@ def run_smt_script(script_name):
     if stderr:
         raise IOError, "Unexpected output from z3: ", stderr
 
-    # parse_script_output(stdout)
-    if "sat" not in stdout:
-        raise ValueError, "Model not satisfied: ", stdout
+    if "unsat" in stdout:
+        return None
 
-    # print stdout
-    parse_script_output(stdout)
-
-    return
+    return stdout
 
 def dbg_print_taskset(taskset):
     print "================ DEBUG ==============="
@@ -184,7 +254,7 @@ smt_ftr = \
 (get-model)
 '''
 
-def gen_smt_script(candidate_set, period):
+def gen_smt_script(candidate_set, max_gang_length, period):
     output_file = "u%d_p%d.smt2" % (4, period)
     num_of_vgangs = len(candidate_set) - 1
 
@@ -275,12 +345,14 @@ def gen_smt_script(candidate_set, period):
         #  line = (assert (or (not <clause-1>) (>= <clause-2>)))
         #  # of clause-1 = # of tasks
         #  # of clause-2 = # of vgangs
+        length_assert_line = "(assert (>= l%d 0))\n"
         clause_1 = "(= m%d %d)"
         clause_2 = "l%d (* %3d s%d)"
         line = "(assert (or (not %s) (>= %s)))\n"
         for l in range(1, num_of_vgangs + 1):
             idx = 1
 
+            fdo.write(length_assert_line % (l))
             for t in candidate_set:
                 c1 = clause_1 % (idx, l)
                 c2 = clause_2 % (l, t.c, l)
@@ -289,7 +361,6 @@ def gen_smt_script(candidate_set, period):
         fdo.write('\n')
 
         # Write gang length constraint line
-        max_length = sum([t.c for t in candidate_set]) * 100
         line = "(assert (= %s %d ))\n"
 
         if num_of_vgangs == 1:
@@ -298,7 +369,7 @@ def gen_smt_script(candidate_set, period):
             clause = "(+ l1 l2)"
             for l in range(3, num_of_vgangs + 1):
                 clause = "(+ %s l%d)" % (clause, l)
-        fdo.write(line % (clause, max_length))
+        fdo.write(line % (clause, max_gang_length))
 
         fdo.write(smt_ftr)
 
