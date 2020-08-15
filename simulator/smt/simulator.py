@@ -3,13 +3,16 @@
 from tasksetGenerator import Generator
 from subprocess import Popen, PIPE
 from taskFactory import Task
+from threading import Timer
 from random import randint
 from time import time
-import re
+import re, sys
 
 tpp = 8
 M = 8
 DEBUG = False
+UNSAT_TIMEOUT_SEC = 1
+UNSAT_MAX_TIMEOUT_SEC = 100
 
 def main():
     optimal_solution = None
@@ -26,6 +29,16 @@ def main():
                          Task(2, 37, period, 2, 47),
                          Task(3, 27, period, 1, 57),
                          Task(4, 34, period, 4, 31)]
+    elif DEBUG == 3:
+        period = 1233
+        candidate_set = [Task(1, 206, period, 2, 9),
+                         Task(2, 220, period, 2, 17),
+                         Task(3, 172, period, 1, 89),
+                         Task(4, 161, period, 1, 78),
+                         Task(5, 159, period, 3, 95),
+                         Task(6, 135, period, 3, 5),
+                         Task(7, 143, period, 2, 76),
+                         Task(8, 221, period, 1, 90)]
     else:
         # Generate taskset and then create SMT script
         taskFactory = Generator(M, [M], tpp)
@@ -37,7 +50,7 @@ def main():
     optimal_solution = smt_binary_search_length(candidate_set, period, True)
     duration = "%.3f" % (time() - start)
 
-    print "=== Optimal Solution obtained in: %s seconds!" % (duration)
+    print "=== Optimal Solution obtained in: %s seconds!\n" % (duration)
     parse_script_output(optimal_solution)
 
     return
@@ -56,9 +69,11 @@ def smt_binary_search_length(candidate_set, period, debug = False):
       can't be reduced further. The solution with minimal gang length is the
       best for the given problem.
     '''
-    max_gang_length = sum([t.c for t in candidate_set]) * 100
     prev_gang_length = 0
+    unsat_gang_length = 0
+    last_unsat_script = 0
     optimal_solution = None
+    max_gang_length = sum([t.c for t in candidate_set]) * 100
 
     if debug:
         iteration = 0
@@ -83,6 +98,11 @@ def smt_binary_search_length(candidate_set, period, debug = False):
             if not optimal_solution:
                 raise ValueError, "SMT not able to find any solutions!"
 
+            # Keep track of the last unsat solution. We will have to run it to
+            # completion to verify it.
+            last_unsat_script = smt_script
+            unsat_gang_length = max_gang_length
+
             # Model not satisfied. Search up.
             max_gang_length, prev_gang_length = \
                 update_gang_length(max_gang_length, prev_gang_length, False)
@@ -99,6 +119,30 @@ def smt_binary_search_length(candidate_set, period, debug = False):
                     duration)
 
         if (max_gang_length == prev_gang_length):
+            # Run the last unsat solution to completion. It must be unsat; in
+            # order for the current solution to be truly optimal
+            if debug:
+                print "\n  -- Verifying last unsat solution: %s" % \
+                        (last_unsat_script)
+
+            unsat, time_taken = verify_last_unsat_solution(last_unsat_script)
+
+            if not unsat:
+                # Last unsat solution was not truly unsat. We must continue
+                # binary search downward
+                print "[WARNING] Last unsat solution was not truly unsat:"
+                print "          - Gang Length =", unsat_gang_length
+                print "          -  SMT Script =", last_unsat_script
+
+                max_gang_length = unsat_gang_length / 2
+                prev_gang_length = unsat_gang_length
+                continue
+
+            if debug:
+                print "  -- Last unsat solution verified in %s seconds\n" % \
+                        (time_taken)
+
+            # Last solution was truly unsat. We can end binary search
             break
 
     if debug:
@@ -106,6 +150,21 @@ def smt_binary_search_length(candidate_set, period, debug = False):
         print
 
     return optimal_solution
+
+def verify_last_unsat_solution(script):
+    unsat = False
+    start = time()
+    solution = run_smt_script(script, UNSAT_MAX_TIMEOUT_SEC)
+    duration = "%.3f" % (time() - start)
+
+    if float(duration) > UNSAT_MAX_TIMEOUT_SEC:
+        print "[ERROR] Final unsat solution was not computed within timeout!"
+        sys.exit(1)
+
+    if not solution:
+        unsat = True
+
+    return unsat, duration
 
 def dbg_print_config(gdict):
     tbl_fmt = "%-20s | %-20s | %-10s | %-5s"
@@ -193,12 +252,30 @@ def parse_script_output(output):
 
     return
 
-def run_smt_script(script_name):
+def run_smt_script(script_name, timeout = UNSAT_TIMEOUT_SEC):
     p = Popen(["z3", script_name], stdout = PIPE, stderr = PIPE)
-    stdout, stderr = p.communicate()
+    timer = Timer(timeout, p.kill)
+
+    '''
+      Timeout Implementation for Unsat
+
+      We assume that the solution is "unsat" if z3 takes more than a specific
+      amount of time <UNSAT_TIMEOUT_SEC> to compute it. In this case, the timer
+      callback would be the first function to return in the following "try"
+      block. In the "finally" block, we will cancel the timer which, in turn,
+      will kill the z3 process.
+
+      When this happens, both stdout and stderr would be empty and the caller
+      of this function treats empty stdout as UNSAT by z3.
+    '''
+    try:
+        timer.start()
+        stdout, stderr = p.communicate()
+    finally:
+        timer.cancel()
 
     if stderr:
-        raise IOError, "Unexpected output from z3: ", stderr
+        raise IOError, "Unexpected output from z3: %s" % (stderr)
 
     if "unsat" in stdout:
         return None
@@ -255,7 +332,7 @@ smt_ftr = \
 '''
 
 def gen_smt_script(candidate_set, max_gang_length, period):
-    output_file = "u%d_p%d.smt2" % (4, period)
+    output_file = "u%d_p%d_g%d.smt2" % (M, period, max_gang_length)
     num_of_vgangs = len(candidate_set) - 1
 
     with open(output_file, 'w') as fdo:
