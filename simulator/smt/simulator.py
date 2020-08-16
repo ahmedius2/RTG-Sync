@@ -8,11 +8,13 @@ from random import randint
 from time import time
 import re, sys
 
-tpp = 8
 M = 8
+tpp = 8
 DEBUG = False
-UNSAT_TIMEOUT_SEC = 1
+UNSAT_TIMEOUT_SEC = 2
+VERIFY_LAST_UNSAT = False
 UNSAT_MAX_TIMEOUT_SEC = 100
+SINGLE_STEP_SEARCH_RANGE = 100
 
 def main():
     optimal_solution = None
@@ -55,12 +57,23 @@ def main():
 
     return
 
-def update_gang_length(cur_length, prev_length, down):
-    step = abs(cur_length - prev_length) / 2
-    prev_length = cur_length
-    cur_length = (cur_length - step) if down else (cur_length + step)
+def update_gang_length(cur_length, lower_len_lim, upper_len_lim, down):
+    lower_step = (cur_length - lower_len_lim) / 4
+    upper_step = (upper_len_lim - cur_length) * 3 / 4
 
-    return cur_length, prev_length
+    # Perform "biased" binary search. This means that we go down by 25% of the
+    # step value on 'sat' and go up by 75% of the step value on 'unsat'. This
+    # helps by reducing the probability of encountering an 'unsat'; at the cost
+    # of more 'sats' but we can tolerate that because on average 'unsat' takes
+    # significantly longer than 'sat' to compute
+    if down:
+        upper_len_lim = cur_length
+        cur_length -= lower_step
+    else:
+        lower_len_lim = cur_length
+        cur_length += upper_step
+
+    return cur_length, lower_len_lim, upper_len_lim
 
 def smt_binary_search_length(candidate_set, period, debug = False):
     '''
@@ -72,18 +85,23 @@ def smt_binary_search_length(candidate_set, period, debug = False):
     prev_gang_length = 0
     unsat_gang_length = 0
     last_unsat_script = 0
+    unsat_lower_len_lim = 0
     optimal_solution = None
+
     max_gang_length = sum([t.c for t in candidate_set]) * 100
+    upper_len_lim = max_gang_length
+    interval = max_gang_length
+    lower_len_lim = 0
 
     if debug:
         iteration = 0
-        tbl_fmt = "%-10s | %-15s | %-15s | %-15s"
-        tbl_hdr = tbl_fmt % ("Iteration", "Cur. Length", "Next Length",
-                "Time (sec)")
+        tbl_fmt = "%-10s | %-15s | %-15s | %-15s | %-15s | %-15s"
+        tbl_hdr = tbl_fmt % ("Iteration", "Cur. Length", "Upper Lim.",
+            "Lower Lim.", "Interval", "Time (sec)")
         hdr_len = len(tbl_hdr) - 1
         hrule = "-" * hdr_len
 
-        print "=================== SMT Binary Search Debug ==================="
+        print "=" * 37, "SMT Binary Search Debug", "=" * 37
         print tbl_hdr
         print hrule
 
@@ -94,6 +112,13 @@ def smt_binary_search_length(candidate_set, period, debug = False):
         solution = run_smt_script(smt_script)
         duration = "%.3f" % (time() - start)
 
+        if debug:
+            iteration += 1
+            print tbl_fmt % (iteration, max_gang_length,
+                    upper_len_lim, lower_len_lim, interval, duration)
+
+        prev_gang_length = max_gang_length
+
         if not solution:
             if not optimal_solution:
                 raise ValueError, "SMT not able to find any solutions!"
@@ -102,45 +127,54 @@ def smt_binary_search_length(candidate_set, period, debug = False):
             # completion to verify it.
             last_unsat_script = smt_script
             unsat_gang_length = max_gang_length
+            unsat_lower_len_lim = lower_len_lim
+            down = False
 
-            # Model not satisfied. Search up.
-            max_gang_length, prev_gang_length = \
-                update_gang_length(max_gang_length, prev_gang_length, False)
         else:
             # The model was satisifed. Search down.
             optimal_solution = solution
+            down = True
 
-            max_gang_length, prev_gang_length = \
-                update_gang_length(max_gang_length, prev_gang_length, True)
+        if interval < SINGLE_STEP_SEARCH_RANGE:
+            # Instead of binary-search, go down in the last search interval
+            # in steps of 1 time-units. This way, we are bound to find a
+            # solution is max. time of:
+            #   (SINGLE_STEP_SEARCH_RANGE - 1) * <sat-time> + <unsat-time>
+            upper_len_lim = max_gang_length if down else upper_len_lim
+            lower_len_lim = lower_len_lim if down else max_gang_length
+            max_gang_length -= 1
+        else:
+            max_gang_length, lower_len_lim, upper_len_lim = \
+                update_gang_length(max_gang_length, lower_len_lim,
+                        upper_len_lim, down)
 
-        if debug:
-            iteration += 1
-            print tbl_fmt % (iteration, prev_gang_length, max_gang_length,
-                    duration)
+        interval = upper_len_lim - lower_len_lim
+        if interval <= 1:
+            if VERIFY_LAST_UNSAT:
+                # Run the last unsat solution to completion. It must be unsat;
+                # in order for the current solution to be truly optimal
+                if debug:
+                    print "\n  -- Verifying last unsat solution: %s" % \
+                            (last_unsat_script)
 
-        if (max_gang_length == prev_gang_length):
-            # Run the last unsat solution to completion. It must be unsat; in
-            # order for the current solution to be truly optimal
-            if debug:
-                print "\n  -- Verifying last unsat solution: %s" % \
-                        (last_unsat_script)
+                unsat, time_taken = verify_last_unsat_sol(last_unsat_script)
 
-            unsat, time_taken = verify_last_unsat_solution(last_unsat_script)
+                if not unsat:
+                    # Last unsat solution was not truly unsat. We must continue
+                    # binary search downward
+                    print "[WARNING] Last unsat solution was not truly unsat:"
+                    print "          - Gang Length =", unsat_gang_length
+                    print "          -  SMT Script =", last_unsat_script
 
-            if not unsat:
-                # Last unsat solution was not truly unsat. We must continue
-                # binary search downward
-                print "[WARNING] Last unsat solution was not truly unsat:"
-                print "          - Gang Length =", unsat_gang_length
-                print "          -  SMT Script =", last_unsat_script
+                    max_gang_length, lower_len_lim, upper_len_lim = \
+                        update_gang_length(unsat_gang_length,
+                                unsat_lower_len_lim, upper_len_lim, True)
 
-                max_gang_length = unsat_gang_length / 2
-                prev_gang_length = unsat_gang_length
-                continue
+                    continue
 
-            if debug:
-                print "  -- Last unsat solution verified in %s seconds\n" % \
-                        (time_taken)
+                if debug:
+                    print "  -- Last unsat solution verified in %s seconds\n" \
+                            % (time_taken)
 
             # Last solution was truly unsat. We can end binary search
             break
@@ -151,7 +185,7 @@ def smt_binary_search_length(candidate_set, period, debug = False):
 
     return optimal_solution
 
-def verify_last_unsat_solution(script):
+def verify_last_unsat_sol(script):
     unsat = False
     start = time()
     solution = run_smt_script(script, UNSAT_MAX_TIMEOUT_SEC)
