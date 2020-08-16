@@ -8,7 +8,10 @@ Copyright (C) 2019 KU-CSL
 09-07-2019  Define task generator class
 '''
 
+from time import time
 import random
+
+EDGE_PROBABILITY = 50
 
 class Task:
     def __init__ (self, taskId, c, p, h, r):
@@ -37,6 +40,11 @@ class Task:
         self.h = int(h)
         self.r = int(r)
 
+        # Assume that there is an edge from tid to tid + 1 if self.e is 1
+        random.seed(time())
+        p = random.randint(1, 100)
+        self.e = 1 if p <= EDGE_PROBABILITY else 0
+
         return
 
     def copy (self):
@@ -44,5 +52,5 @@ class Task:
 
     def __str__ (self):
         u = self.c * self.h / float(self.p)
-        return 'Task: %2d | C=%4d P=%4d h=%2d r=%2d u=%6s' % (self.tid,
-                self.c, self.p, self.h, self.r, '{:2.3f}'.format (u))
+        return 'Task: %2d | C=%4d P=%4d h=%2d r=%2d e=%1d u=%6s' % (self.tid,
+                self.c, self.p, self.h, self.r, self.e, '{:2.3f}'.format (u))

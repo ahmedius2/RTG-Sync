@@ -34,6 +34,9 @@ class Generator:
                     if stop: break
                 else:
                     task, remUtil, stop = self.gen_task_params(tasksetType, remUtil, T, tid)
+
+                    # Last task should not have an out-going edge
+                    task.e = 0;
                     taskset[u][T].append(task)
                     tid += 1
 

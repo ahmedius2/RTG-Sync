@@ -8,11 +8,12 @@ from random import randint
 from time import time
 import re, sys
 
-tpp = 8
 M = 8
+tpp = 8
 DEBUG = False
 UNSAT_TIMEOUT_SEC = 1
-UNSAT_MAX_TIMEOUT_SEC = 100
+UNSAT_MAX_TIMEOUT_SEC = 300
+VERIFY_LAST_UNSAT_SOL = False
 
 def main():
     optimal_solution = None
@@ -51,7 +52,8 @@ def main():
     duration = "%.3f" % (time() - start)
 
     print "=== Optimal Solution obtained in: %s seconds!\n" % (duration)
-    parse_script_output(optimal_solution)
+    first_task_tid = candidate_set [0].tid - 1
+    parse_script_output(optimal_solution, first_task_tid)
 
     return
 
@@ -152,6 +154,10 @@ def smt_binary_search_length(candidate_set, period, debug = False):
     return optimal_solution
 
 def verify_last_unsat_solution(script):
+    # We are not verifying the last unsat solution
+    if not VERIFY_LAST_UNSAT_SOL:
+        return True, 0
+
     unsat = False
     start = time()
     solution = run_smt_script(script, UNSAT_MAX_TIMEOUT_SEC)
@@ -182,7 +188,7 @@ def dbg_print_config(gdict):
 
     return
 
-def stratify_data(vgangs):
+def stratify_data(vgangs, ftid):
     '''
       vgangs is a list of tuples.
       Each tuple has the following format:
@@ -216,9 +222,9 @@ def stratify_data(vgangs):
     for (t, i, v) in vgangs:
         if t == 'm':
             if v not in gang_dict:
-                gang_dict [v] = {"members": [i]}
+                gang_dict [v] = {"members": [int(i) + ftid]}
                 continue
-            gang_dict [v]["members"].append(i)
+            gang_dict [v]["members"].append(int(i) + ftid)
         elif t == 'l' or t == 's':
             if i not in gang_dict:
                 gang_dict [i] = {"members": []}
@@ -243,11 +249,11 @@ def stratify_data(vgangs):
 
     return gang_dict
 
-def parse_script_output(output):
+def parse_script_output(output, first_task_tid):
     regex = "define-fun ([mls])([\d]+).*\n[\D]+([\d]+)"
     vgangs = re.findall(regex, output)
 
-    gang_dict = stratify_data(vgangs)
+    gang_dict = stratify_data(vgangs, first_task_tid)
     dbg_print_config(gang_dict)
 
     return
@@ -393,6 +399,19 @@ def gen_smt_script(candidate_set, max_gang_length, period):
         fdo.write('\n')
 
         # TODO Handle precedence constraint line
+        # If tau_i.e = 1; it means tau_i -> tau_i + 1 i.e., tau_i must run
+        # before tau_i + 1.
+        # In SMT syntax => m_i < m_i + 1
+        idx = 0
+        precedence_line = "(assert ( < m%d m%d ))\n"
+        for t in candidate_set:
+            idx += 1
+            if not t.e:
+                continue
+
+            line = precedence_line % (idx, idx + 1)
+            fdo.write(line)
+        fdo.write('\n')
 
         # Write interference slowdown line
         #  2nd line format
