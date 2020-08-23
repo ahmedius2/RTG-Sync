@@ -14,7 +14,7 @@ import random
 EDGE_PROBABILITY = 50
 
 class Task:
-    def __init__ (self, taskId, c, p, h, r):
+    def __init__ (self, taskId, c, p, h, r, e = -1):
         '''
         Initialize a task object. The task object is defined by the
         following parameters:
@@ -41,14 +41,20 @@ class Task:
         self.r = int(r)
 
         # Assume that there is an edge from tid to tid + 1 if self.e is 1
-        random.seed(time())
-        p = random.randint(1, 100)
-        self.e = 1 if p <= EDGE_PROBABILITY else 0
+        if e == -1:
+            random.seed(time())
+            p = random.randint(1, 100)
+            self.e = 1 if p <= EDGE_PROBABILITY else 0
+        else:
+            if e not in [0, 1]:
+                raise ValueError, "Invalid value: e=%d" % (e)
+
+            self.e = e
 
         return
 
     def copy (self):
-        return Task (self.tid, self.c, self.p, self.h, self.r)
+        return Task (self.tid, self.c, self.p, self.h, self.r, self.e)
 
     def __str__ (self):
         u = self.c * self.h / float(self.p)
