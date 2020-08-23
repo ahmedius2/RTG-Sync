@@ -15,6 +15,7 @@ UNSAT_TIMEOUT_SEC = 2
 EDGE_PROBABILITY = 50
 UNSAT_MAX_TIMEOUT_SEC = 300
 VERIFY_LAST_UNSAT_SOL = True
+VGANG_TOLERANCE_DELTA = 1.0
 
 def main():
     optimal_solution = None
@@ -53,10 +54,67 @@ def main():
     duration = "%.3f" % (time() - start)
 
     print "=== Optimal Solution obtained in: %s seconds!\n" % (duration)
+
+
     first_task_tid = candidate_set [0].tid - 1
-    parse_script_output(optimal_solution, first_task_tid)
+    virtual_gangs = parse_script_output(optimal_solution, first_task_tid)
+    verify_virtual_gangs(candidate_set, virtual_gangs)
 
     return
+
+def task_list_to_string(task_list):
+    assert task_list != [], ("Task list cannot be empty!")
+
+    return ','.join(['t%d' % t.tid for t in task_list])
+
+def get_task_by_tid(task_list, tid):
+    assert task_list != [], ("Task list cannot be empty!")
+
+    for t in task_list:
+        if t.tid == tid:
+            return t
+
+    raise ValueError, "Task <t%d> not found in list: %s" % (tid,
+            task_list_to_string(task_list))
+
+def verify_virtual_gangs(candidate_set, virtual_gangs):
+    '''
+      Given the taskset and computed virtual-gangs, perform simple sanity tests
+      to verify that the solution is correct. Here is a list tests that are
+      performed at the moment:
+        - Check that the length of the virtual-gangs matches with the sum of
+          the length of constituent tasks and their calculated resource demand
+    '''
+    for vg in virtual_gangs.values():
+        vg_length = vg['C']
+        vg_demand = int(vg['r'])
+        vg_members = vg['members']
+
+        expected_gang_length = 0
+        expected_gang_demand = 0
+
+        for tid in vg_members:
+            task = get_task_by_tid(candidate_set, tid)
+            expected_gang_length = max(task.c, expected_gang_length)
+            expected_gang_demand += task.r
+        expected_gang_demand = max(100, expected_gang_demand)
+
+        assert expected_gang_demand == vg_demand, ("The expected resource "
+                "demand <%d> of the virtual-gang does not match the "
+                "calculated resource demand <%d>" % (expected_gang_demand,
+                    vg_demand))
+
+        expected_gang_length *= (expected_gang_demand / 100.0)
+        delta_gang_length = abs(vg_length - expected_gang_length)
+
+        assert delta_gang_length < VGANG_TOLERANCE_DELTA, ("The delta in "
+                "expected virtual-gang length <%.3f> and the calculated "
+                "virtual-gang length <%.3f> is more than tolerance mergin "
+                "<%.3f>" % (expected_gang_length, vg_length,
+                    VGANG_TOLERANCE_DELTA))
+
+    return
+
 
 def update_gang_length(cur_length, prev_length, down):
     step = abs(cur_length - prev_length) / 2
@@ -250,14 +308,26 @@ def stratify_data(vgangs, ftid):
 
     return gang_dict
 
+def reorder_virtual_gangs(vgangs):
+    ordered_gang_dict = {}
+    gang_ids = sorted(vgangs.keys())
+
+    vidx = 1
+    for vgid in gang_ids:
+        ordered_gang_dict[vidx] = vgangs[vgid]
+        vidx += 1
+
+    return ordered_gang_dict
+
 def parse_script_output(output, first_task_tid):
     regex = "define-fun ([mls])([\d]+).*\n[\D]+([\d]+)"
     vgangs = re.findall(regex, output)
 
     gang_dict = stratify_data(vgangs, first_task_tid)
-    dbg_print_config(gang_dict)
+    ordered_gang_dict = reorder_virtual_gangs(gang_dict)
+    dbg_print_config(ordered_gang_dict)
 
-    return
+    return ordered_gang_dict
 
 def run_smt_script(script_name, timeout = UNSAT_TIMEOUT_SEC):
     p = Popen(["z3", script_name], stdout = PIPE, stderr = PIPE)
