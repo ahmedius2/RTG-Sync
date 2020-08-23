@@ -1,11 +1,19 @@
 import math, random
+from time import time
 from taskFactory import Task
 
 class Generator:
-    def __init__ (self, numOfCores, utils, tasks_per_period = False):
+    def __init__ (self, numOfCores, utils, max_edge_probability,
+            tasks_per_period = False):
+
+        self.mep = max_edge_probability
         self.tpp = tasks_per_period
         self.M = numOfCores
         self.U = utils
+
+        assert self.M >= 4, ("Taskset generator assumes that there are "
+                             "at-least 4 cores available on the platform. "
+                             "Given core count = %d" % (self.M))
 
         return
 
@@ -25,22 +33,48 @@ class Generator:
                     taskset[u][T] = []
 
                 # Randomly select the number of tasks to generate for the current period
-                tasks_per_period = random.randint(2, 5) if not self.tpp else self.tpp
+                if not self.tpp: self.tpp = random.randint(4, self.M)
 
-                while (tid % tasks_per_period):
+                while (tid % self.tpp):
                     task, remUtil, stop = self.gen_task_params(tasksetType, remUtil, T, tid)
                     taskset[u][T].append(task)
                     tid += 1
                     if stop: break
                 else:
                     task, remUtil, stop = self.gen_task_params(tasksetType, remUtil, T, tid)
-
-                    # Last task should not have an out-going edge
-                    task.e = 0;
                     taskset[u][T].append(task)
                     tid += 1
 
+        self.add_edges(taskset)
+
         return taskset
+
+    def add_edges(self, taskset):
+        '''
+          Edge Generation Algorithm
+            - Assume strict order b/w tasks and only 'forward' edges; to avoid
+              creation of cycles by design
+            - Each task can have edge with any task that comes after it; based
+              on a coin toss probability scheme
+        '''
+        for u in taskset:
+            for T in taskset[u]:
+                candidate_set = taskset[u][T]
+                last_task_tid = candidate_set[-1].tid
+
+                for t in candidate_set:
+                    edge_list = []
+                    random.seed(time())
+                    this_task_edge_prob = self.mep / \
+                            ((last_task_tid - t.tid + 1) / 2.0)
+
+                    for tnext in range(t.tid + 1, last_task_tid + 1):
+                        p = random.randint(1, 100)
+                        if p <= this_task_edge_prob: edge_list.append(tnext)
+
+                    t.add_edges(edge_list)
+
+        return
 
     def gen_task_params(self, tasksetType, remUtil, T, tid):
         stop = False
@@ -85,6 +119,6 @@ class Generator:
                 print '*' * 57
                 for t in taskset[u][p]:
                     v += (t.c * t.h / float(p))
-                    print t, " | v = %1.3f" % (v)
+                    print "v = %1.3f | " % (v), t
 
         return

@@ -14,10 +14,10 @@ import random
 EDGE_PROBABILITY = 50
 
 class Task:
-    def __init__ (self, taskId, c, p, h, r, e = -1):
+    def __init__(self, taskId, c, p, h, r, e = []):
         '''
-        Initialize a task object. The task object is defined by the
-        following parameters:
+        Initialize a task object. The task object is defined by the following
+        parameters:
 
             Compute Time (c):     Execution time of the task in isolation.
                                   This is determined randomly; ranging from 1
@@ -39,24 +39,20 @@ class Task:
         self.p = int(p)
         self.h = int(h)
         self.r = int(r)
-
-        # Assume that there is an edge from tid to tid + 1 if self.e is 1
-        if e == -1:
-            random.seed(time())
-            p = random.randint(1, 100)
-            self.e = 1 if p <= EDGE_PROBABILITY else 0
-        else:
-            if e not in [0, 1]:
-                raise ValueError, "Invalid value: e=%d" % (e)
-
-            self.e = e
+        self.e = e
 
         return
 
-    def copy (self):
+    def add_edges(self, e):
+        self.e = e
+        return
+
+    def copy(self):
         return Task (self.tid, self.c, self.p, self.h, self.r, self.e)
 
-    def __str__ (self):
+    def __str__(self):
         u = self.c * self.h / float(self.p)
-        return 'Task: %2d | C=%4d P=%4d h=%2d r=%2d e=%1d u=%6s' % (self.tid,
-                self.c, self.p, self.h, self.r, self.e, '{:2.3f}'.format (u))
+        edges = 'None' if not self.e else \
+                ','.join(['t%d->t%d' % (self.tid, t) for t in self.e])
+        return 'Task: %2d | C=%4d P=%4d h=%2d r=%2d u=%6s e=%s' % (self.tid,
+                self.c, self.p, self.h, self.r, '{:2.3f}'.format (u), edges)

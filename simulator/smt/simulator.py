@@ -10,8 +10,9 @@ import re, sys
 
 M = 8
 tpp = 8
-DEBUG = 3
+DEBUG = False
 UNSAT_TIMEOUT_SEC = 2
+EDGE_PROBABILITY = 50
 UNSAT_MAX_TIMEOUT_SEC = 300
 VERIFY_LAST_UNSAT_SOL = True
 
@@ -21,28 +22,28 @@ def main():
     if DEBUG == 1:
         # Generate SMT script for sample taskset
         period = 100
-        candidate_set = [Task(1, 30, period, 3, 30, -1),
-                         Task(2, 20, period, 2, 50, -1),
-                         Task(3, 40, period, 2, 70,  0)]
+        candidate_set = [Task(1,  30, period, 3, 30),
+                         Task(2,  20, period, 2, 50),
+                         Task(3,  40, period, 2, 70)]
     elif DEBUG == 2:
         period = 248
-        candidate_set = [Task(1, 29, period, 3, 10, -1),
-                         Task(2, 37, period, 2, 47, -1),
-                         Task(3, 27, period, 1, 57, -1),
-                         Task(4, 34, period, 4, 31,  0)]
+        candidate_set = [Task(1,  29, period, 3, 10),
+                         Task(2,  37, period, 2, 47),
+                         Task(3,  27, period, 1, 57),
+                         Task(4,  34, period, 4, 31)]
     elif DEBUG == 3:
         period = 1233
-        candidate_set = [Task(1, 206, period, 2,  9, -1),
-                         Task(2, 220, period, 2, 17, -1),
-                         Task(3, 172, period, 1, 89, -1),
-                         Task(4, 161, period, 1, 78, -1),
-                         Task(5, 159, period, 3, 95, -1),
-                         Task(6, 135, period, 3,  5, -1),
-                         Task(7, 143, period, 2, 76, -1),
-                         Task(8, 221, period, 1, 90,  0)]
+        candidate_set = [Task(1, 206, period, 2,  9),
+                         Task(2, 220, period, 2, 17),
+                         Task(3, 172, period, 1, 89),
+                         Task(4, 161, period, 1, 78),
+                         Task(5, 159, period, 3, 95),
+                         Task(6, 135, period, 3,  5),
+                         Task(7, 143, period, 2, 76),
+                         Task(8, 221, period, 1, 90)]
     else:
         # Generate taskset and then create SMT script
-        taskFactory = Generator(M, [M], tpp)
+        taskFactory = Generator(M, [M], EDGE_PROBABILITY, tpp)
         taskset = taskFactory.create_taskset('light')
         candidate_set, period = test_candidate_set(taskset[M], True)
 
@@ -398,10 +399,10 @@ def gen_smt_script(candidate_set, max_gang_length, period):
             fdo.write(line)
         fdo.write('\n')
 
-        # TODO Handle precedence constraint line
-        # If tau_i.e = 1; it means tau_i -> tau_i + 1 i.e., tau_i must run
-        # before tau_i + 1.
-        # In SMT syntax => m_i < m_i + 1
+        # Handle precedence constraint line
+        # For each tau_n in tau_i.e => tau_i -> tau_n i.e., there is an edge b/w
+        # tau_i and tau_n and hence tau_i must run before tau_n.
+        # In SMT syntax => m_i < m_n
         idx = 0
         precedence_line = "(assert ( < m%d m%d ))\n"
         for t in candidate_set:
@@ -409,8 +410,11 @@ def gen_smt_script(candidate_set, max_gang_length, period):
             if not t.e:
                 continue
 
-            line = precedence_line % (idx, idx + 1)
-            fdo.write(line)
+            for tnext in t.e:
+                tnedge = tnext % tpp
+                if tnedge == 0: tnedge = tpp
+                line = precedence_line % (idx % tpp, tnedge)
+                fdo.write(line)
         fdo.write('\n')
 
         # Write interference slowdown line
