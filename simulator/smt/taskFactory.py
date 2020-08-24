@@ -11,8 +11,6 @@ Copyright (C) 2019 KU-CSL
 from time import time
 import random
 
-EDGE_PROBABILITY = 50
-
 class Task:
     def __init__(self, taskId, c, p, h, r, e = []):
         '''
