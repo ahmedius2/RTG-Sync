@@ -33,7 +33,7 @@ class Task:
                                   resource needed by the task
         '''
         self.tid = taskId
-        self.c = int(c)
+        self.c = c
         self.p = int(p)
         self.h = int(h)
         self.r = int(r)
@@ -52,5 +52,5 @@ class Task:
         u = self.c * self.h / float(self.p)
         edges = 'None' if not self.e else \
                 ','.join(['t%d->t%d' % (self.tid, t) for t in self.e])
-        return 'Task: %2d | C=%4d P=%4d h=%2d r=%2d u=%6s e=%s' % (self.tid,
+        return 'Task: %2d | C=%4.3f P=%4d h=%2d r=%2d u=%6s e=%s' % (self.tid,
                 self.c, self.p, self.h, self.r, '{:2.3f}'.format (u), edges)

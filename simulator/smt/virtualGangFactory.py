@@ -1,9 +1,10 @@
 from time import time
 from smtFactory import SMT
+from taskFactory import Task
 
 class VirtualGangCreator:
     def __init__(self, params):
-        required_params = ['period', 'candidate_set', 'num_of_cores',
+        required_params = ['candidate_set', 'num_of_cores', 'period',
                 'tasks_per_period']
 
         default_optional_params = {
@@ -50,7 +51,7 @@ class VirtualGangCreator:
 
         return
 
-    def run(self):
+    def run(self, first_vtask_tid):
         start = time()
         optimal_solution = self.__smt_binary_search_length(self.debug)
         duration = time() - start
@@ -61,9 +62,12 @@ class VirtualGangCreator:
         virtual_gangs = self.__clean_smt_output(optimal_solution)
         self.__verify_virtual_gangs(virtual_gangs)
 
+        virtual_taskset = \
+                self.__create_virtual_taskset(virtual_gangs, first_vtask_tid)
+
         if self.debug: self.__print_vgangs(virtual_gangs)
 
-        return virtual_gangs
+        return virtual_taskset
 
     def __smt_binary_search_length(self, debug = False):
         '''
@@ -167,7 +171,9 @@ class VirtualGangCreator:
                         key = "C",
                         value = Gang length,
                         key = "r",
-                        value = Resource demand (i.e., Slowdown)
+                        value = Resource demand (i.e., Slowdown),
+                        key = "h",
+                        value = Height of the virtual-gang
                     }
           }
 
@@ -200,6 +206,9 @@ class VirtualGangCreator:
         for g in gang_dict:
             if not gang_dict[g]["members"]:
                 empty_gangs.append(g)
+            else:
+                gang_dict[g]["h"] = \
+                        self.__calc_vgang_height(gang_dict[g]["members"])
 
         for vg in empty_gangs:
             del gang_dict[vg]
@@ -213,14 +222,20 @@ class VirtualGangCreator:
           that are performed at the moment:
             - Check that the length of the virtual-gangs matches with the sum
               of the length of constituent tasks and their calculated demand
+            - Check that the height of the virutal-gangs fits within the cores
         '''
         for vg in virtual_gangs.values():
             vg_length = vg['C']
+            vg_height = vg['h']
             vg_demand = int(vg['r'])
             vg_members = vg['members']
 
             expected_gang_length = 0
             expected_gang_demand = 0
+
+            assert vg_height <= self.num_of_cores, ("Virtual gang <h=%d> "
+                    "does not fit in the core count <%d>" % (vg_height,
+                        self.num_of_cores))
 
             for tid in vg_members:
                 task = self.__get_task_by_tid(tid)
@@ -262,6 +277,20 @@ class VirtualGangCreator:
 
         return unsat, duration
 
+    def __create_virtual_taskset(self, virtual_gangs, first_vtask_tid):
+        virtual_taskset = []
+
+        for vgid in virtual_gangs:
+            vg_tid = first_vtask_tid + vgid
+            vg_length = virtual_gangs[vgid]['C']
+            vg_height = virtual_gangs[vgid]['h']
+            vg_demand = virtual_gangs[vgid]['r']
+
+            vTask = Task(vg_tid, vg_length, self.period, vg_height, vg_demand)
+            virtual_taskset.append(vTask)
+
+        return virtual_taskset
+
     def __print_vgangs(self, gdict):
         tbl_fmt = "%-20s | %-20s | %-10s | %-5s"
         header = tbl_fmt % ("Virtual-Gang ID", "Members", "L", "r")
@@ -288,6 +317,14 @@ class VirtualGangCreator:
             vidx += 1
 
         return ordered_gang_dict
+
+    def __calc_vgang_height(self, members):
+        height = 0
+        for tid in members:
+            task = self.__get_task_by_tid(tid)
+            height += task.h
+
+        return height
 
     def __update_gang_length(self, cur_length, prev_length, down):
         step = abs(cur_length - prev_length) / 2

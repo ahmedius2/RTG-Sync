@@ -52,12 +52,13 @@ def main():
     }
 
     vgc_factory = VirtualGangCreator(vgc_params)
-    virtual_gangs = vgc_factory.run()
+    virtual_taskset = vgc_factory.run(0)
+    dbg_print_taskset({period: virtual_taskset})
 
     return
 
 def dbg_print_taskset(taskset):
-    print "================ DEBUG ==============="
+    print "\n================ DEBUG ==============="
     for T in taskset:
         print "Period=%d" % (T)
         for t in taskset[T]:
