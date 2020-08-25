@@ -15,6 +15,9 @@ class Generator:
                              "at-least 4 cores available on the platform. "
                              "Given core count = %d" % (self.M))
 
+        # Initialize the random number generator with a specific seed
+        random.seed(5)
+
         return
 
     def create_taskset(self, tasksetType):
@@ -64,7 +67,6 @@ class Generator:
 
                 for t in candidate_set:
                     edge_list = []
-                    random.seed(time())
                     this_task_edge_prob = self.mep / \
                             ((last_task_tid - t.tid + 1) / 2.0)
 
