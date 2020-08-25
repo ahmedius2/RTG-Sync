@@ -4,7 +4,7 @@ from taskFactory import Task
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
-DEBUG = False
+DEBUG = True
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 50
 MAX_TASKS_PER_PERIOD = 8
@@ -12,19 +12,7 @@ MAX_TASKS_PER_PERIOD = 8
 def main():
     optimal_solution = None
 
-    if DEBUG == 1:
-        # Generate SMT script for sample taskset
-        period = 100
-        candidate_set = [Task(1,  30, period, 3, 30),
-                         Task(2,  20, period, 2, 50),
-                         Task(3,  40, period, 2, 70)]
-    elif DEBUG == 2:
-        period = 248
-        candidate_set = [Task(1,  29, period, 3, 10),
-                         Task(2,  37, period, 2, 47),
-                         Task(3,  27, period, 1, 57),
-                         Task(4,  34, period, 4, 31)]
-    elif DEBUG == 3:
+    if DEBUG:
         period = 1233
         candidate_set = [Task(1, 206, period, 2,  9),
                          Task(2, 220, period, 2, 17),
@@ -34,36 +22,54 @@ def main():
                          Task(6, 135, period, 3,  5),
                          Task(7, 143, period, 2, 76),
                          Task(8, 221, period, 1, 90)]
+
+        taskset = {NUM_OF_CORES: {period: candidate_set}}
     else:
         # Generate taskset and then create SMT script
         taskFactory = Generator(NUM_OF_CORES, [NUM_OF_CORES], EDGE_PROBABILITY,
                 MAX_TASKS_PER_PERIOD)
 
-        taskset = taskFactory.create_taskset('light')
-        candidate_set, period = test_candidate_set(taskset[NUM_OF_CORES], True)
+        taskset = taskFactory.create_taskset('mixed')
 
-    vgc_params = {
-        'debug'             : True,
-        'time'              : True,
-        'period'            : period,
-        'num_of_cores'      : NUM_OF_CORES,
-        'candidate_set'     : candidate_set,
-        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
-    }
+    # We now have our virtual taskset
+    dbg_print_taskset(taskset, "Real")
 
-    vgc_factory = VirtualGangCreator(vgc_params)
-    virtual_taskset = vgc_factory.run(0)
-    dbg_print_taskset({period: virtual_taskset})
+    vg_idx = 0
+    virtual_taskset = {}
+    for util in taskset:
+        virtual_taskset[util] = {}
+
+        for period, candidate_set in taskset[util].items():
+            vgc_params = {
+                'debug'             : True,
+                'time'              : True,
+                'period'            : period,
+                'num_of_cores'      : NUM_OF_CORES,
+                'candidate_set'     : candidate_set,
+                'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+            }
+
+            vgc_factory = VirtualGangCreator(vgc_params)
+            virtual_taskset[util][period] = vgc_factory.run(vg_idx)
+            vg_idx = virtual_taskset[util][period][-1].tid
+
+    # We now have our virtual taskset
+    dbg_print_taskset(virtual_taskset, "Virtual")
 
     return
 
-def dbg_print_taskset(taskset):
-    print "\n================ DEBUG ==============="
-    for T in taskset:
-        print "Period=%d" % (T)
-        for t in taskset[T]:
-            print "  ", t
-        print "-" * 25
+def dbg_print_taskset(taskset, nature):
+    print "\n================ %7s Taskset ===============" % (nature)
+    for u in taskset:
+        print "Utilization=%d" % (u)
+
+        for T in taskset[u]:
+            print "  Period=%d" % (T)
+
+            for t in taskset[u][T]:
+                print "    ", t
+
+            print "-" * 25
 
     return
 

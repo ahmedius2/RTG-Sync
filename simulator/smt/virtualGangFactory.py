@@ -56,6 +56,19 @@ class VirtualGangCreator:
         optimal_solution = self.__smt_binary_search_length(self.debug)
         duration = time() - start
 
+        if optimal_solution == None:
+            # We could not form any virtual-gangs. Return original taskset
+            virtual_taskset = []
+
+            vtid = first_vtask_tid
+            for task in self.candidate_set:
+                vtid += 1
+                vTask = task.copy()
+                vTask.tid = vtid
+                virtual_taskset.append(vTask)
+
+            return virtual_taskset
+
         self.__print_time("=== Optimal solution obtained in: %.3f secs!\n"
                 % (duration))
 
@@ -100,8 +113,9 @@ class VirtualGangCreator:
             duration = time() - start
 
             if not solution:
-                assert optimal_solution != None, ("SMT is not able to find "
-                        "any feasible solutions")
+                if optimal_solution == None:
+                    # We are not able to form any virtual-gangs
+                    return None
 
                 # Keep track of the last unsat solution. We will have to run it
                 # to completion to verify it; at the end.
