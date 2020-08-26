@@ -73,22 +73,5 @@ def dbg_print_taskset(taskset, nature):
 
     return
 
-def test_candidate_set(taskset, debug = False):
-    # Select just one task-list in taskset with "TPP" tasks in it
-    candidate_set = None
-    period = 0
-
-    for T in taskset:
-        if len(taskset[T]) == MAX_TASKS_PER_PERIOD:
-            candidate_set = taskset[T]
-            period = T
-            break
-
-    if not candidate_set:
-        dbg_print_taskset(taskset)
-        raise ValueError, "Candidate set cannot be empty!"
-
-    return candidate_set, period
-
 if __name__ == '__main__':
     main()
