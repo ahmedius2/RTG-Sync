@@ -11,9 +11,10 @@ class VirtualGangCreator:
             'timeout'       : 2,
             'max_timeout'   : 300,
             'tolerance'     : 1.0,
+            'stop_interval' : 100,
+            'verify'        : True,
             'time'          : False,
-            'debug'         : False,
-            'verify'        : True
+            'debug'         : False
         }
 
         for req_param in required_params:
@@ -33,6 +34,8 @@ class VirtualGangCreator:
         assert self.candidate_set != [], ("Candidate set cannot be empty!")
         assert self.num_of_cores >= 4, ("Virtual-Gang generator expects "
                 "at-least 4 cores. Given core count = %d" % self.num_of_cores)
+        assert self.stop_interval > 0, ("Stop interval <%s> must be a "
+                "+ve integer." % self.stop_interval)
 
         # Init SMT class for solving virtual-gang satisfiability problems
         smt_params = {
@@ -139,7 +142,7 @@ class VirtualGangCreator:
                 print tbl_fmt % (iteration, prev_gang_length, max_gang_length,
                         '%.3f' % (duration))
 
-            if (max_gang_length == prev_gang_length):
+            if (abs(max_gang_length - prev_gang_length) < self.stop_interval):
                 # Run the last unsat solution to completion. It must be unsat;
                 # in order for the current solution to be truly optimal
                 if debug:

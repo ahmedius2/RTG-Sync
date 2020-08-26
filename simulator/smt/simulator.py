@@ -4,7 +4,7 @@ from taskFactory import Task
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
-DEBUG = True
+DEBUG = False
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 50
 MAX_TASKS_PER_PERIOD = 8
@@ -41,6 +41,7 @@ def main():
 
         for period, candidate_set in taskset[util].items():
             vgc_params = {
+                'stop_interval'     : 100,
                 'debug'             : True,
                 'time'              : True,
                 'period'            : period,
