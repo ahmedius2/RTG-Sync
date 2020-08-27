@@ -9,12 +9,13 @@ SEED = 5
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 50
 MAX_TASKS_PER_PERIOD = 8
-NUM_OF_TEST_TASKSETS = 5
+NUM_OF_TEST_TASKSETS = 100
 RESULT_FILE = 's%d_vgangs.txt' % (SEED)
 
 def main():
     tasksets = {'Real': [], 'Virtual': []}
 
+    print
     for tsIdx in range(NUM_OF_TEST_TASKSETS):
         # Generate taskset and then create SMT script
         taskFactory = Generator(NUM_OF_CORES, range(1, NUM_OF_CORES + 1),
@@ -43,31 +44,28 @@ def main():
                 vgc_factory = VirtualGangCreator(vgc_params)
                 virtual_taskset[util][period] = vgc_factory.run(vg_idx)
                 vg_idx = virtual_taskset[util][period][-1].tid
+                print_progress(tsIdx + 1, NUM_OF_TEST_TASKSETS, util,
+                        NUM_OF_CORES, period)
+
         tasksets['Virtual'].append(virtual_taskset)
 
-        print '[PROGRESS] Virtual Gangs Formed: %4d / %-4d\r' % (tsIdx + 1,
-                NUM_OF_TEST_TASKSETS),
-        sys.stdout.flush()
+    print '\n'
+    dbg_dump_vgang_info(tasksets)
 
-    print
+    return
 
+def dbg_dump_vgang_info(tasksets):
     rem_result_file()
     for tsIdx in range(NUM_OF_TEST_TASKSETS):
         with open(RESULT_FILE, 'a') as fdo:
             for nature in tasksets:
-                dbg_print_taskset(fdo, tasksets[nature][tsIdx], nature, tsIdx)
+                print_taskset(fdo, tasksets[nature][tsIdx], nature, tsIdx)
 
             fdo.write('\n')
 
     return
 
-def rem_result_file():
-    if os.path.exists(RESULT_FILE):
-        os.remove(RESULT_FILE)
-
-    return
-
-def dbg_print_taskset(fdo, taskset, nature, tsIdx):
+def print_taskset(fdo, taskset, nature, tsIdx):
     fdo.write( "\n================ %7s Taskset # %-4d ===============\n" %
             (nature, tsIdx))
     for u in taskset:
@@ -80,6 +78,21 @@ def dbg_print_taskset(fdo, taskset, nature, tsIdx):
                 fdo.write( "    " + t.__str__() + '\n')
 
             fdo.write( "-" * 25 + '\n')
+
+    return
+
+def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
+    print '[PROGRESS] Processing Taskset: %4d / %-4d | Utilization: %2d '   \
+            '/ %-2d | Period: %d\r' % (cur_taskset, max_tasksets, cur_util, \
+                    max_util, period),
+
+    sys.stdout.flush()
+
+    return
+
+def rem_result_file():
+    if os.path.exists(RESULT_FILE):
+        os.remove(RESULT_FILE)
 
     return
 

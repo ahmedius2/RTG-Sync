@@ -77,6 +77,7 @@ class VirtualGangCreator:
                 vtid += 1
                 vTask = task.copy()
                 vTask.tid = vtid
+                vTask.members = 't%d' % (vtid)
                 virtual_taskset.append(vTask)
         else:
             virtual_gangs = self.__clean_smt_output(optimal_solution)
