@@ -12,7 +12,7 @@ from time import time
 import random
 
 class Task:
-    def __init__(self, taskId, c, p, h, r, e = []):
+    def __init__(self, taskId, c, p, h, r, e = [], members = ''):
         '''
         Initialize a task object. The task object is defined by the following
         parameters:
@@ -32,12 +32,13 @@ class Task:
             Resource Demand (r):  Percentage of a critical (bottleneck)
                                   resource needed by the task
         '''
-        self.tid = taskId
         self.c = c
+        self.e = e
         self.p = int(p)
         self.h = int(h)
         self.r = int(r)
-        self.e = e
+        self.tid = taskId
+        self.members = members
 
         return
 
@@ -46,11 +47,20 @@ class Task:
         return
 
     def copy(self):
-        return Task (self.tid, self.c, self.p, self.h, self.r, self.e)
+        return Task (self.tid, self.c, self.p, self.h, self.r, self.e,
+                self.members)
 
     def __str__(self):
         u = self.c * self.h / float(self.p)
-        edges = 'None' if not self.e else \
-                ','.join(['t%d->t%d' % (self.tid, t) for t in self.e])
-        return 'Task: %2d | C=%4.3f P=%4d h=%2d r=%2d u=%6s e=%s' % (self.tid,
-                self.c, self.p, self.h, self.r, '{:2.3f}'.format (u), edges)
+
+        task_string = 'Task: %2d | C=%6s P=%4d h=%2d r=%2d u=%6s ' % \
+                (self.tid, '{:3.2f}'.format(self.c), self.p, self.h, self.r,
+                '{:2.3f}'.format (u))
+
+        if self.members == '':
+            edges = 'None' if not self.e else \
+                    ','.join(['t%d->t%d' % (self.tid, t) for t in self.e])
+
+            return task_string + 'e=' + edges
+        else:
+            return task_string + 'm=' + self.members

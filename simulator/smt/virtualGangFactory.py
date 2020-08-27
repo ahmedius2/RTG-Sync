@@ -1,3 +1,4 @@
+import os, shutil
 from time import time
 from smtFactory import SMT
 from taskFactory import Task
@@ -5,16 +6,15 @@ from taskFactory import Task
 class VirtualGangCreator:
     def __init__(self, params):
         required_params = ['candidate_set', 'num_of_cores', 'period',
-                'tasks_per_period']
+                'utilization', 'tasks_per_period', 'taskset_index']
 
         default_optional_params = {
             'timeout'       : 2,
             'max_timeout'   : 300,
             'tolerance'     : 1.0,
             'stop_interval' : 100,
-            'verify'        : True,
-            'time'          : False,
-            'debug'         : False
+            'gen_dir'       : None,
+            'verify'        : True
         }
 
         for req_param in required_params:
@@ -37,9 +37,20 @@ class VirtualGangCreator:
         assert self.stop_interval > 0, ("Stop interval <%s> must be a "
                 "+ve integer." % self.stop_interval)
 
+        # Create directory for all the generated artefacts and debug data for
+        # this candidate-set
+        self.gen_dir = os.getcwd() + '/generated/ts%d_u%d_p%d' % \
+            (self.taskset_index, self.utilization, self.period)
+        if os.path.exists(self.gen_dir): shutil.rmtree(self.gen_dir)
+        os.makedirs(self.gen_dir)
+
+        candidate_set_file = self.gen_dir + '/candidate_set.txt'
+        self.__print_taskset(self.candidate_set, candidate_set_file,
+                'Candidate')
+
         # Init SMT class for solving virtual-gang satisfiability problems
         smt_params = {
-            'debug'         : self.debug,
+            'gen_dir'       : self.gen_dir,
             'timeout'       : self.timeout,
             'max_timeout'   : self.max_timeout,
             'num_of_cores'  : self.num_of_cores,
@@ -49,16 +60,14 @@ class VirtualGangCreator:
 
         self.smt = SMT(smt_params)
 
-        # Print candidate-set to console if we are in debug mode
-        if self.debug: self.__print_candidate_set()
-
         return
 
     def run(self, first_vtask_tid):
         start = time()
-        optimal_solution = self.__smt_binary_search_length(self.debug)
+        optimal_solution = self.__smt_binary_search_length()
         duration = time() - start
 
+        virtual_taskset = []
         if optimal_solution == None:
             # We could not form any virtual-gangs. Return original taskset
             virtual_taskset = []
@@ -69,46 +78,53 @@ class VirtualGangCreator:
                 vTask = task.copy()
                 vTask.tid = vtid
                 virtual_taskset.append(vTask)
+        else:
+            virtual_gangs = self.__clean_smt_output(optimal_solution)
+            self.__verify_virtual_gangs(virtual_gangs)
 
-            return virtual_taskset
+            virtual_taskset = \
+                    self.__create_virtual_taskset(virtual_gangs, first_vtask_tid)
 
-        self.__print_time("=== Optimal solution obtained in: %.3f secs!\n"
-                % (duration))
+        if self.gen_dir:
+            virtual_set_file = self.gen_dir + '/virtual_taskset.txt'
+            self.__print_taskset(virtual_taskset, virtual_set_file, 'Virtual')
 
-        virtual_gangs = self.__clean_smt_output(optimal_solution)
-        self.__verify_virtual_gangs(virtual_gangs)
-
-        virtual_taskset = \
-                self.__create_virtual_taskset(virtual_gangs, first_vtask_tid)
-
-        if self.debug: self.__print_vgangs(virtual_gangs)
+            with open(virtual_set_file, 'a') as fdo:
+                fdo.write("=== Optimal solution obtained in: %.3f secs!\n\n" %
+                        (duration))
 
         return virtual_taskset
 
-    def __smt_binary_search_length(self, debug = False):
+    def __smt_binary_search_length(self):
         '''
           Generate SMT script, with the total gang length constraint set to the
           max. value at start and reducing it by half in each iteration until
           it can't be reduced further. The solution with minimal gang length is
           the best for the given problem.
         '''
+        fdo = None
         prev_gang_length = 0
         unsat_gang_length = 0
         last_unsat_script = 0
         optimal_solution = None
         max_gang_length = sum([t.c for t in self.candidate_set]) * 100
 
-        if debug:
+        if self.gen_dir:
             iteration = 0
-            tbl_fmt = "%-10s | %-15s | %-13s | %-13s"
+            tbl_fmt = "%-10s | %-15s | %-13s | %-13s\n"
             tbl_hdr = tbl_fmt % ("Iteration", "Cu. Length", "Next Length",
                     "Time (sec)")
-            hdr_len = len(tbl_hdr) - 1
-            hrule = "-" * hdr_len
 
-            print "================= SMT Binary Search Debug ================="
-            print tbl_hdr
-            print hrule
+            hdr_len = len(tbl_hdr) - 4
+            hrule = "-" * hdr_len + '\n'
+
+            smt_table_file = self.gen_dir + '/smt_table.txt'
+            banner = '\n' + '=' * 20 + 'SMT Binary Search' + '=' * 20 + '\n'
+
+            fdo = open(smt_table_file, 'w')
+            fdo.write(banner)
+            fdo.write(tbl_hdr)
+            fdo.write(hrule)
 
         while (1):
             start = time()
@@ -137,39 +153,43 @@ class VirtualGangCreator:
                         self.__update_gang_length(max_gang_length,
                                 prev_gang_length, True)
 
-            if debug:
+            if fdo:
                 iteration += 1
-                print tbl_fmt % (iteration, prev_gang_length, max_gang_length,
-                        '%.3f' % (duration))
+                fdo.write(tbl_fmt % (iteration, prev_gang_length,
+                    max_gang_length, '%.3f' % (duration)))
 
             if (abs(max_gang_length - prev_gang_length) < self.stop_interval):
                 # Run the last unsat solution to completion. It must be unsat;
                 # in order for the current solution to be truly optimal
-                if debug:
-                    print "\n  -- Verifying last unsat solution: %s" % \
-                            (last_unsat_script)
+                if fdo:
+                    fdo.write("\n  -- Verifying last unsat: \n\t%s\n" %
+                            (last_unsat_script))
 
                 unsat, time_taken = \
                         self.__verify_last_unsat_solution(last_unsat_script)
 
                 if not unsat:
+                    if fdo:
+                        fdo.write("[WARN] Unsat solution not verified:\n")
+                        fdo.write("       - Length = %s\n", unsat_gang_length)
+                        fdo.write("       - Script = %s\n", last_unsat_script)
+
                     # Last unsat solution was not truly unsat. We must continue
                     # binary search downward
-                    print "[WARNING] Last unsat solution was not truly unsat:"
-                    print "          - Gang Length =", unsat_gang_length
-                    print "          -  SMT Script =", last_unsat_script
-
                     max_gang_length = unsat_gang_length / 2
                     prev_gang_length = unsat_gang_length
                     continue
 
-                self.__print_time("  -- Last unsat solution verified in %.3f "
-                        "secs\n" % (time_taken))
+                if fdo:
+                    fdo.write("  -- Last unsat verified in %.3f secs\n" %
+                            (time_taken))
 
                 # Last solution was truly unsat. We can end binary search
                 break
 
-        if debug: print hrule, '\n'
+        if fdo:
+           fdo.write(hrule + '\n')
+           fdo.close()
 
         return optimal_solution
 
@@ -302,27 +322,15 @@ class VirtualGangCreator:
             vg_length = virtual_gangs[vgid]['C']
             vg_height = virtual_gangs[vgid]['h']
             vg_demand = virtual_gangs[vgid]['r']
+            vg_members = '+'.join(["t%s" % (tid) for tid in
+                virtual_gangs[vgid]["members"]])
 
-            vTask = Task(vg_tid, vg_length, self.period, vg_height, vg_demand)
+            vTask = Task(vg_tid, vg_length, self.period, vg_height, vg_demand,
+                    [], vg_members)
+
             virtual_taskset.append(vTask)
 
         return virtual_taskset
-
-    def __print_vgangs(self, gdict):
-        tbl_fmt = "%-20s | %-20s | %-10s | %-5s"
-        header = tbl_fmt % ("Virtual-Gang ID", "Members", "L", "r")
-        hrule = "-" * len(header)
-
-        print hrule
-        print header
-        print hrule
-
-        for g in gdict:
-            members = '+'.join(["t%s" % (tid) for tid in gdict[g]["members"]])
-            print tbl_fmt % (g, members, gdict[g]["C"], gdict[g]["r"])
-        print hrule
-
-        return
 
     def __reorder_virtual_gangs(self, vgangs):
         ordered_gang_dict = {}
@@ -365,15 +373,13 @@ class VirtualGangCreator:
         raise ValueError, "Task <t%d> not found in list: %s" % (tid,
                 self.__candidate_set_to_string())
 
-    def __print_candidate_set(self):
-        print "\n============== Candidate Set =============="
-        for t in self.candidate_set: print t
-        print
+    def __print_taskset(self, taskset, out_file, nature):
+        with open(out_file, 'w') as fdo:
+            fdo.write('\n============== %s Set ==============\n' % (nature))
+            for t in taskset:
+                fdo.write(t.__str__() + '\n')
+            fdo.write('\n')
 
-        return
-
-    def __print_time(self, string):
-        if self.time: print string
         return
 
     def __get_first_tid(self):

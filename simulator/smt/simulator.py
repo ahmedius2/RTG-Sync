@@ -9,7 +9,7 @@ SEED = 5
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 50
 MAX_TASKS_PER_PERIOD = 8
-NUM_OF_TEST_TASKSETS = 10
+NUM_OF_TEST_TASKSETS = 5
 RESULT_FILE = 's%d_vgangs.txt' % (SEED)
 
 def main():
@@ -31,7 +31,8 @@ def main():
             for period, candidate_set in taskset[util].items():
                 vgc_params = {
                     'stop_interval'     : 50,
-                    'debug'             : False,
+                    'utilization'       : util,
+                    'taskset_index'     : tsIdx,
                     'time'              : False,
                     'period'            : period,
                     'num_of_cores'      : NUM_OF_CORES,

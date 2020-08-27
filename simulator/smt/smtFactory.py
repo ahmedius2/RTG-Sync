@@ -1,4 +1,4 @@
-import re
+import os, re
 from time import time
 from threading import Timer
 from subprocess import Popen, PIPE
@@ -20,7 +20,7 @@ smt_ftr = \
 class SMT:
     def __init__(self, params):
         required_params = ['candidate_set', 'num_of_cores', 'timeout', 'tpp',
-                'max_timeout', 'debug']
+                'max_timeout', 'gen_dir']
 
         for req_param in required_params:
             assert params.has_key(req_param), ("%s is a required parameter "
@@ -28,20 +28,17 @@ class SMT:
 
             setattr(self, req_param, params[req_param])
 
-        # Keep track of all the generated smt scripts
-        if self.debug: self.scripts = {}
+        assert os.path.exists(self.gen_dir), ("Directory for generated "
+                "artefacts <%s> does not exist." % (self.gen_dir))
+
+        self.script_dir = '%s/scripts' % (self.gen_dir)
+        os.mkdir(self.script_dir)
 
         return
 
     def run(self, max_gang_length):
         script = self.__generate(max_gang_length)
         output = self.__run_script(script, self.timeout)
-
-        if self.debug:
-            assert not self.scripts.has_key(max_gang_length), ("Script hash "
-                "in SMT class already contains key <%d>" % (max_gang_length))
-
-            self.scripts[max_gang_length] = {'script':script, 'output':output}
 
         return script, output
 
@@ -55,9 +52,8 @@ class SMT:
         return self.__run_script(script, self.max_timeout)
 
     def __generate(self, max_gang_length):
-        timestamp = int(time())
-        output_file = 'gen_scripts/gl%d_%s.smt2' % (max_gang_length, timestamp)
         num_of_vgangs = len(self.candidate_set) - 1
+        output_file = '%s/gl%d.smt2' % (self.script_dir, max_gang_length)
 
         with open(output_file, 'w') as fdo:
             fdo.write(smt_hdr)
