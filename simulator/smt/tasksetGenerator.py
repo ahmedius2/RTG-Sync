@@ -4,7 +4,7 @@ from taskFactory import Task
 
 class Generator:
     def __init__ (self, numOfCores, utils, max_edge_probability,
-            tasks_per_period = False):
+            seed, tasks_per_period = False):
 
         self.mep = max_edge_probability
         self.tpp = tasks_per_period
@@ -15,8 +15,10 @@ class Generator:
                              "at-least 4 cores available on the platform. "
                              "Given core count = %d" % (self.M))
 
+        assert seed > 0, ("Seed value <%s> should be greater than 0.", seed)
+
         # Initialize the random number generator with a specific seed
-        random.seed(5)
+        random.seed(seed)
 
         return
 
