@@ -9,7 +9,7 @@ SEED = 5
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 50
 MAX_TASKS_PER_PERIOD = 8
-NUM_OF_TEST_TASKSETS = 100
+NUM_OF_TEST_TASKSETS = 10
 RESULT_FILE = 's%d_vgangs.txt' % (SEED)
 
 def main():
@@ -17,20 +17,20 @@ def main():
 
     for tsIdx in range(NUM_OF_TEST_TASKSETS):
         # Generate taskset and then create SMT script
-        taskFactory = Generator(NUM_OF_CORES, [NUM_OF_CORES], EDGE_PROBABILITY,
-                MAX_TASKS_PER_PERIOD, SEED)
+        taskFactory = Generator(NUM_OF_CORES, range(1, NUM_OF_CORES + 1),
+                EDGE_PROBABILITY, MAX_TASKS_PER_PERIOD, SEED)
 
         taskset = taskFactory.create_taskset('mixed')
         tasksets['Real'].append(taskset)
 
-        vg_idx = 0
         virtual_taskset = {}
         for util in taskset:
+            vg_idx = 0
             virtual_taskset[util] = {}
 
             for period, candidate_set in taskset[util].items():
                 vgc_params = {
-                    'stop_interval'     : 100,
+                    'stop_interval'     : 50,
                     'debug'             : False,
                     'time'              : False,
                     'period'            : period,

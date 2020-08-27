@@ -268,7 +268,7 @@ class VirtualGangCreator:
             expected_gang_length *= (expected_gang_demand / 100.0)
             delta_gang_length = abs(vg_length - expected_gang_length)
 
-            assert delta_gang_length < self.tolerance, ("The delta in "
+            assert delta_gang_length <= self.tolerance, ("The delta in "
                     "expected virtual-gang length <%.3f> and the calculated "
                     "virtual-gang length <%.3f> is more than tolerance mergin "
                     "<%.3f>" % (expected_gang_length, vg_length,
