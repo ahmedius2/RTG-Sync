@@ -53,7 +53,7 @@ class Task:
     def __str__(self):
         u = self.c * self.h / float(self.p)
 
-        task_string = 'Task: %2d | C=%6s P=%4d h=%2d r=%2d u=%6s ' % \
+        task_string = 'Task: %2d | C=%6s P=%4d h=%2d r=%3d u=%6s ' % \
                 (self.tid, '{:3.2f}'.format(self.c), self.p, self.h, self.r,
                 '{:2.3f}'.format (u))
 
