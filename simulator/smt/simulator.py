@@ -2,19 +2,19 @@
 
 import os, sys, shutil
 import multiprocessing
+from rtaFactory import RTA
 from parserFactory import Aggregator
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
-SEED = 5
 PRISTINE = False
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 25
 MAX_TASKS_PER_PERIOD = 8
-NUM_OF_TEST_TASKSETS = 10
-UTILIZATIONS = range(1, NUM_OF_CORES)
-RESULT_FILE = 's%d_vgangs.txt' % (SEED)
-PARALLELISM = multiprocessing.cpu_count()
+RESULT_FILE = 'vgangs.txt'
+NUM_OF_TEST_TASKSETS = 1000
+UTILIZATIONS = range(1, NUM_OF_CORES + 1)
+PARALLELISM = multiprocessing.cpu_count() * 2
 
 def main():
     if PRISTINE: parallel_create_virtual_taskset()
@@ -24,6 +24,27 @@ def main():
     aggregator = Aggregator()
     tasksets = aggregator.run()
     dbg_dump_vgang_info(tasksets)
+
+    rta_params = {
+            'num_of_cores': NUM_OF_CORES
+    }
+
+    rta = RTA(rta_params)
+
+    schedulers = ['RT-Gang', 'RTG-Sync']
+    sched_ratio = {s: {} for s in schedulers}
+
+    for tsIdx in tasksets:
+        u_tasksets = tasksets[tsIdx]
+
+        for u, ts in u_tasksets.items():
+            for s in schedulers:
+                if not sched_ratio[s].has_key(u):
+                    sched_ratio[s][u] = 0
+
+                sched_ratio[s][u] += rta.run(ts, s)
+
+    print sched_ratio
 
     return
 
@@ -118,7 +139,7 @@ def dbg_dump_vgang_info(tasksets):
     return
 
 def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
-    print '[PROGRESS] Processing Taskset: %4d / %-4d | Utilization: %2d '   \
+    print '[PROGRESS] Processing Taskset: %4d / %-4d | Utilization: %2d '    \
             '/ %-2d | Period: %4d\r' % (cur_taskset, max_tasksets, cur_util, \
                     max_util, period),
 

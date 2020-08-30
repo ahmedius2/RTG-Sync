@@ -9,4 +9,4 @@ all:
 	@echo "[STATUS] Done!"
 
 clean:
-	@rm -rf *.smt2 *.pyc *.txt generated
+	@rm -rf *.smt2 *.pyc *.txt
