@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys, re
 import multiprocessing
+import os, sys, re, shutil
 from taskFactory import Task
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
@@ -9,15 +9,20 @@ from virtualGangFactory import VirtualGangCreator
 SEED = 5
 PRISTINE = True
 NUM_OF_CORES = 8
-EDGE_PROBABILITY = 50
+EDGE_PROBABILITY = 25
 MAX_TASKS_PER_PERIOD = 8
 NUM_OF_TEST_TASKSETS = 1000
+UTILIZATIONS = range(1, NUM_OF_CORES)
 RESULT_FILE = 's%d_vgangs.txt' % (SEED)
-PARALLELISM = multiprocessing.cpu_count()
+PARALLELISM = multiprocessing.cpu_count() * 2
 
 def main():
     if PRISTINE:
         processes = {}
+
+        # Remove generated directory for pristine execution
+        generated_dir = os.getcwd() + '/generated'
+        if os.path.exists(generated_dir): shutil.rmtree(generated_dir)
 
         print
         for r in range(0, NUM_OF_TEST_TASKSETS, PARALLELISM):
@@ -122,10 +127,10 @@ def parse_taskset_dir(ts_dir):
 
     return tsIdx, util, period
 
-def form_virtual_gangs(tsIdx): #, progress_lock):
+def form_virtual_gangs(tsIdx):
     # Generate taskset and then create SMT script
-    taskFactory = Generator(NUM_OF_CORES, range(1, NUM_OF_CORES + 1),
-            EDGE_PROBABILITY, MAX_TASKS_PER_PERIOD, SEED)
+    taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
+            tsIdx + 1, MAX_TASKS_PER_PERIOD)
 
     taskset = taskFactory.create_taskset('mixed')
 
@@ -136,21 +141,27 @@ def form_virtual_gangs(tsIdx): #, progress_lock):
 
         for period, candidate_set in taskset[util].items():
             vgc_params = {
-                'stop_interval'     : 50,
+                'stop_interval'     : 1,
                 'utilization'       : util,
                 'taskset_index'     : tsIdx,
-                'time'              : False,
+                'verify'            : True,
                 'period'            : period,
                 'num_of_cores'      : NUM_OF_CORES,
                 'candidate_set'     : candidate_set,
                 'tasks_per_period'  : MAX_TASKS_PER_PERIOD
             }
 
-            vgc_factory = VirtualGangCreator(vgc_params)
-            virtual_taskset[util][period] = vgc_factory.run(vg_idx)
-            vg_idx = virtual_taskset[util][period][-1].tid
             print_progress(tsIdx + 1, NUM_OF_TEST_TASKSETS, util,
                     NUM_OF_CORES, period)
+
+            vgc_factory = VirtualGangCreator(vgc_params)
+            virtual_taskset[util][period] = vgc_factory.run(vg_idx)
+
+            try:
+                vg_idx = virtual_taskset[util][period][-1].tid
+            except:
+                raise ValueError, ("Virtual taskset does not exist for: "
+                        "tsIdx=%d util=%d period=%d" % (tsIdx, util, period))
 
     return
 
@@ -186,7 +197,7 @@ def print_taskset(fdo, taskset, tsIdx):
 
 def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
     print '[PROGRESS] Processing Taskset: %4d / %-4d | Utilization: %2d '   \
-            '/ %-2d | Period: %d\r' % (cur_taskset, max_tasksets, cur_util, \
+            '/ %-2d | Period: %4d\r' % (cur_taskset, max_tasksets, cur_util, \
                     max_util, period),
 
     sys.stdout.flush()

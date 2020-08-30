@@ -1,5 +1,5 @@
-import os, shutil
 from time import time
+import os, shutil, math
 from smtFactory import SMT
 from taskFactory import Task
 
@@ -10,7 +10,7 @@ class VirtualGangCreator:
 
         default_optional_params = {
             'timeout'       : 2,
-            'max_timeout'   : 300,
+            'max_timeout'   : 60,
             'tolerance'     : 1.0,
             'stop_interval' : 100,
             'gen_dir'       : None,
@@ -60,6 +60,9 @@ class VirtualGangCreator:
 
         self.smt = SMT(smt_params)
 
+        self.dbg_id = "TS=%d | U=%d | P=%d" % (self.taskset_index,
+                self.utilization, self.period)
+
         return
 
     def run(self, first_vtask_tid):
@@ -81,10 +84,9 @@ class VirtualGangCreator:
                 virtual_taskset.append(vTask)
         else:
             virtual_gangs = self.__clean_smt_output(optimal_solution)
-            self.__verify_virtual_gangs(virtual_gangs)
-
             virtual_taskset = \
-                    self.__create_virtual_taskset(virtual_gangs, first_vtask_tid)
+                    self.__create_virtual_taskset(virtual_gangs,
+                            first_vtask_tid)
 
         if self.gen_dir:
             virtual_set_file = self.gen_dir + '/virtual_taskset.txt'
@@ -93,6 +95,11 @@ class VirtualGangCreator:
             with open(virtual_set_file, 'a') as fdo:
                 fdo.write("=== Optimal solution obtained in: %.3f secs!\n\n" %
                         (duration))
+
+        if optimal_solution != None:
+            # Doing verification here ensures that we have stored the currently
+            # computed solution to the debug directory in case of an error
+            self.__verify_virtual_gangs(virtual_gangs)
 
         return virtual_taskset
 
@@ -108,7 +115,7 @@ class VirtualGangCreator:
         unsat_gang_length = 0
         last_unsat_script = 0
         optimal_solution = None
-        max_gang_length = sum([t.c for t in self.candidate_set]) * 100
+        max_gang_length = sum([int(t.c) for t in self.candidate_set]) * 100
 
         if self.gen_dir:
             iteration = 0
@@ -126,6 +133,7 @@ class VirtualGangCreator:
             fdo.write(banner)
             fdo.write(tbl_hdr)
             fdo.write(hrule)
+            fdo.flush()
 
         while (1):
             start = time()
@@ -158,13 +166,15 @@ class VirtualGangCreator:
                 iteration += 1
                 fdo.write(tbl_fmt % (iteration, prev_gang_length,
                     max_gang_length, '%.3f' % (duration)))
+                fdo.flush()
 
-            if (abs(max_gang_length - prev_gang_length) < self.stop_interval):
+            if (abs(max_gang_length - prev_gang_length) <= self.stop_interval):
                 # Run the last unsat solution to completion. It must be unsat;
                 # in order for the current solution to be truly optimal
                 if fdo:
                     fdo.write("\n  -- Verifying last unsat: \n\t%s\n" %
                             (last_unsat_script))
+                    fdo.flush()
 
                 unsat, time_taken = \
                         self.__verify_last_unsat_solution(last_unsat_script)
@@ -172,8 +182,9 @@ class VirtualGangCreator:
                 if not unsat:
                     if fdo:
                         fdo.write("[WARN] Unsat solution not verified:\n")
-                        fdo.write("       - Length = %s\n", unsat_gang_length)
-                        fdo.write("       - Script = %s\n", last_unsat_script)
+                        fdo.write("       - Len = %s\n" % (unsat_gang_length))
+                        fdo.write("       - Scr = %s\n" % (last_unsat_script))
+                        fdo.flush()
 
                     # Last unsat solution was not truly unsat. We must continue
                     # binary search downward
@@ -184,6 +195,7 @@ class VirtualGangCreator:
                 if fdo:
                     fdo.write("  -- Last unsat verified in %.3f secs\n" %
                             (time_taken))
+                    fdo.flush()
 
                 # Last solution was truly unsat. We can end binary search
                 break
@@ -289,10 +301,10 @@ class VirtualGangCreator:
             expected_gang_length *= (expected_gang_demand / 100.0)
             delta_gang_length = abs(vg_length - expected_gang_length)
 
-            assert delta_gang_length <= self.tolerance, ("The delta in "
+            assert delta_gang_length <= self.tolerance, ("[%s] The delta in "
                     "expected virtual-gang length <%.3f> and the calculated "
                     "virtual-gang length <%.3f> is more than tolerance mergin "
-                    "<%.3f>" % (expected_gang_length, vg_length,
+                    "<%.3f>" % (self.dbg_id, expected_gang_length, vg_length,
                         self.tolerance))
 
         return
@@ -306,9 +318,6 @@ class VirtualGangCreator:
         start = time()
         solution = self.smt.verify(script)
         duration = time() - start
-
-        assert duration < self.max_timeout, ("Unsat solution was not computed "
-                "within timeout <%d>" % self.max_timeout)
 
         if not solution:
             unsat = True
@@ -353,7 +362,7 @@ class VirtualGangCreator:
         return height
 
     def __update_gang_length(self, cur_length, prev_length, down):
-        step = abs(cur_length - prev_length) / 2
+        step = int(math.ceil(abs(cur_length - prev_length) / 2.0))
         prev_length = cur_length
         cur_length = (cur_length - step) if down else (cur_length + step)
 

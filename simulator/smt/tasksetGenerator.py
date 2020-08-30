@@ -108,7 +108,7 @@ class Generator:
         r = random.randint(1, 100)
 
         # Create the task object with the selected parameters
-        task = Task(tid, L, T, h, r)
+        task = Task(tid, int(L), T, h, r)
         remUtil -= v
 
         return task, remUtil, stop
