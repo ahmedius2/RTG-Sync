@@ -1,7 +1,92 @@
 from time import time
-import os, shutil, math
 from smtFactory import SMT
+import os, sys, shutil, math
 from taskFactory import Task
+
+class FIFO:
+    def __init__(self, length):
+        assert length > 0, ("Trying to create an empty data-structure")
+
+        self.storage = []
+        self.length = length
+
+        return
+
+    # item: xk
+    # sotrage: x1 | x2 | x3 | ... | xn-1 | xn
+    # After push: xk | x1 | x2 | ... | xn-2 | xn-1
+    def push_top(self, item):
+        if len(self.storage) == self.length: del(self.storage[-1])
+        self.storage.insert(0, item)
+
+        return
+
+    # item: xk
+    # sotrage: x1 | x2 | x3 | ... | xn-1 | xn
+    # After push: x2 | x3 | ... | xn | xk
+    def push_bottom(self, item):
+        if len(self.storage) == self.length: del(self.storage[0])
+        self.append(item)
+
+        return
+
+    # storage: x1 | x2 | x3 | ... | xn-1 | xn
+    # After pop: x2 | x3 | ... | xn-1 | xn
+    # Returned item: x1
+    def pop_top(self):
+        if len(self.storage) == 0:
+            return None
+
+        item = self.storage[0]
+        del(self.storage[0])
+
+        return item
+
+    # storage: x1 | x2 | x3 | ... | xn-1 | xn
+    # After pop: x1 | x2 | x3 | ... | xn-1
+    # Returned item: xn
+    def pop_bottom(self):
+        if len(self.storage) == 0:
+            return None
+
+        return self.storage.pop()
+
+    # Fetch an item from storage without removing it
+    def read_item(self, idx):
+        assert idx < len(self.storage), ("Item index <%d> does not "
+                "exist in the data-structure" % (idx))
+
+        return self.storage[idx]
+
+    def print_storage(self):
+        for item in self.storage:
+            print item
+
+        return
+
+class Stack(FIFO):
+    '''
+      Stack is LIFO i.e., push to the top of storage and pop from top as well.
+    '''
+    def push(self, item):
+        FIFO.push_top(self, item)
+
+        return
+
+    def pop(self):
+        return FIFO.pop_top(self)
+
+    def is_empty(self):
+        return (len(self.storage) == 0)
+
+    def empty(self):
+        while not self.is_empty():
+            self.pop()
+
+        return
+
+    def get_interval(self):
+        return FIFO.read_item(self, 0), FIFO.read_item(self, 1)
 
 class VirtualGangCreator:
     def __init__(self, params):
@@ -9,12 +94,13 @@ class VirtualGangCreator:
                 'utilization', 'tasks_per_period', 'taskset_index']
 
         default_optional_params = {
-            'timeout'       : 2,
-            'max_timeout'   : 60,
+            'timeout'       : 2.0,
+            'max_timeout'   : 30,
             'tolerance'     : 1.0,
-            'stop_interval' : 100,
+            'stop_interval' : 1,
             'gen_dir'       : None,
-            'verify'        : True
+            'verify'        : True,
+            'debug'         : False
         }
 
         for req_param in required_params:
@@ -111,11 +197,13 @@ class VirtualGangCreator:
           the best for the given problem.
         '''
         fdo = None
+        stop = False
         prev_gang_length = 0
-        unsat_gang_length = 0
-        last_unsat_script = 0
         optimal_solution = None
         max_gang_length = sum([int(t.c) for t in self.candidate_set]) * 100
+
+        # We should keep track of the unsat solutions; for verification
+        unsat_list = Stack(100)
 
         if self.gen_dir:
             iteration = 0
@@ -126,10 +214,13 @@ class VirtualGangCreator:
             hdr_len = len(tbl_hdr) - 4
             hrule = "-" * hdr_len + '\n'
 
-            smt_table_file = self.gen_dir + '/smt_table.txt'
-            banner = '\n' + '=' * 20 + 'SMT Binary Search' + '=' * 20 + '\n'
+            if not self.debug:
+                smt_table_file = self.gen_dir + '/smt_table.txt'
+                fdo = open(smt_table_file, 'w')
+            else:
+                fdo = sys.stdout
 
-            fdo = open(smt_table_file, 'w')
+            banner = '\n' + '=' * 20 + 'SMT Binary Search' + '=' * 20 + '\n'
             fdo.write(banner)
             fdo.write(tbl_hdr)
             fdo.write(hrule)
@@ -145,10 +236,10 @@ class VirtualGangCreator:
                     # We are not able to form any virtual-gangs
                     return None
 
-                # Keep track of the last unsat solution. We will have to run it
-                # to completion to verify it; at the end.
-                last_unsat_script = script
-                unsat_gang_length = max_gang_length
+                # Keep track of the unsat problems. We will have to verify,
+                # at-least one of them, by running it completion to make sure
+                # we had a truly unsat problem
+                unsat_list.push((script, max_gang_length, False))
 
                 # Model not satisfied. Search up.
                 max_gang_length, prev_gang_length = \
@@ -168,29 +259,88 @@ class VirtualGangCreator:
                     max_gang_length, '%.3f' % (duration)))
                 fdo.flush()
 
-            if (abs(max_gang_length - prev_gang_length) <= self.stop_interval):
+            if (abs(max_gang_length - prev_gang_length) < self.stop_interval):
                 # Run the last unsat solution to completion. It must be unsat;
                 # in order for the current solution to be truly optimal
-                if fdo:
-                    fdo.write("\n  -- Verifying last unsat: \n\t%s\n" %
-                            (last_unsat_script))
-                    fdo.flush()
+                if unsat_list.is_empty(): break
 
-                unsat, time_taken = \
-                        self.__verify_last_unsat_solution(last_unsat_script)
+                last_unsat_problem = unsat_list.pop()
+                last_unsat_script = last_unsat_problem[0]
+                last_unsat_length = last_unsat_problem[1]
+                verified = last_unsat_problem[2]
+
+                if not verified:
+                    if fdo:
+                        fdo.write("\n  -- Verifying last unsat: \n\t%s\n" %
+                                (last_unsat_script))
+                        fdo.flush()
+
+                    unsat, time_taken, solution = \
+                            self.__verify_last_unsat_solution(last_unsat_script)
+                else:
+                    unsat = True
 
                 if not unsat:
                     if fdo:
                         fdo.write("[WARN] Unsat solution not verified:\n")
-                        fdo.write("       - Len = %s\n" % (unsat_gang_length))
+                        fdo.write("       - Len = %s\n" % (last_unsat_length))
                         fdo.write("       - Scr = %s\n" % (last_unsat_script))
                         fdo.flush()
 
-                    # Last unsat solution was not truly unsat. We must continue
-                    # binary search downward
-                    max_gang_length = unsat_gang_length / 2
-                    prev_gang_length = unsat_gang_length
-                    continue
+                    # We have a new optimal solution
+                    optimal_solution = solution
+
+                    # Find truly unsat solution among all the calculated
+                    # solutions that were deemed unsat
+                    while not unsat_list.is_empty():
+                        next_unsat_problem = unsat_list.pop()
+                        script = next_unsat_problem[0]
+                        length = next_unsat_problem[1]
+                        verified = next_unsat_problem[2]
+
+                        if not verified:
+                            if fdo:
+                                fdo.write("\n -- Trying next unsat: \n\t%s\n" %
+                                        (script))
+                                fdo.flush()
+
+                            unsat, time_taken, solution = \
+                                    self.__verify_last_unsat_solution(script)
+                        else:
+                            unsat = True
+
+                        if unsat:
+                            # We have found a truly unsat problem. Empty the
+                            # unsat_list and start binary search a new in the
+                            # following interval:
+                            #   length <---> last_unsat_length
+                            unsat_list.empty()
+                            unsat_list.push((script, length, True))
+
+                            if fdo:
+                                fdo.write("\tTruly Unsat!\n\n")
+                                fdo.flush()
+
+                            max_gang_length, prev_gang_length = \
+                                    self.__update_gang_length(length,
+                                            last_unsat_length, False)
+
+                            interval = abs(max_gang_length - prev_gang_length)
+                            if (interval <= self.stop_interval): stop = True
+
+                            break
+
+                        if fdo:
+                            fdo.write("[WARN] Unsat solution not verified:\n")
+                            fdo.write("       - Len = %s\n" % (length))
+                            fdo.write("       - Scr = %s\n" % (script))
+                            fdo.flush()
+
+                        optimal_solution = solution
+                        last_unsat_length = length
+
+                    if not stop:
+                        continue
 
                 if fdo:
                     fdo.write("  -- Last unsat verified in %.3f secs\n" %
@@ -202,7 +352,7 @@ class VirtualGangCreator:
 
         if fdo:
            fdo.write(hrule + '\n')
-           fdo.close()
+           if not self.debug: fdo.close()
 
         return optimal_solution
 
@@ -247,7 +397,8 @@ class VirtualGangCreator:
                 else:
                     gang_dict [i]["r"] = v
             else:
-                raise ValueError, "Unexpected entry in SMT solution: ", t
+                raise ValueError, "[%s] Unexpected entry in SMT solution: %s" \
+                        % (self.dbg_id, t)
 
         # We may get gangs with no members since the SMT solver tries to create
         # a fixed number of gangs and gives one solution that satisfies the
@@ -283,9 +434,9 @@ class VirtualGangCreator:
             expected_gang_length = 0
             expected_gang_demand = 0
 
-            assert vg_height <= self.num_of_cores, ("Virtual gang <h=%d> "
-                    "does not fit in the core count <%d>" % (vg_height,
-                        self.num_of_cores))
+            assert vg_height <= self.num_of_cores, ("[%s] Virtual gang <h=%d> "
+                    "does not fit in the core count <%d>" % (self.dbg_id,
+                        vg_height, self.num_of_cores))
 
             for tid in vg_members:
                 task = self.__get_task_by_tid(tid)
@@ -293,10 +444,10 @@ class VirtualGangCreator:
                 expected_gang_demand += task.r
             expected_gang_demand = max(100, expected_gang_demand)
 
-            assert expected_gang_demand == vg_demand, ("The expected resource "
-                    "demand <%d> of the virtual-gang does not match the "
-                    "calculated resource demand <%d>" % (expected_gang_demand,
-                        vg_demand))
+            assert expected_gang_demand == vg_demand, ("[%s] The expected "
+                    "resource demand <%d> of the virtual-gang does not "
+                    "match the calculated resource demand <%d>" %
+                    (self.dbg_id, expected_gang_demand, vg_demand))
 
             expected_gang_length *= (expected_gang_demand / 100.0)
             delta_gang_length = abs(vg_length - expected_gang_length)
@@ -322,7 +473,7 @@ class VirtualGangCreator:
         if not solution:
             unsat = True
 
-        return unsat, duration
+        return unsat, duration, solution
 
     def __create_virtual_taskset(self, virtual_gangs, first_vtask_tid):
         virtual_taskset = []
@@ -362,8 +513,14 @@ class VirtualGangCreator:
         return height
 
     def __update_gang_length(self, cur_length, prev_length, down):
-        step = int(math.ceil(abs(cur_length - prev_length) / 2.0))
+        search_interval = abs(cur_length - prev_length)
+
+        if search_interval == 1:
+            cur_length = (cur_length - 1) if down else (cur_length + 1)
+            return cur_length, prev_length
+
         prev_length = cur_length
+        step = int(math.ceil(search_interval / 2.0))
         cur_length = (cur_length - step) if down else (cur_length + step)
 
         return cur_length, prev_length
@@ -380,8 +537,8 @@ class VirtualGangCreator:
             if t.tid == tid:
                 return t
 
-        raise ValueError, "Task <t%d> not found in list: %s" % (tid,
-                self.__candidate_set_to_string())
+        raise ValueError, "[%s] Task <t%d> not found in list: %s" % \
+                (self.dbg_id, tid, self.__candidate_set_to_string())
 
     def __print_taskset(self, taskset, out_file, nature):
         with open(out_file, 'w') as fdo:

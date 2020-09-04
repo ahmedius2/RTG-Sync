@@ -34,22 +34,34 @@ class Generator:
             while remUtil > 0.01:
                 # Pick period: T_i
                 T = random.randint(10, 1500)
-                if T not in taskset[u]:
-                    taskset[u][T] = []
 
-                # Randomly select the number of tasks to generate for the current period
+                # T_i must be unique; otherwise our candidate-set for T will
+                # end up having more tasks than tpp
+                if T in taskset[u]:
+                    continue
+
+                taskset[u][T] = []
+
+                # Randomly select the number of tasks to generate for the
+                # current period
                 if not self.tpp: self.tpp = random.randint(4, self.M)
 
                 while (tid % self.tpp):
-                    task, remUtil, stop = self.gen_task_params(tasksetType, remUtil, T, tid)
+                    task, remUtil, stop = self.gen_task_params(tasksetType,
+                            remUtil, T, tid)
+
                     taskset[u][T].append(task)
                     tid += 1
                     if stop: break
                 else:
-                    task, remUtil, stop = self.gen_task_params(tasksetType, remUtil, T, tid)
+                    # Generate tpp-th task
+                    task, remUtil, stop = self.gen_task_params(tasksetType,
+                            remUtil, T, tid)
+
                     taskset[u][T].append(task)
                     tid += 1
 
+        # Add edges to make the taskset a DAG
         self.add_edges(taskset)
 
         return taskset

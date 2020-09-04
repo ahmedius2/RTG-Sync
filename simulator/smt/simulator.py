@@ -7,6 +7,13 @@ from parserFactory import Aggregator
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
+import matplotlib
+matplotlib.use('Agg')
+
+import numpy as np
+from matplotlib import mlab
+import matplotlib.pyplot as plt
+
 PRISTINE = False
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 25
@@ -14,16 +21,28 @@ MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
 NUM_OF_TEST_TASKSETS = 1000
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
-PARALLELISM = multiprocessing.cpu_count() * 2
+PARALLELISM = multiprocessing.cpu_count()
+
+# Debug single candidate-set. The candidate-set must be present in the
+# generated directory
+DEBUG = False
+DEBUG_SEED = {
+    'util'      :   2,
+    'period'    :   15,
+    'tsIdx'     :   268
+}
+
+CANDIDATE_SET = 'ts345_u6_p660'
 
 def main():
-    if PRISTINE: parallel_create_virtual_taskset()
+    if DEBUG: dbg_single_candidate_set()
+    if PRISTINE: parallel_create_virtual_taskset(); sys.exit(1)
 
     # Aggregate results by parsing the file-system logs and re-create real and
     # virtual tasksets for further processing
     aggregator = Aggregator()
     tasksets = aggregator.run()
-    dbg_dump_vgang_info(tasksets)
+    # dbg_dump_vgang_info(tasksets)
 
     rta_params = {
             'num_of_cores': NUM_OF_CORES
@@ -31,7 +50,8 @@ def main():
 
     rta = RTA(rta_params)
 
-    schedulers = ['RT-Gang', 'RTG-Sync']
+    schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1', 'RTG-Sync-H2a',
+            'RTG-Sync-H2b']
     sched_ratio = {s: {} for s in schedulers}
 
     for tsIdx in tasksets:
@@ -44,7 +64,76 @@ def main():
 
                 sched_ratio[s][u] += rta.run(ts, s)
 
-    print sched_ratio
+    create_sched_plots(sched_ratio, schedulers)
+
+    return
+
+def stratify_data(data):
+    x = sorted(data.keys())
+    y = [data[v] for v in x]
+
+    return x, y
+
+def create_sched_plots(sched_hash, sched_list):
+    fig = plt.subplots(1, 1, figsize = (16, 4))
+
+    for scheduler in sched_list:
+        x, y = stratify_data(sched_hash[scheduler])
+        plt.plot(x, y, label = scheduler)
+
+    plt.xlabel('Utilizations', fontsize = 'x-large')
+    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large')
+    plt.title('Light', fontsize = 'xx-large')
+    plt.legend()
+
+    plt.savefig('sched_light.pdf', bbox_inches = 'tight')
+
+    return
+
+def dbg_single_candidate_set():
+    taskset_dir = 'generated/' + CANDIDATE_SET
+    assert os.path.exists(taskset_dir), ("Taskset directory <%s> "
+            "does not exist in the generated folder" % (taskset_dir))
+
+    print "[DEBUG] Starting debug session...\n"
+
+    if DEBUG_SEED:
+        period = DEBUG_SEED['period']
+        tsIdx = DEBUG_SEED['tsIdx']
+        util = DEBUG_SEED['util']
+        seed =  tsIdx + 1
+
+        taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
+                seed, MAX_TASKS_PER_PERIOD)
+        taskset = taskFactory.create_taskset('light')
+        candidate_set = taskset[util][period]
+    else:
+        parser = Aggregator()
+        candidate_set = parser.parse_taskset(CANDIDATE_SET, 'real')
+        tsIdx, util, period = parser.parse_taskset_dir(CANDIDATE_SET)
+
+    banner = "\t" + "-" * 16 + " Candidate Set " + "-" * 18 + "\n"
+    print_single_candidate_set(sys.stdout, candidate_set, banner)
+
+    vgc_params = {
+        'stop_interval'     : 1,
+        'timeout'           : 2,
+        'max_timeout'       : 30,
+        'debug'             : True,
+        'verify'            : True,
+        'utilization'       : util,
+        'taskset_index'     : tsIdx,
+        'period'            : period,
+        'num_of_cores'      : NUM_OF_CORES,
+        'candidate_set'     : candidate_set,
+        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+    }
+
+    vgc = VirtualGangCreator(vgc_params)
+    virtual_taskset = vgc.run(1)
+
+    print "\n[DEBUG] Debug session ended!"
+    sys.exit(1)
 
     return
 
@@ -52,8 +141,8 @@ def parallel_create_virtual_taskset():
     processes = {}
 
     # Remove generated directory for pristine execution
-    generated_dir = os.getcwd() + '/generated'
-    if os.path.exists(generated_dir): shutil.rmtree(generated_dir)
+    # generated_dir = os.getcwd() + '/generated'
+    # if os.path.exists(generated_dir): shutil.rmtree(generated_dir)
 
     print
     for r in range(0, NUM_OF_TEST_TASKSETS, PARALLELISM):
@@ -75,7 +164,7 @@ def virtual_gang_generator_thread_entry(tsIdx):
     taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
             tsIdx + 1, MAX_TASKS_PER_PERIOD)
 
-    taskset = taskFactory.create_taskset('mixed')
+    taskset = taskFactory.create_taskset('light')
 
     virtual_taskset = {}
     for util in taskset:
@@ -85,9 +174,12 @@ def virtual_gang_generator_thread_entry(tsIdx):
         for period, candidate_set in taskset[util].items():
             vgc_params = {
                 'stop_interval'     : 1,
+                'timeout'           : 2,
+                'max_timeout'       : 30,
                 'utilization'       : util,
                 'taskset_index'     : tsIdx,
                 'verify'            : True,
+                'debug'             : False,
                 'period'            : period,
                 'num_of_cores'      : NUM_OF_CORES,
                 'candidate_set'     : candidate_set,
@@ -108,7 +200,7 @@ def virtual_gang_generator_thread_entry(tsIdx):
 
     return
 
-def print_taskset(fdo, taskset, tsIdx):
+def print_taskset(fdo, taskset, tsIdx, debug = False):
     fdo.write("Taskset # %d\n" % (tsIdx))
 
     for u in taskset:
@@ -117,13 +209,22 @@ def print_taskset(fdo, taskset, tsIdx):
         for T in taskset[u]:
             fdo.write("    Period=%d\n" % (T))
 
-            for nature in taskset[u][T]:
-                fdo.write("\n      " + "-" * 20 + nature + "-" * 20 + "\n")
-
-                for t in taskset[u][T][nature]:
-                    fdo.write("      " + t.__str__() + '\n')
+            if not debug:
+                for nature in taskset[u][T]:
+                    fdo.write("\n      " + "-" * 20 + nature + "-" * 20 + "\n")
+                    print_single_candidate_set(fdo, taskset[u][T][nature])
+            else:
+                print_single_candidate_set(fdo, taskset[u][T])
 
             fdo.write("\n" + "=" * 50 + '\n\n')
+
+    return
+
+def print_single_candidate_set(fdo, candidate_set, banner = ''):
+    if banner != '': print banner,
+
+    for t in candidate_set:
+        fdo.write("      " + t.__str__() + '\n')
 
     return
 
