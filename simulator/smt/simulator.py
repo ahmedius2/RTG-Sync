@@ -14,12 +14,12 @@ import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
 
-PRISTINE = False
+PRISTINE = True
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 25
 MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
-NUM_OF_TEST_TASKSETS = 1000
+NUM_OF_TEST_TASKSETS = 10000
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
 
@@ -50,8 +50,10 @@ def main():
 
     rta = RTA(rta_params)
 
-    schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1', 'RTG-Sync-H2a',
-            'RTG-Sync-H2b']
+    rtgsync = ['RTG-Sync', 'RTG-Sync-H1', 'RTG-Sync-H2a',
+            'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
+    schedulers = ['RT-Gang']  + rtgsync
+
     sched_ratio = {s: {} for s in schedulers}
 
     for tsIdx in tasksets:
@@ -64,29 +66,33 @@ def main():
 
                 sched_ratio[s][u] += rta.run(ts, s)
 
-    create_sched_plots(sched_ratio, schedulers)
+    create_sched_plots(sched_ratio, rtgsync)
 
     return
 
-def stratify_data(data):
-    x = sorted(data.keys())
-    y = [data[v] for v in x]
+def stratify_data(data, idx, wd):
+    x = [v + (idx * wd) for v in sorted(data.keys())]
+    y = [data[v] for v in sorted(data.keys())]
 
     return x, y
 
 def create_sched_plots(sched_hash, sched_list):
-    fig = plt.subplots(1, 1, figsize = (16, 4))
+    fig = plt.subplots(1, 1, figsize = (15, 12))
 
+    idx = -3
+    wd = 0.0
     for scheduler in sched_list:
-        x, y = stratify_data(sched_hash[scheduler])
+        x, y = stratify_data(sched_hash[scheduler], idx, wd)
         plt.plot(x, y, label = scheduler)
+        idx += 1
 
-    plt.xlabel('Utilizations', fontsize = 'x-large')
-    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large')
-    plt.title('Light', fontsize = 'xx-large')
-    plt.legend()
+    plt.xlim([0.5, 8.5])
+    plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
+    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large', fontweight = 'bold')
+    plt.title('Heavy', fontsize = 'xx-large', fontweight = 'bold')
+    plt.legend(fontsize = 'x-large')
 
-    plt.savefig('sched_light.pdf', bbox_inches = 'tight')
+    plt.savefig('sched_heavy_line.pdf', bbox_inches = 'tight')
 
     return
 
@@ -105,7 +111,7 @@ def dbg_single_candidate_set():
 
         taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
                 seed, MAX_TASKS_PER_PERIOD)
-        taskset = taskFactory.create_taskset('light')
+        taskset = taskFactory.create_taskset('mixed')
         candidate_set = taskset[util][period]
     else:
         parser = Aggregator()
@@ -145,7 +151,7 @@ def parallel_create_virtual_taskset():
     # if os.path.exists(generated_dir): shutil.rmtree(generated_dir)
 
     print
-    for r in range(0, NUM_OF_TEST_TASKSETS, PARALLELISM):
+    for r in range(1000, NUM_OF_TEST_TASKSETS, PARALLELISM):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
             processes[tsIdx] = multiprocessing.Process(target = \
                     virtual_gang_generator_thread_entry, args = (tsIdx,))

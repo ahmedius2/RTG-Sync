@@ -5,7 +5,8 @@ class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
         self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1',
-                'RTG-Sync-H2a', 'RTG-Sync-H2b']
+                'RTG-Sync-H2a', 'RTG-Sync-H2b', 'RTG-Sync-H3a',
+                'RTG-Sync-H3b', 'RTG-Sync-Hx']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -19,7 +20,8 @@ class RTA:
         pq = []
         self.__check_scheduler(scheduler)
 
-        if scheduler in ['RTG-Sync-H1', 'RTG-Sync-H2a', 'RTG-Sync-H2b']:
+        if scheduler in ['RTG-Sync-H1', 'RTG-Sync-H2a', 'RTG-Sync-H2b',
+                'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']:
             self.__form_virtual_gangs_heuristic(taskset, scheduler)
 
             # for p in taskset:
@@ -31,7 +33,8 @@ class RTA:
             #     print "\n" + "-" * 50 + "\n"
 
         if scheduler in ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1',
-                'RTG-Sync-H2a', 'RTG-Sync-H2b']:
+                'RTG-Sync-H2a', 'RTG-Sync-H2b', 'RTG-Sync-H3a',
+                'RTG-Sync-H3b', 'RTG-Sync-Hx']:
             pq, sched_test_1 = self.__create_rtg_pq(taskset, scheduler)
 
             # Taskset has failed the preliminary schedulability test
@@ -197,6 +200,15 @@ class RTA:
         elif heuristic == 'RTG-Sync-H2b':
             # Lower 'h', higher priority
             return ti.h <= tj.h
+        elif heuristic == 'RTG-Sync-H3a':
+            # Higher 'cost', higher priority
+            return (ti.c / ti.h) >= (ti.c / ti.h)
+        elif heuristic == 'RTG-Sync-H3b':
+            # Lower 'cost', higher priority
+            return (ti.c / ti.h) <= (ti.c / ti.h)
+        elif heuristic == 'RTG-Sync-Hx':
+            # Higher 'weighted-length', higher priority
+            return (ti.c / (ti.r * ti.h)) <= (ti.c / (ti.r * ti.h))
         else:
             raise ValueError, ('Heuristic <%s> not registered' % (heuristic))
 
@@ -217,6 +229,12 @@ class RTA:
                 tasks = taskset[p]['RTG-Sync-H2a']
             elif scheduler == 'RTG-Sync-H2b':
                 tasks = taskset[p]['RTG-Sync-H2b']
+            elif scheduler == 'RTG-Sync-H3a':
+                tasks = taskset[p]['RTG-Sync-H3a']
+            elif scheduler == 'RTG-Sync-H3b':
+                tasks = taskset[p]['RTG-Sync-H3b']
+            elif scheduler == 'RTG-Sync-Hx':
+                tasks = taskset[p]['RTG-Sync-Hx']
             else:
                 raise ValueError, ('Unknown scheduler: %s' % scheduler)
 

@@ -10,11 +10,11 @@ class Aggregator:
           Traverse the directory containing generated tasksets and their
           respective virtual-gangs data for further processing.
         '''
-        assert os.path.exists('../light_generated'), ("Directory of generated data "
+        assert os.path.exists('../heavy_generated'), ("Directory of generated data "
             "does not exists in the current folder.")
 
         tasksets = {}
-        generated_taskset_dirs = os.listdir('../light_generated')
+        generated_taskset_dirs = os.listdir('../heavy_generated')
 
         for ts in generated_taskset_dirs:
             tsIdx, util, period = self.parse_taskset_dir(ts)
@@ -38,7 +38,7 @@ class Aggregator:
 
     def parse_taskset(self, taskset_dir, nature):
         name_prefix = 'candidate_' if nature == 'real' else 'virtual_task'
-        taskset_file = '../light_generated/%s/%sset.txt' % (taskset_dir, name_prefix)
+        taskset_file = '../heavy_generated/%s/%sset.txt' % (taskset_dir, name_prefix)
 
         assert os.path.exists(taskset_file), ("Taskset file <%s> does "
                 "not exists in the generated directory." % (taskset_file))
