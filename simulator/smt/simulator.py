@@ -14,12 +14,13 @@ import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
 
-PRISTINE = True
+PRISTINE = False
 NUM_OF_CORES = 8
+HEURISTICS = True
 EDGE_PROBABILITY = 25
-MAX_TASKS_PER_PERIOD = 8
+MAX_TASKS_PER_PERIOD = 50
 RESULT_FILE = 'vgangs.txt'
-NUM_OF_TEST_TASKSETS = 10000
+NUM_OF_TEST_TASKSETS = 100
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
 
@@ -35,14 +36,34 @@ DEBUG_SEED = {
 CANDIDATE_SET = 'ts345_u6_p660'
 
 def main():
+    assert not (PRISTINE and HEURISTICS), ("Heuristic study cannot be "
+            "conducted under pristine build and vice-versa")
+
     if DEBUG: dbg_single_candidate_set()
     if PRISTINE: parallel_create_virtual_taskset(); sys.exit(1)
 
-    # Aggregate results by parsing the file-system logs and re-create real and
-    # virtual tasksets for further processing
-    aggregator = Aggregator()
-    tasksets = aggregator.run()
-    # dbg_dump_vgang_info(tasksets)
+    if not HEURISTICS:
+        # Aggregate results by parsing the file-system logs and re-create real
+        # and virtual tasksets for further processing
+        aggregator = Aggregator()
+        tasksets = aggregator.run()
+    else:
+        tasksets = {}
+
+        for tsIdx in range(NUM_OF_TEST_TASKSETS):
+            tf_params = {
+                'seed'              : tsIdx + 1,
+                'demand_interval'   : (50, 100),
+                'num_of_cores'      : NUM_OF_CORES,
+                'utils'             : UTILIZATIONS,
+                'edge_prob'         : EDGE_PROBABILITY,
+                'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+            }
+
+            taskFactory = Generator(tf_params)
+            tasksets[tsIdx] = taskFactory.create_taskset('light')
+
+        tasksets = convert_taskset(tasksets)
 
     rta_params = {
             'num_of_cores': NUM_OF_CORES
@@ -50,7 +71,7 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync', 'RTG-Sync-H1', 'RTG-Sync-H2a',
+    rtgsync = ['RTG-Sync-H1', 'RTG-Sync-H2a',
             'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
     schedulers = ['RT-Gang']  + rtgsync
 
@@ -66,9 +87,26 @@ def main():
 
                 sched_ratio[s][u] += rta.run(ts, s)
 
-    create_sched_plots(sched_ratio, rtgsync)
+    for s in sched_ratio:
+        print '%15s:' % (s), sched_ratio[s]
+
+    # create_sched_plots(sched_ratio, rtgsync)
 
     return
+
+def convert_taskset(tasksets):
+    conv_tasksets = {}
+
+    for tsIdx in tasksets:
+        conv_tasksets[tsIdx] = {}
+
+        for u in tasksets[tsIdx]:
+            conv_tasksets[tsIdx][u] = {}
+
+            for p in tasksets[tsIdx][u]:
+                conv_tasksets[tsIdx][u][p] = {'Real': tasksets[tsIdx][u][p]}
+
+    return conv_tasksets
 
 def stratify_data(data, idx, wd):
     x = [v + (idx * wd) for v in sorted(data.keys())]

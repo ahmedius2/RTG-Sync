@@ -62,7 +62,7 @@ class RTA:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
 
-            # print "[DEBUG] Candidate Set:"
+            # print "[DEBUG]<%s> Candidate Set:" % (heuristic)
             # self.__print_pq(candidate_set)
 
             pq = self.__create_heuristic_pq(candidate_set, heuristic)
@@ -191,26 +191,31 @@ class RTA:
         return pq
 
     def __sort(self, ti, tj, heuristic):
-        if heuristic == 'RTG-Sync-H1':
-            # Higher 'C', higher priority
-            return ti.c <= tj.c
-        elif heuristic == 'RTG-Sync-H2a':
-            # Higher 'h', higher priority
-            return ti.h >= tj.h
-        elif heuristic == 'RTG-Sync-H2b':
-            # Lower 'h', higher priority
-            return ti.h <= tj.h
-        elif heuristic == 'RTG-Sync-H3a':
-            # Higher 'cost', higher priority
-            return (ti.c / ti.h) >= (ti.c / ti.h)
-        elif heuristic == 'RTG-Sync-H3b':
-            # Lower 'cost', higher priority
-            return (ti.c / ti.h) <= (ti.c / ti.h)
-        elif heuristic == 'RTG-Sync-Hx':
-            # Higher 'weighted-length', higher priority
-            return (ti.c / (ti.r * ti.h)) <= (ti.c / (ti.r * ti.h))
-        else:
-            raise ValueError, ('Heuristic <%s> not registered' % (heuristic))
+        try:
+            if heuristic == 'RTG-Sync-H1':
+                # Higher 'C', higher priority
+                return ti.c <= tj.c
+            elif heuristic == 'RTG-Sync-H2a':
+                # Higher 'h', higher priority
+                return ti.h >= tj.h
+            elif heuristic == 'RTG-Sync-H2b':
+                # Lower 'h', higher priority
+                return ti.h <= tj.h
+            elif heuristic == 'RTG-Sync-H3a':
+                # Higher 'cost', higher priority
+                return (ti.c / ti.h) >= (tj.c / tj.h)
+            elif heuristic == 'RTG-Sync-H3b':
+                # Lower 'cost', higher priority
+                return (ti.c / ti.h) <= (tj.c / tj.h)
+            elif heuristic == 'RTG-Sync-Hx':
+                # Higher 'weighted-length', higher priority
+                    return (ti.c / (ti.r * ti.h)) <= (tj.c / (tj.r * tj.h))
+            else:
+                raise ValueError, ('Heuristic <%s> not registered' %
+                        (heuristic))
+        except:
+            raise ValueError, ('Invalid task(s)!\n  ti: %s\n  tj: %s' %
+                    (ti, tj))
 
 
     def __create_rtg_pq(self, taskset, scheduler):
