@@ -1,3 +1,4 @@
+import sys
 import math, random
 from time import time
 from taskFactory import Task
@@ -80,6 +81,10 @@ class Generator:
                     if self.__verify_task(task):
                         taskset[u][T].append(task)
                         tid += 1
+
+                # We did not generate any tasks for this util / period combo
+                if taskset[u][T] == []:
+                    del taskset[u][T]
 
         # Add edges to make the taskset a DAG
         self.add_edges(taskset)

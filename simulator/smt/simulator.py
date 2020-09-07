@@ -15,12 +15,15 @@ from matplotlib import mlab
 import matplotlib.pyplot as plt
 
 PRISTINE = False
-NUM_OF_CORES = 8
+NUM_OF_CORES = 16
 HEURISTICS = True
-EDGE_PROBABILITY = 25
+EDGE_PROBABILITY = 30
+
+TASKSET_TYPE = sys.argv[1]
+
 MAX_TASKS_PER_PERIOD = 50
 RESULT_FILE = 'vgangs.txt'
-NUM_OF_TEST_TASKSETS = 100
+NUM_OF_TEST_TASKSETS = int(sys.argv[2])
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
 
@@ -61,7 +64,7 @@ def main():
             }
 
             taskFactory = Generator(tf_params)
-            tasksets[tsIdx] = taskFactory.create_taskset('light')
+            tasksets[tsIdx] = taskFactory.create_taskset(TASKSET_TYPE)
 
         tasksets = convert_taskset(tasksets)
 
@@ -75,6 +78,39 @@ def main():
             'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
     schedulers = ['RT-Gang']  + rtgsync
 
+    color_scheme = {
+        'RT-Gang': 'magenta',
+        'RTG-Sync': 'green',
+        'RTG-Sync-H1': 'cyan',
+        'RTG-Sync-H2a': 'blue',
+        'RTG-Sync-H2b': 'purple',
+        'RTG-Sync-H3a': 'orange',
+        'RTG-Sync-H3b': 'red',
+        'RTG-Sync-Hx' : 'brown'
+    }
+
+    sched_names = {
+        'RT-Gang'       : 'RT-Gang',
+        'RTG-Sync'      : 'RTG-Sync',
+        'RTG-Sync-H1'   : 'h1-len-dsc',
+        'RTG-Sync-H2a'  : 'h2-par-asc',
+        'RTG-Sync-H2b'  : 'h3-par-dsc',
+        'RTG-Sync-H3a'  : 'h4-cst-asc',
+        'RTG-Sync-H3b'  : 'h5-cst-dsc',
+        'RTG-Sync-Hx'   : 'h6-wln-dsc'
+    }
+
+    sched_markers = {
+        'RT-Gang'       : 'o',
+        'RTG-Sync'      : '*',
+        'RTG-Sync-H1'   : '^',
+        'RTG-Sync-H2a'  : '8',
+        'RTG-Sync-H2b'  : 's',
+        'RTG-Sync-H3a'  : 'd',
+        'RTG-Sync-H3b'  : 'p',
+        'RTG-Sync-Hx'   : 'x'
+    }
+
     sched_ratio = {s: {} for s in schedulers}
 
     for tsIdx in tasksets:
@@ -87,10 +123,11 @@ def main():
 
                 sched_ratio[s][u] += rta.run(ts, s)
 
-    for s in sched_ratio:
-        print '%15s:' % (s), sched_ratio[s]
+    # for s in sched_ratio:
+    #     print '%15s:' % (s), sched_ratio[s]
 
-    # create_sched_plots(sched_ratio, rtgsync)
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'bar')
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'line')
 
     return
 
@@ -114,23 +151,30 @@ def stratify_data(data, idx, wd):
 
     return x, y
 
-def create_sched_plots(sched_hash, sched_list):
-    fig = plt.subplots(1, 1, figsize = (15, 12))
+def create_sched_plots(sched_hash, sched_list, clist, snames, smarks, plot_type = 'bar'):
+    fig = plt.subplots(1, 1, figsize = (10, 8))
 
     idx = -3
-    wd = 0.0
-    for scheduler in sched_list:
-        x, y = stratify_data(sched_hash[scheduler], idx, wd)
-        plt.plot(x, y, label = scheduler)
+    wd = 0.1 if plot_type == 'bar' else 0.0
+
+    for s in sched_list:
+        x, y = stratify_data(sched_hash[s], idx, wd)
         idx += 1
 
-    plt.xlim([0.5, 8.5])
+        if plot_type == 'bar':
+            plt.bar(x, y, color = clist[s], width = wd, lw = 1.0, label = snames[s])
+            continue
+
+        plt.plot(x, y, lw = 1.5, color = clist[s], label = snames[s], marker = smarks[s])
+
+    plt.xlim([0.5, 16.5])
+    plt.ylim([0, NUM_OF_TEST_TASKSETS * 1.05])
     plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
     plt.ylabel('Schedulable Tasksets', fontsize = 'x-large', fontweight = 'bold')
-    plt.title('Heavy', fontsize = 'xx-large', fontweight = 'bold')
+    plt.title(TASKSET_TYPE.capitalize(), fontsize = 'xx-large', fontweight = 'bold')
     plt.legend(fontsize = 'x-large')
 
-    plt.savefig('sched_heavy_line.pdf', bbox_inches = 'tight')
+    plt.savefig('sched_%s_%s.pdf' % (TASKSET_TYPE, plot_type), bbox_inches = 'tight')
 
     return
 

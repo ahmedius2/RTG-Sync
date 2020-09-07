@@ -16,13 +16,13 @@ class RTA:
 
         return
 
-    def run(self, taskset, scheduler):
+    def run(self, taskset, scheduler, debug = False):
         pq = []
         self.__check_scheduler(scheduler)
 
         if scheduler in ['RTG-Sync-H1', 'RTG-Sync-H2a', 'RTG-Sync-H2b',
                 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']:
-            self.__form_virtual_gangs_heuristic(taskset, scheduler)
+            self.__form_virtual_gangs_heuristic(taskset, scheduler, debug)
 
             # for p in taskset:
             #     print "[DEBUG] Virtual Set:"
@@ -55,17 +55,22 @@ class RTA:
 
         return 1
 
-    def __form_virtual_gangs_heuristic(self, taskset, heuristic):
+    def __form_virtual_gangs_heuristic(self, taskset, heuristic, debug = False):
         vIdx = 1
 
         for period in taskset:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
 
-            # print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            # self.__print_pq(candidate_set)
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
 
             pq = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
 
             while len(pq) != 0:
                 ti = pq.pop(0)
@@ -99,9 +104,12 @@ class RTA:
                 for tx in sweep_list:
                     pq.remove(tx)
 
-            # print "\n[DEBUG] Virtual Set:"
-            # self.__print_pq(virtual_taskset)
-            # print '\n', "-" * 78, '\n'
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
             taskset[period][heuristic] = virtual_taskset
 
         return
