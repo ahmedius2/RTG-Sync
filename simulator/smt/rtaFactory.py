@@ -135,7 +135,7 @@ class RTA:
         tj_family = self.__get_family(tj.tid, taskset)
 
         if debug:
-            print 'ti=%s' % (ti.tid), 'ti_family:', ti_family
+            # print 'ti=%s' % (ti.tid), 'ti_family:', ti_family
             print 'tj=%s' % (tj.tid), 'tj_family:', tj_family
             print '\n'.join(['  + ' + t.__str__() for t in taskset])
 

@@ -85,7 +85,6 @@ def main():
         for tsIdx in range(NUM_OF_TEST_TASKSETS):
             tf_params = {
                 'seed'              : tsIdx + 1,
-                'demand_interval'   : (50, 100),
                 'num_of_cores'      : NUM_OF_CORES,
                 'utils'             : UTILIZATIONS,
                 'edge_prob'         : EDGE_PROBABILITY,
@@ -149,7 +148,7 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
-                sched_ratio[s][u] += rta.run(ts, s, True)
+                sched_ratio[s][u] += rta.run(ts, s, False)
 
     # for s in sched_ratio:
     #     print '%15s:' % (s), sched_ratio[s]
