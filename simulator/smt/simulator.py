@@ -7,6 +7,8 @@ from parserFactory import Aggregator
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
+from taskFactory import Task
+
 import matplotlib
 matplotlib.use('Agg')
 
@@ -37,6 +39,33 @@ DEBUG_SEED = {
 }
 
 CANDIDATE_SET = 'ts345_u6_p660'
+
+def unit_test_heuristic_prec_const():
+    '''
+      Taskset: t1, t2, t3, t4
+      Precedence: t1 -> t2 ; t3 -> t4
+      PQ: 1, 4, 3, 2
+
+      Wrong VGang: 1 + 4, 2 + 3
+      Right VGang: 1 + 4, 2, 3
+    '''
+    taskset = {500: {'Real': []}}
+    taskset[500]['Real'] = [Task(1, 100, 500, 1, 1, [2]),
+                            Task(2, 80,  500, 1, 1),
+                            Task(3, 70,  500, 1, 1, [4]),
+                            Task(4, 90,  500, 1, 1)]
+
+    rta_params = {
+            'num_of_cores': NUM_OF_CORES
+    }
+
+    rta = RTA(rta_params)
+    scheulable = rta.run(taskset, 'h1-len-dsc', False)
+    sys.exit()
+
+    return
+
+# unit_test_heuristic_prec_const()
 
 def main():
     assert not (PRISTINE and HEURISTICS), ("Heuristic study cannot be "
@@ -74,9 +103,8 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync-H1', 'RTG-Sync-H2a',
-            'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
-    schedulers = ['RT-Gang']  + rtgsync
+    rtgsync = ['h1-len-dsc'] #, 'h2-lnr-hyb']
+    schedulers = rtgsync
 
     color_scheme = {
         'RT-Gang': 'magenta',
@@ -121,13 +149,13 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
-                sched_ratio[s][u] += rta.run(ts, s)
+                sched_ratio[s][u] += rta.run(ts, s, True)
 
     # for s in sched_ratio:
     #     print '%15s:' % (s), sched_ratio[s]
 
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'bar')
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'line')
+    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'bar')
+    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names, sched_markers, 'line')
 
     return
 
