@@ -22,14 +22,14 @@ class RTA:
         if scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
             self.__form_virtual_gangs_heuristic(taskset, scheduler, debug)
 
-            for p in taskset:
-                print '-' * 30, 'Period: %d' % (p), '-' * 30
-                print '  - Candidate Set:'
-                print '\n'.join(['    + ' + t.__str__() for t in taskset[p]['Real']])
-                print
-                print '  - Heuristic Set:'
-                print '\n'.join(['    + ' + t.__str__() for t in taskset[p][scheduler]])
-                print
+            # for p in taskset:
+            #     print '-' * 30, 'Period: %d' % (p), '-' * 30
+            #     print '  - Candidate Set:'
+            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p]['Real']])
+            #     print
+            #     print '  - Heuristic Set:'
+            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p][scheduler]])
+            #     print
 
             #     print "[DEBUG] Virtual Set:"
             #     self.__print_pq(taskset[p]['Virtual'])
