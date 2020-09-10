@@ -20,7 +20,14 @@ class RTA:
         self.__check_scheduler(scheduler)
 
         if scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
-            self.__form_virtual_gangs_heuristic(taskset, scheduler, debug)
+
+            if scheduler == 'h2-lnr-hyb':
+                # print
+                self.__form_virtual_gangs_heuristic_h2(taskset, scheduler, False)
+                # print
+
+            if scheduler == 'h1-len-dsc':
+                self.__form_virtual_gangs_heuristic_h1(taskset, scheduler, debug)
 
             # for p in taskset:
             #     print '-' * 30, 'Period: %d' % (p), '-' * 30
@@ -59,7 +66,128 @@ class RTA:
 
         return 1
 
-    def __form_virtual_gangs_heuristic(self, taskset, heuristic,
+    def __form_virtual_gangs_heuristic_h2(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
+
+        for period in taskset:
+            virtual_taskset = []
+            candidate_set = taskset[period]['Real']
+
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
+
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
+
+            while len(pq) != 0:
+                tk = pq.pop(0)
+                sweep_list = []
+                candidate_list = []
+
+                if debug:
+                    print '-' * 50
+                    print 'tk: %s' % (tk)
+
+                for tj in pq:
+                    if debug: print 'tj: %s' % (tj)
+                    if tk.h + tj.h > self.num_of_cores:
+                        continue
+
+                    if self.__are_related(tk, tj, graph):
+                        continue
+
+                    candidate_list.append(tj)
+
+                if debug:
+                    print 'Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                candidate_list = self.__score_candidates(tk, candidate_list)
+
+                if debug:
+                    print 'Ranked Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                while len(candidate_list) != 0:
+                    tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if debug: print '    * Pairing: %s' % (tc)
+                    sweep_list.append(tc)
+                    tk = self.__create_virtual_task(tk, tc, vIdx, graph)
+                    if debug: print '    * Vgang: %s' % (tk)
+
+                    # We cannot pair any more tasks with ti
+                    if tk.h == self.num_of_cores:
+                        break
+
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
+
+                self.__scale_virtual_task(tk)
+                virtual_taskset.append(tk)
+                vIdx += 1
+
+                # Remove paired tasks from pq
+                for tx in sweep_list:
+                    pq.remove(tx)
+
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
+            taskset[period][heuristic] = virtual_taskset
+
+        return
+
+    def __get_best_corunner(self, tk, candidate_list, graph):
+        tc = candidate_list[0]
+
+        rem_cores = self.num_of_cores - tk.h - tc.h
+
+        assert rem_cores >= 0, ('-ve remaining cores <%d> after gang '
+                'formation. \n  - tk: %s\n  - tc: %s' % (rem_cores, tk, tc))
+
+        candidate_list.remove(tc)
+
+        tmp_candidate_list = [tx for tx in candidate_list]
+        for tx in tmp_candidate_list:
+            if tx.h > rem_cores:
+                candidate_list.remove(tx)
+                continue
+
+            if self.__are_related(tc, tx, graph):
+                candidate_list.remove(tx)
+
+        return tc
+
+    def __score_candidates(self, tk, candidate_list):
+        score_hash = {}
+
+        for tc in candidate_list:
+            # Assume that we pair tc with tk and evaluate the resulting vgang
+            vg_demand = tc.r + tk.r
+
+            vg_scaled_length = tk.c * max(1.0, vg_demand / 100.0)
+            score = vg_scaled_length - tc.c
+
+            while score in score_hash:
+                score += 1
+
+            score_hash[score] = tc
+
+        sorted_scores = sorted(score_hash.keys())
+        scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        return scored_candidate_list
+
+    def __form_virtual_gangs_heuristic_h1(self, taskset, heuristic,
             debug = False):
         vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
 
@@ -132,7 +260,7 @@ class RTA:
         if debug: print '*' * 50
 
         # ti_family = self.__get_family(ti.tid, taskset)
-        tj_family = self.__get_family(tj.tid, taskset)
+        tj_family = self.__get_family(tj.tid, taskset, debug)
 
         if debug:
             # print 'ti=%s' % (ti.tid), 'ti_family:', ti_family
@@ -153,9 +281,11 @@ class RTA:
 
         return members
 
-    def __get_family(self, tid, taskset):
+    def __get_family(self, tid, taskset, debug):
+        if debug: print '  - get_family: %d' % (tid)
         family = self.__get_ancestors(tid, taskset)
-        family += self.__get_descendents(tid, taskset)
+        if debug: print '    + ancestors:', family
+        family += self.__get_descendents(tid, taskset, debug)
 
         return list(set(family))
 
@@ -183,15 +313,16 @@ class RTA:
 
         return predecessors
 
-    def __get_descendents(self, tid, taskset):
+    def __get_descendents(self, tid, taskset, debug = False):
         descendents = []
         t = self.__get_task_by_tid(tid, taskset)
 
+        if debug: print '      * get_descendents: %d | <' % (tid), t, '>'
         assert t != None, ("Tid <%s> not found in taskset" % tid)
 
         for tid in t.e:
             descendents.append(tid)
-            descendents += self.__get_descendents(tid, taskset)
+            descendents += self.__get_descendents(tid, taskset, debug)
 
         return descendents
 
@@ -286,7 +417,7 @@ class RTA:
                 tasks = taskset[p]['Real']
             elif scheduler == 'RTG-Sync':
                 tasks = taskset[p]['Virtual']
-            elif scheduler in ['h1-len-dsc', 'h2-lnr-dsc']:
+            elif scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
                 tasks = taskset[p][scheduler]
             else:
                 raise ValueError, ('Unknown scheduler: %s' % scheduler)

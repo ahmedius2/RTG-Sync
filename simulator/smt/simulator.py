@@ -112,6 +112,9 @@ def main():
         tasksets = {}
 
         for tsIdx in range(NUM_OF_TEST_TASKSETS):
+            print '[PROGRESS] Generating tasksets: %4d / %-4d\r' % (tsIdx + 1,
+                    NUM_OF_TEST_TASKSETS),
+
             tf_params = {
                 'seed'              : tsIdx + 1,
                 'num_of_cores'      : NUM_OF_CORES,
@@ -123,6 +126,7 @@ def main():
             taskFactory = Generator(tf_params)
             tasksets[tsIdx] = taskFactory.create_taskset(TASKSET_TYPE)
 
+        print
         tasksets = convert_taskset(tasksets)
 
     rta_params = {
@@ -166,13 +170,20 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
+                print '[PROGRESS] Processing: scheduler=%12s | U=%d | ' \
+                        'Taskset %4d / %-4d\r' % (s, u, tsIdx,
+                                NUM_OF_TEST_TASKSETS),
+
                 sched_ratio[s][u] += rta.run(ts, s, False)
 
     # for s in sched_ratio:
     #     print '%15s:' % (s), sched_ratio[s]
 
-    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'bar')
-    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'line')
+    print
+    print '[PROGRESS] Creating sched. plots...'
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'bar')
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'line')
+    print '[PROGRESS] Done!'
 
     return
 
@@ -199,15 +210,15 @@ def stratify_data(data, idx, wd):
 def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type = 'bar'):
     fig = plt.subplots(1, 1, figsize = (10, 8))
 
-    idx = -3
-    wd = 0.1 if plot_type == 'bar' else 0.0
+    idx = -1
+    wd = 0.2 if plot_type == 'bar' else 0.0
 
     for s in sched_list:
         x, y = stratify_data(sched_hash[s], idx, wd)
         idx += 1
 
         if plot_type == 'bar':
-            plt.bar(x, y, color = clist[s], width = wd, lw = 1.0, label = s)
+            plt.bar(x, y, color = clist[s], width = wd, edgecolor = 'black', lw = 1.5, label = s)
             continue
 
         plt.plot(x, y, lw = 1.5, color = clist[s], label = s, marker = smarks[s])
