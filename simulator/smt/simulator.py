@@ -16,18 +16,49 @@ import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
 
+def get_cli_params():
+    taskset_type = ''
+    num_of_tasksets = 0
+
+    if len(sys.argv) != 3:
+        print 'usage: %s <TASKSET_TYPE> <NUM_OF_TASKSETS>' % (sys.argv[0])
+        sys.exit()
+
+    taskset_type = sys.argv[1]
+    valid_taskset_types = ['light', 'mixed', 'heavy']
+
+    if taskset_type not in valid_taskset_types:
+        print '[ERROR] Invalid taskset type: <%s>' % (sys.argv[1])
+        print '        - Allowed Values: %s' % ', '.join([t for t in
+            valid_taskset_types])
+        sys.exit()
+
+    try:
+        num_of_tasksets = int(sys.argv[2])
+        valid_tasksets_range = range(1, 1001)
+
+        if num_of_tasksets not in valid_tasksets_range:
+            print '[ERROR] Invalid # of tasksets: <%d>' % (num_of_tasksets)
+            print '        - Allowed Values: %s' % \
+                    ' ... '.join(['%d' % n for n in valid_taskset_range])
+
+            sys.exit()
+    except:
+        raise ValueError, ('# of tasksets must be an integer value: <%s>' %
+                (sys.argv[2]))
+
+    return taskset_type, num_of_tasksets
+
 PRISTINE = False
 NUM_OF_CORES = 16
 HEURISTICS = True
 EDGE_PROBABILITY = 30
-
-TASKSET_TYPE = sys.argv[1]
-
 MAX_TASKS_PER_PERIOD = 50
 RESULT_FILE = 'vgangs.txt'
-NUM_OF_TEST_TASKSETS = int(sys.argv[2])
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
+
+TASKSET_TYPE, NUM_OF_TEST_TASKSETS = get_cli_params()
 
 # Debug single candidate-set. The candidate-set must be present in the
 # generated directory
@@ -65,8 +96,6 @@ def unit_test_heuristic_prec_const():
 
     return
 
-# unit_test_heuristic_prec_const()
-
 def main():
     assert not (PRISTINE and HEURISTICS), ("Heuristic study cannot be "
             "conducted under pristine build and vice-versa")
@@ -102,36 +131,25 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['h1-len-dsc'] #, 'h2-lnr-hyb']
+    rtgsync = ['h1-len-dsc', 'h2-lnr-hyb']
     schedulers = ['RT-Gang'] + rtgsync
 
     color_scheme = {
         'RT-Gang'       : 'magenta',
         'RTG-Sync'      : 'green',
-        'h1-len-dsc'    : 'cyan'
-        # '': 'blue',
+        'h1-len-dsc'    : 'cyan',
+        'h2-lnr-hyb'    : 'blue',
         # '': 'purple',
         # '': 'orange',
         # '': 'red',
         # '' : 'brown'
     }
 
-#    sched_names = {
-#        'RT-Gang'       : 'RT-Gang',
-#        'RTG-Sync'      : 'RTG-Sync',
-#        'RTG-Sync-H1'   : 'h1-len-dsc',
-#        'RTG-Sync-H2a'  : 'h2-par-asc',
-#        'RTG-Sync-H2b'  : 'h3-par-dsc',
-#        'RTG-Sync-H3a'  : 'h4-cst-asc',
-#        'RTG-Sync-H3b'  : 'h5-cst-dsc',
-#        'RTG-Sync-Hx'   : 'h6-wln-dsc'
-#    }
-
     sched_markers = {
         'RT-Gang'       : 'o',
         'RTG-Sync'      : '*',
-        'h1-len-dsc'    : '^'
-        # ''  : '8',
+        'h1-len-dsc'    : '^',
+        'h2-lnr-hyb'    : '8',
         # ''  : 's',
         # ''  : 'd',
         # ''  : 'p',
@@ -153,8 +171,8 @@ def main():
     # for s in sched_ratio:
     #     print '%15s:' % (s), sched_ratio[s]
 
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'bar')
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'line')
+    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'bar')
+    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers, 'line')
 
     return
 
