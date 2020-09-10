@@ -7,6 +7,8 @@ from parserFactory import Aggregator
 from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
+from taskFactory import Task
+
 import matplotlib
 matplotlib.use('Agg')
 
@@ -14,11 +16,30 @@ import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
 
-PRISTINE = True
+def check_cli_params():
+    if len(sys.argv) != 2:
+        print 'usage: %s <TASKSET_TYPE>' % (sys.argv[0])
+        sys.exit()
+
+    valid_taskset_types = ['light', 'mixed', 'heavy']
+    if sys.argv[1] not in valid_taskset_types:
+        print '[ERROR] Invalid taskset type: <%s>' % (sys.argv[1])
+        print '        - Allowed Values: %s' % ', '.join([t for t in
+            valid_taskset_types])
+
+        sys.exit()
+
+    return
+
+# Make sure that the required parameters have been supplied
+check_cli_params()
+
+PRISTINE = False
 NUM_OF_CORES = 8
 EDGE_PROBABILITY = 25
 MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
+TASKSET_TYPE = sys.argv[1]
 NUM_OF_TEST_TASKSETS = 10000
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
@@ -34,13 +55,38 @@ DEBUG_SEED = {
 
 CANDIDATE_SET = 'ts345_u6_p660'
 
+def unit_test_rtg_rta():
+    taskset = {491: {'Virtual': []}, 731: {'Virtual': []}}
+    taskset[491]['Virtual'] = [Task(1,  62.00, 491, 6, 100),
+                               Task(2,  49.00, 491, 6, 100),
+                               Task(3, 114.95, 491, 8, 121),
+                               Task(4,  81.00, 491, 8, 100),
+                               Task(5,  53.00, 491, 4, 100),
+                               Task(6,  75.00, 491, 8, 100)]
+
+    taskset[731]['Virtual'] = [Task(7, 106.00, 731, 6, 63),
+                               Task(8, 123.00, 731, 8, 88),
+                               Task(9,  24.00, 731, 7, 12)]
+
+    rta_params = {
+        'num_of_cores': NUM_OF_CORES
+    }
+
+    rta = RTA(rta_params)
+    schedulable = rta.run(taskset, 'RTG-Sync')
+    print 'Taskset is %s' % ('schedulable' if schedulable == 1 else 'not schedulable')
+
+    sys.exit()
+
+    return
+
 def main():
     if DEBUG: dbg_single_candidate_set()
     if PRISTINE: parallel_create_virtual_taskset(); sys.exit(1)
 
     # Aggregate results by parsing the file-system logs and re-create real and
     # virtual tasksets for further processing
-    aggregator = Aggregator()
+    aggregator = Aggregator(TASKSET_TYPE)
     tasksets = aggregator.run()
     # dbg_dump_vgang_info(tasksets)
 
@@ -50,12 +96,48 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync', 'RTG-Sync-H1', 'RTG-Sync-H2a',
-            'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
+    rtgsync = ['RTG-Sync'] #, 'RTG-Sync-H1', 'RTG-Sync-H2a',
+            # 'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
     schedulers = ['RT-Gang']  + rtgsync
+
+    color_scheme = {
+        'RT-Gang': 'magenta',
+        'RTG-Sync': 'green',
+        'RTG-Sync-H1': 'cyan',
+        'RTG-Sync-H2a': 'blue',
+        'RTG-Sync-H2b': 'purple',
+        'RTG-Sync-H3a': 'orange',
+        'RTG-Sync-H3b': 'red',
+        'RTG-Sync-Hx' : 'brown'
+    }
+
+    sched_names = {
+        'RT-Gang'       : 'RT-Gang',
+        'RTG-Sync'      : 'RTG-Sync',
+        'RTG-Sync-H1'   : 'h1-len-dsc',
+        'RTG-Sync-H2a'  : 'h2-par-asc',
+        'RTG-Sync-H2b'  : 'h3-par-dsc',
+        'RTG-Sync-H3a'  : 'h4-cst-asc',
+        'RTG-Sync-H3b'  : 'h5-cst-dsc',
+        'RTG-Sync-Hx'   : 'h6-wln-dsc'
+    }
+
+    sched_markers = {
+        'RT-Gang'       : 'o',
+        'RTG-Sync'      : '*',
+        'RTG-Sync-H1'   : '^',
+        'RTG-Sync-H2a'  : '8',
+        'RTG-Sync-H2b'  : 's',
+        'RTG-Sync-H3a'  : 'd',
+        'RTG-Sync-H3b'  : 'p',
+        'RTG-Sync-Hx'   : 'x'
+    }
 
     sched_ratio = {s: {} for s in schedulers}
 
+    print "[PROGRESS] Performing RTA..."
+    num_of_tasksets = len(tasksets)
+    idx = 1
     for tsIdx in tasksets:
         u_tasksets = tasksets[tsIdx]
 
@@ -64,9 +146,32 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
-                sched_ratio[s][u] += rta.run(ts, s)
+                print "[PROGRESS]   Analyzing: U=%2d | Scheduler=%20s | " \
+                        "Taskset: %5d / %-5d\r" % (u, s, tsIdx,
+                                num_of_tasksets),
 
-    create_sched_plots(sched_ratio, rtgsync)
+                schedulable = rta.run(ts, s)
+
+                if u == NUM_OF_CORES and schedulable == 1:
+                    print
+                    print "  !DANGER!  " * 5
+                    print "  - Util : 8 taskset was found schedulable"
+                    print
+
+                    # Re-run the analysis on the taskset with debugging on
+                    rta.run(ts, s, True)
+                    sys.exit()
+
+                sched_ratio[s][u] += schedulable
+
+    print
+    print "[PROGRESS] Creating plots..."
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names,
+            sched_markers, 'bar')
+
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names,
+            sched_markers, 'line')
+    print "[PROGRESS Done!"
 
     return
 
@@ -76,23 +181,40 @@ def stratify_data(data, idx, wd):
 
     return x, y
 
-def create_sched_plots(sched_hash, sched_list):
-    fig = plt.subplots(1, 1, figsize = (15, 12))
+def create_sched_plots(sched_hash, sched_list, clist, snames, smarks,
+        plot_type):
+
+    fig = plt.subplots(1, 1, figsize = (10, 8))
 
     idx = -3
-    wd = 0.0
-    for scheduler in sched_list:
-        x, y = stratify_data(sched_hash[scheduler], idx, wd)
-        plt.plot(x, y, label = scheduler)
+    wd = 0.1 if plot_type == 'bar' else 0.0
+
+    for s in sched_list:
+        x, y = stratify_data(sched_hash[s], idx, wd)
         idx += 1
 
-    plt.xlim([0.5, 8.5])
+        if plot_type == 'bar':
+            plt.bar(x, y, color = clist[s], width = wd, lw = 1.0,
+                    edgecolor = 'black', label = snames[s])
+
+            continue
+
+        plt.plot(x, y, lw = 1.5, color = clist[s], label = snames[s],
+                marker = smarks[s])
+
+    plt.xlim([0.5, NUM_OF_CORES + 0.5])
+    plt.ylim([0, NUM_OF_TEST_TASKSETS * 1.05])
     plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
-    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large', fontweight = 'bold')
-    plt.title('Heavy', fontsize = 'xx-large', fontweight = 'bold')
+    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
+            fontweight = 'bold')
+
+    plt.title(TASKSET_TYPE.capitalize(), fontsize = 'xx-large',
+            fontweight = 'bold')
+
     plt.legend(fontsize = 'x-large')
 
-    plt.savefig('sched_heavy_line.pdf', bbox_inches = 'tight')
+    plt.savefig('sched_%s_%s.pdf' % (TASKSET_TYPE, plot_type),
+            bbox_inches = 'tight')
 
     return
 
@@ -170,7 +292,7 @@ def virtual_gang_generator_thread_entry(tsIdx):
     taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
             tsIdx + 1, MAX_TASKS_PER_PERIOD)
 
-    taskset = taskFactory.create_taskset('light')
+    taskset = taskFactory.create_taskset('heavy')
 
     virtual_taskset = {}
     for util in taskset:

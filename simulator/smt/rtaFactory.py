@@ -16,9 +16,17 @@ class RTA:
 
         return
 
-    def run(self, taskset, scheduler):
+    def run(self, taskset, scheduler, debug = False):
         pq = []
         self.__check_scheduler(scheduler)
+
+        if debug:
+            print '[DEBUG] Scheduler:', scheduler
+            print '[DEBUG] Taskset:'
+            for p in taskset:
+                print '        - Period:', p
+                print '\n'.join(['          + ' + t.__str__() for t in taskset[p]['Virtual']])
+            print
 
         if scheduler in ['RTG-Sync-H1', 'RTG-Sync-H2a', 'RTG-Sync-H2b',
                 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']:
@@ -202,13 +210,13 @@ class RTA:
             return ti.h <= tj.h
         elif heuristic == 'RTG-Sync-H3a':
             # Higher 'cost', higher priority
-            return (ti.c / ti.h) >= (ti.c / ti.h)
+            return (ti.c / ti.h) >= (tj.c / tj.h)
         elif heuristic == 'RTG-Sync-H3b':
             # Lower 'cost', higher priority
-            return (ti.c / ti.h) <= (ti.c / ti.h)
+            return (ti.c / ti.h) <= (tj.c / tj.h)
         elif heuristic == 'RTG-Sync-Hx':
             # Higher 'weighted-length', higher priority
-            return (ti.c / (ti.r * ti.h)) <= (ti.c / (ti.r * ti.h))
+            return (ti.c / (ti.r * ti.h)) <= (tj.c / (tj.r * tj.h))
         else:
             raise ValueError, ('Heuristic <%s> not registered' % (heuristic))
 
@@ -240,7 +248,13 @@ class RTA:
 
             super_c = sum([t.c for t in tasks])
             super_h = self.num_of_cores
-            super_p = tasks[0].p
+            try:
+                super_p = tasks[0].p
+            except:
+                print "Tasks:", '\n'.join(['%s' % t for t in tasks])
+                print "Scheduler:", scheduler
+                continue
+
             super_r = 100
 
             if super_c > super_p:

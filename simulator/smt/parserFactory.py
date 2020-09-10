@@ -1,8 +1,13 @@
-import os, re
+import os, re, sys
 from taskFactory import Task
 
 class Aggregator:
-    def __init__(self):
+    def __init__(self, taskset_type):
+        self.gen_dir = 'gen_%s' % (taskset_type)
+
+        assert os.path.exists(self.gen_dir), ("Directory of generated data "
+            "<%s> does not exists in the current folder." % (self.gen_dir))
+
         return
 
     def run(self):
@@ -10,14 +15,17 @@ class Aggregator:
           Traverse the directory containing generated tasksets and their
           respective virtual-gangs data for further processing.
         '''
-        assert os.path.exists('../heavy_generated'), ("Directory of generated data "
-            "does not exists in the current folder.")
-
+        idx = 0
         tasksets = {}
-        generated_taskset_dirs = os.listdir('../heavy_generated')
+        generated_taskset_dirs = os.listdir(self.gen_dir)
 
         for ts in generated_taskset_dirs:
+            idx += 1
+            print "[PROGRESS] %4d / %4d | Parsing: <%20s>\r" % (idx,
+                    len(generated_taskset_dirs), ts),
+
             tsIdx, util, period = self.parse_taskset_dir(ts)
+            debug = False
 
             if not tasksets.has_key(tsIdx):
                 tasksets[tsIdx] = {}
@@ -34,28 +42,45 @@ class Aggregator:
             tasksets[tsIdx][util][period]['Virtual'] = \
                     self.parse_taskset(ts, 'virtual')
 
+            if debug:
+                print
+                print "Taskset:", tsIdx
+                print "  - Real:"
+                print "   ", '\n    '.join([t.__str__() for t in tasksets[tsIdx][util][period]['Real']])
+                print
+                print "  - Virtual:"
+                print "   ", '\n    '.join([t.__str__() for t in tasksets[tsIdx][util][period]['Virtual']])
+                print
+
+        print
+        print "[PROGRESS] Parsing Complete!"
         return tasksets
 
-    def parse_taskset(self, taskset_dir, nature):
+    def parse_taskset(self, taskset_dir, nature, debug = False):
         name_prefix = 'candidate_' if nature == 'real' else 'virtual_task'
-        taskset_file = '../heavy_generated/%s/%sset.txt' % (taskset_dir, name_prefix)
+        taskset_file = '%s/%s/%sset.txt' % (self.gen_dir, taskset_dir,
+                name_prefix)
 
         assert os.path.exists(taskset_file), ("Taskset file <%s> does "
                 "not exists in the generated directory." % (taskset_file))
 
         pattern = '^Task:\s+([\d]+) \| C=\s*([\d.]+) P=\s*([\d]+)' \
-            ' h=\s*([\d]+) r=\s*([\d]+) u=\s*([\d.]+) ([^\s]+)$'
+            ' h=\s*([\d]+) r=\s*([\d]+) u=\s*([\d.]+)(.*)$'
 
         taskset = []
+        if debug: print "\nTaskset File: %s\n" % (taskset_file)
         with open(taskset_file, 'r') as fdi:
             lines = fdi.readlines()
 
             for l in lines:
+                if debug: print "\n  - Matching line: %s" % (l)
                 m = re.match(pattern, l)
 
                 if not m:
+                    if debug: print "    * Not Matched."
                     continue
 
+                if debug: print "    * Matched!"
                 tid = int(m.group(1))
                 C = float(m.group(2))
                 p = int(m.group(3))
@@ -66,7 +91,7 @@ class Aggregator:
                 e = []
                 members = ''
                 if nature == 'real': e = self.__parse_edges(m.group(7))
-                if nature == 'virtual': members = m.group(7)[2:]
+                if nature == 'virtual': members = self.__parse_members(m.group(7))
 
                 taskset.append(Task(tid, C, p, h, r, e, members))
 
@@ -93,3 +118,10 @@ class Aggregator:
         edge_list = [int(e) for e in re.findall(pattern, edge_string)]
 
         return edge_list
+
+    def __parse_members(self, member_string):
+        pattern = r'm=(.*)'
+
+        members = re.findall(pattern, member_string)[0]
+
+        return members
