@@ -143,7 +143,7 @@ def main():
         'RTG-Sync'      : 'green',
         'h1-len-dsc'    : 'cyan',
         'h2-lnr-hyb'    : 'blue',
-        # '': 'purple',
+        'h3-crt-pth'    : 'purple',
         # '': 'orange',
         # '': 'red',
         # '' : 'brown'
@@ -154,7 +154,7 @@ def main():
         'RTG-Sync'      : '*',
         'h1-len-dsc'    : '^',
         'h2-lnr-hyb'    : '8',
-        # ''  : 's',
+        'h3-crt-pth'    : 's',
         # ''  : 'd',
         # ''  : 'p',
         # ''  : 'x'

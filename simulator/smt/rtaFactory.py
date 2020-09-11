@@ -5,7 +5,7 @@ class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
         self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'h1-len-dsc',
-                'h2-lnr-hyb']
+                'h2-lnr-hyb', 'h3-crt-pth']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -19,11 +19,16 @@ class RTA:
         pq = []
         self.__check_scheduler(scheduler)
 
-        if scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
+        if scheduler in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth']:
 
             if scheduler == 'h2-lnr-hyb':
                 # print
                 self.__form_virtual_gangs_heuristic_h2(taskset, scheduler, False)
+                # print
+
+            if scheduler == 'h3-crt-pth':
+                # print
+                self.__form_virtual_gangs_heuristic_h3(taskset, scheduler, True)
                 # print
 
             if scheduler == 'h1-len-dsc':
@@ -65,6 +70,86 @@ class RTA:
                 idx += 1
 
         return 1
+
+    def __form_virtual_gangs_heuristic_h3(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
+
+        for period in taskset:
+            virtual_taskset = []
+            candidate_set = taskset[period]['Real']
+
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
+
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
+
+            while len(pq) != 0:
+                tk = pq.pop(0)
+                sweep_list = []
+                candidate_list = []
+
+                if debug:
+                    print '-' * 50
+                    print 'tk: %s' % (tk)
+
+                for tj in pq:
+                    if debug: print 'tj: %s' % (tj)
+                    if tk.h + tj.h > self.num_of_cores:
+                        continue
+
+                    if self.__are_related(tk, tj, graph):
+                        continue
+
+                    candidate_list.append(tj)
+
+                if debug:
+                    print 'Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                candidate_list = self.__score_candidates(tk, candidate_list)
+
+                if debug:
+                    print 'Ranked Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                while len(candidate_list) != 0:
+                    tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if debug: print '    * Pairing: %s' % (tc)
+                    sweep_list.append(tc)
+                    tk = self.__create_virtual_task(tk, tc, vIdx, graph)
+                    if debug: print '    * Vgang: %s' % (tk)
+
+                    # We cannot pair any more tasks with ti
+                    if tk.h == self.num_of_cores:
+                        break
+
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
+
+                self.__scale_virtual_task(tk)
+                virtual_taskset.append(tk)
+                vIdx += 1
+
+                # Remove paired tasks from pq
+                for tx in sweep_list:
+                    pq.remove(tx)
+
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
+            taskset[period][heuristic] = virtual_taskset
+
+        return
 
     def __form_virtual_gangs_heuristic_h2(self, taskset, heuristic,
             debug = False):
@@ -166,6 +251,26 @@ class RTA:
                 candidate_list.remove(tx)
 
         return tc
+
+    def __score_candidates_path(self, tk, candidate_list):
+        score_hash = {}
+
+        for tc in candidate_list:
+            # Assume that we pair tc with tk and evaluate the resulting vgang
+            vg_demand = tc.r + tk.r
+
+            vg_scaled_length = tk.c * max(1.0, vg_demand / 100.0)
+            score = vg_scaled_length - tc.c
+
+            while score in score_hash:
+                score += 1
+
+            score_hash[score] = tc
+
+        sorted_scores = sorted(score_hash.keys())
+        scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        return scored_candidate_list
 
     def __score_candidates(self, tk, candidate_list):
         score_hash = {}
@@ -459,7 +564,7 @@ class RTA:
         return schedulable, rk_new
 
     def __check_scheduler(self, scheduler):
-        assert scheduler in self.allowed_schedulers, ("Desired scheduler <%s> "
+        assert scheduler in self.allowed_schedulers, ("Desired algorithm <%s> "
                 "is not supported by RTA class: <%s>" % (scheduler,
                     ','.join(self.allowed_schedulers)))
 
