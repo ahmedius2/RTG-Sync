@@ -47,13 +47,15 @@ PARALLELISM = multiprocessing.cpu_count()
 # Debug single candidate-set. The candidate-set must be present in the
 # generated directory
 DEBUG = False
-DEBUG_SEED = {
-    'util'      :   2,
-    'period'    :   15,
-    'tsIdx'     :   268
-}
 
-CANDIDATE_SET = 'ts345_u6_p660'
+DEBUG_SEED = None
+# DEBUG_SEED = {
+#     'util'      :   2,
+#     'period'    :   170,
+#     'tsIdx'     :   7467
+# }
+
+CANDIDATE_SET = 'ts7467_u2_p170'
 
 def unit_test_rtg_rta():
     taskset = {491: {'Virtual': []}, 731: {'Virtual': []}}
@@ -96,41 +98,19 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync'] #, 'RTG-Sync-H1', 'RTG-Sync-H2a',
-            # 'RTG-Sync-H2b', 'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']
+    rtgsync = ['RTG-Sync', 'h1-len-dsc']
     schedulers = ['RT-Gang']  + rtgsync
 
     color_scheme = {
-        'RT-Gang': 'magenta',
-        'RTG-Sync': 'green',
-        'RTG-Sync-H1': 'cyan',
-        'RTG-Sync-H2a': 'blue',
-        'RTG-Sync-H2b': 'purple',
-        'RTG-Sync-H3a': 'orange',
-        'RTG-Sync-H3b': 'red',
-        'RTG-Sync-Hx' : 'brown'
-    }
-
-    sched_names = {
-        'RT-Gang'       : 'RT-Gang',
-        'RTG-Sync'      : 'RTG-Sync',
-        'RTG-Sync-H1'   : 'h1-len-dsc',
-        'RTG-Sync-H2a'  : 'h2-par-asc',
-        'RTG-Sync-H2b'  : 'h3-par-dsc',
-        'RTG-Sync-H3a'  : 'h4-cst-asc',
-        'RTG-Sync-H3b'  : 'h5-cst-dsc',
-        'RTG-Sync-Hx'   : 'h6-wln-dsc'
+        'RT-Gang'       : 'magenta',
+        'RTG-Sync'      : 'green',
+        'h1-len-dsc'    : 'cyan'
     }
 
     sched_markers = {
         'RT-Gang'       : 'o',
         'RTG-Sync'      : '*',
-        'RTG-Sync-H1'   : '^',
-        'RTG-Sync-H2a'  : '8',
-        'RTG-Sync-H2b'  : 's',
-        'RTG-Sync-H3a'  : 'd',
-        'RTG-Sync-H3b'  : 'p',
-        'RTG-Sync-Hx'   : 'x'
+        'h1-len-dsc'    : '^'
     }
 
     sched_ratio = {s: {} for s in schedulers}
@@ -166,11 +146,11 @@ def main():
 
     print
     print "[PROGRESS] Creating plots..."
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names,
-            sched_markers, 'bar')
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers,
+            'bar')
 
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_names,
-            sched_markers, 'line')
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers,
+            'line')
     print "[PROGRESS Done!"
 
     return
@@ -181,8 +161,7 @@ def stratify_data(data, idx, wd):
 
     return x, y
 
-def create_sched_plots(sched_hash, sched_list, clist, snames, smarks,
-        plot_type):
+def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type):
 
     fig = plt.subplots(1, 1, figsize = (10, 8))
 
@@ -195,11 +174,11 @@ def create_sched_plots(sched_hash, sched_list, clist, snames, smarks,
 
         if plot_type == 'bar':
             plt.bar(x, y, color = clist[s], width = wd, lw = 1.0,
-                    edgecolor = 'black', label = snames[s])
+                    edgecolor = 'black', label = s)
 
             continue
 
-        plt.plot(x, y, lw = 1.5, color = clist[s], label = snames[s],
+        plt.plot(x, y, lw = 1.5, color = clist[s], label = s,
                 marker = smarks[s])
 
     plt.xlim([0.5, NUM_OF_CORES + 0.5])
@@ -219,7 +198,7 @@ def create_sched_plots(sched_hash, sched_list, clist, snames, smarks,
     return
 
 def dbg_single_candidate_set():
-    taskset_dir = 'generated/' + CANDIDATE_SET
+    taskset_dir = 'gen_%s/' % (TASKSET_TYPE) + CANDIDATE_SET
     assert os.path.exists(taskset_dir), ("Taskset directory <%s> "
             "does not exist in the generated folder" % (taskset_dir))
 
@@ -236,7 +215,7 @@ def dbg_single_candidate_set():
         taskset = taskFactory.create_taskset('mixed')
         candidate_set = taskset[util][period]
     else:
-        parser = Aggregator()
+        parser = Aggregator(TASKSET_TYPE)
         candidate_set = parser.parse_taskset(CANDIDATE_SET, 'real')
         tsIdx, util, period = parser.parse_taskset_dir(CANDIDATE_SET)
 
@@ -245,7 +224,7 @@ def dbg_single_candidate_set():
 
     vgc_params = {
         'stop_interval'     : 1,
-        'timeout'           : 2,
+        'timeout'           : 1,
         'max_timeout'       : 30,
         'debug'             : True,
         'verify'            : True,

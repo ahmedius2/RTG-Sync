@@ -4,9 +4,8 @@ from taskFactory import Task
 class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
-        self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1',
-                'RTG-Sync-H2a', 'RTG-Sync-H2b', 'RTG-Sync-H3a',
-                'RTG-Sync-H3b', 'RTG-Sync-Hx']
+        self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'h1-len-dsc',
+                'h2-lnr-hyb']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -20,19 +19,18 @@ class RTA:
         pq = []
         self.__check_scheduler(scheduler)
 
-        if debug:
-            print '[DEBUG] Scheduler:', scheduler
-            print '[DEBUG] Taskset:'
-            for p in taskset:
-                print '        - Period:', p
-                print '\n'.join(['          + ' + t.__str__() for t in taskset[p]['Virtual']])
-            print
-
-        if scheduler in ['RTG-Sync-H1', 'RTG-Sync-H2a', 'RTG-Sync-H2b',
-                'RTG-Sync-H3a', 'RTG-Sync-H3b', 'RTG-Sync-Hx']:
-            self.__form_virtual_gangs_heuristic(taskset, scheduler)
+        if scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
+            self.__form_virtual_gangs_heuristic(taskset, scheduler, debug)
 
             # for p in taskset:
+            #     print '-' * 30, 'Period: %d' % (p), '-' * 30
+            #     print '  - Candidate Set:'
+            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p]['Real']])
+            #     print
+            #     print '  - Heuristic Set:'
+            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p][scheduler]])
+            #     print
+
             #     print "[DEBUG] Virtual Set:"
             #     self.__print_pq(taskset[p]['Virtual'])
 
@@ -40,9 +38,7 @@ class RTA:
             #     self.__print_pq(taskset[p]['RTG-Sync-H1'])
             #     print "\n" + "-" * 50 + "\n"
 
-        if scheduler in ['RT-Gang', 'RTG-Sync', 'RTG-Sync-H1',
-                'RTG-Sync-H2a', 'RTG-Sync-H2b', 'RTG-Sync-H3a',
-                'RTG-Sync-H3b', 'RTG-Sync-Hx']:
+        if scheduler in ['RT-Gang', 'RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb']:
             pq, sched_test_1 = self.__create_rtg_pq(taskset, scheduler)
 
             # Taskset has failed the preliminary schedulability test
@@ -63,41 +59,52 @@ class RTA:
 
         return 1
 
-    def __form_virtual_gangs_heuristic(self, taskset, heuristic):
-        vIdx = 1
+    def __form_virtual_gangs_heuristic(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
 
         for period in taskset:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
 
-            # print "[DEBUG] Candidate Set:"
-            # self.__print_pq(candidate_set)
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
 
-            pq = self.__create_heuristic_pq(candidate_set, heuristic)
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
 
             while len(pq) != 0:
-                ti = pq.pop(0)
-                tk = ti.copy()
+                tk = pq.pop(0)
                 sweep_list = []
 
                 for tj in pq:
                     if tk.h + tj.h > self.num_of_cores:
                         continue
 
-                    if self.__are_related(tk, tj, candidate_set):
+                    if debug:
+                        print '=' * 50
+                        print '  - ti:', tk
+                        print '  - tj:', tj
+                    if self.__are_related(tk, tj, graph, debug):
+                        if debug:
+                            print '  - ti=%d and tj=%d are related!' % (tk.tid,
+                                    tj.tid)
+
                         continue
 
                     sweep_list.append(tj)
-                    tk = self.__create_virtual_task(tk, tj, vIdx)
+                    tk = self.__create_virtual_task(tk, tj, vIdx, graph)
 
                     # We cannot pair any more tasks with ti
                     if tk.h == self.num_of_cores:
                         break
 
-                if tk.members == '': tk.members = 't%d' % (tk.tid)
-
-                tk.e = []
-                tk.tid = vIdx
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
 
                 self.__scale_virtual_task(tk)
                 virtual_taskset.append(tk)
@@ -107,9 +114,12 @@ class RTA:
                 for tx in sweep_list:
                     pq.remove(tx)
 
-            # print "\n[DEBUG] Virtual Set:"
-            # self.__print_pq(virtual_taskset)
-            # print '\n', "-" * 78, '\n'
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
             taskset[period][heuristic] = virtual_taskset
 
         return
@@ -118,19 +128,27 @@ class RTA:
         ti.c *= max(1.0, ti.r / 100.0)
         return
 
-    def __are_related(self, ti, tj, taskset):
-        # tj is always a 'real' task but ti can be virtual
-        ti_family = []
-        ti_members = self.__get_member_list(ti)
+    def __are_related(self, ti, tj, taskset, debug = False):
+        if debug: print '*' * 50
 
-        for tx in ti_members:
-            ti_family += self.__get_family(tx, taskset)
-
+        ti_family = self.__get_family(ti.tid, taskset)
         tj_family = self.__get_family(tj.tid, taskset)
-        ti_members_in_tj_family = [t for t in ti_members if t in tj_family]
 
-        if ti_members_in_tj_family or tj.tid in ti_family:
+        if debug:
+            print 'ti=%s' % (ti.tid), 'ti_family:', ti_family
+            print 'tj=%s' % (tj.tid), 'tj_family:', tj_family
+            print '\n'.join(['  + ' + t.__str__() for t in taskset])
+
+        # common_members = [t for t in ti_family if t in tj_family]
+
+        if ti.tid in tj_family: # or tj.tid in ti_family or common_members:
             return True
+
+        assert tj.tid not in ti_family, ('Ti not in Tj\'s family but Tj is '
+                'in Ti\'s family:\n%s\n  * ti_family: %s\n  *tj_family: %s' %
+                ('\n'.join(['  + %s' % t in [ti, tj]]),
+                    ', '.join([tid for tid in ti_family]),
+                    ', '.join([tid for tid in tj_family])))
 
         return False
 
@@ -142,28 +160,73 @@ class RTA:
         return members
 
     def __get_family(self, tid, taskset):
-        family = []
+        family = self.__get_ancestors(tid, taskset)
+        family += self.__get_descendents(tid, taskset)
+
+        return list(set(family))
+
+    def __get_ancestors(self, tid, taskset):
+        if tid == 1:
+            return []
+
+        # tk is a predecessor of ti
+        ancestors = self.__get_predecessors(tid, taskset)
+
+        # tk is an ancestor of a predecessor of ti
+        for t in ancestors:
+            ancestors += self.__get_ancestors(t, taskset)
+
+        return ancestors
+
+    def __get_predecessors(self, tid, taskset):
+        predecessors = []
+
+        for t in taskset:
+            if tid not in t.e:
+                continue
+
+            predecessors.append(t.tid)
+
+        return predecessors
+
+    def __get_descendents(self, tid, taskset):
+        descendents = []
         t = self.__get_task_by_tid(tid, taskset)
 
         assert t != None, ("Tid <%s> not found in taskset" % tid)
 
         for tid in t.e:
-            family.append(tid)
-            family += self.__get_family(tid, taskset)
+            descendents.append(tid)
+            descendents += self.__get_descendents(tid, taskset)
 
-        return family
+        return descendents
 
     def __get_task_by_tid(self, tid, taskset):
         for t in taskset:
             if t.tid == tid:
                 return t
 
-    def __create_virtual_task(self, ti, tj, vIdx):
+        return None
+
+    def __create_virtual_task(self, ti, tj, vIdx, graph):
         virt_c = max(ti.c, tj.c)
         virt_r = ti.r + tj.r
         virt_h = ti.h + tj.h
         virt_e = list(set(ti.e + tj.e))
         virt_p = ti.p
+
+        ti_ancestors = self.__get_predecessors(ti.tid, graph)
+        tj_ancestors = self.__get_predecessors(tj.tid, graph)
+
+        for tx in ti_ancestors:
+            Tx = self.__get_task_by_tid(tx, graph)
+            Tx.e.remove(ti.tid)
+            Tx.e.append(vIdx)
+
+        for tx in tj_ancestors:
+            Tx = self.__get_task_by_tid(tx, graph)
+            Tx.e.remove(tj.tid)
+            Tx.e.append(vIdx)
 
         virt_members = ''
         if ti.members == '':
@@ -177,11 +240,17 @@ class RTA:
             else:
                 virt_members = '%s+%s' % (ti.members, tj.members)
 
-        return Task(vIdx, virt_c, virt_p, virt_h, virt_r, virt_e, virt_members)
+        vTask = Task(vIdx, virt_c, virt_p, virt_h, virt_r, virt_e, virt_members)
 
+        graph.remove(ti)
+        graph.remove(tj)
+        graph.append(vTask)
+
+        return vTask
 
     def __create_heuristic_pq(self, candidate_set, heuristic):
         pq = []
+        graph = []
 
         for ti in candidate_set:
             idx = 0
@@ -194,31 +263,23 @@ class RTA:
 
                 break
 
-            pq.insert(idx, ti)
+            tx = ti.copy()
+            pq.insert(idx, tx)
+            graph.insert(idx, tx)
 
-        return pq
+        return pq, graph
 
     def __sort(self, ti, tj, heuristic):
-        if heuristic == 'RTG-Sync-H1':
-            # Higher 'C', higher priority
-            return ti.c <= tj.c
-        elif heuristic == 'RTG-Sync-H2a':
-            # Higher 'h', higher priority
-            return ti.h >= tj.h
-        elif heuristic == 'RTG-Sync-H2b':
-            # Lower 'h', higher priority
-            return ti.h <= tj.h
-        elif heuristic == 'RTG-Sync-H3a':
-            # Higher 'cost', higher priority
-            return (ti.c / ti.h) >= (tj.c / tj.h)
-        elif heuristic == 'RTG-Sync-H3b':
-            # Lower 'cost', higher priority
-            return (ti.c / ti.h) <= (tj.c / tj.h)
-        elif heuristic == 'RTG-Sync-Hx':
-            # Higher 'weighted-length', higher priority
-            return (ti.c / (ti.r * ti.h)) <= (tj.c / (tj.r * tj.h))
-        else:
-            raise ValueError, ('Heuristic <%s> not registered' % (heuristic))
+        try:
+            if heuristic in ['h1-len-dsc', 'h2-lnr-hyb']:
+                # Higher 'C', higher priority
+                return ti.c <= tj.c
+            else:
+                raise ValueError, ('Heuristic <%s> not registered' %
+                        (heuristic))
+        except:
+            raise ValueError, ('Invalid task(s)!\n  ti: %s\n  tj: %s' %
+                    (ti, tj))
 
 
     def __create_rtg_pq(self, taskset, scheduler):
@@ -231,30 +292,17 @@ class RTA:
                 tasks = taskset[p]['Real']
             elif scheduler == 'RTG-Sync':
                 tasks = taskset[p]['Virtual']
-            elif scheduler == 'RTG-Sync-H1':
-                tasks = taskset[p]['RTG-Sync-H1']
-            elif scheduler == 'RTG-Sync-H2a':
-                tasks = taskset[p]['RTG-Sync-H2a']
-            elif scheduler == 'RTG-Sync-H2b':
-                tasks = taskset[p]['RTG-Sync-H2b']
-            elif scheduler == 'RTG-Sync-H3a':
-                tasks = taskset[p]['RTG-Sync-H3a']
-            elif scheduler == 'RTG-Sync-H3b':
-                tasks = taskset[p]['RTG-Sync-H3b']
-            elif scheduler == 'RTG-Sync-Hx':
-                tasks = taskset[p]['RTG-Sync-Hx']
+            elif scheduler in ['h1-len-dsc', 'h2-lnr-dsc']:
+                tasks = taskset[p][scheduler]
             else:
                 raise ValueError, ('Unknown scheduler: %s' % scheduler)
 
+            assert len(tasks) > 0, ('\nZero length taskset: scheduler=%s'
+                    ' period=%d' % (scheduler, p))
+
             super_c = sum([t.c for t in tasks])
             super_h = self.num_of_cores
-            try:
-                super_p = tasks[0].p
-            except:
-                print "Tasks:", '\n'.join(['%s' % t for t in tasks])
-                print "Scheduler:", scheduler
-                continue
-
+            super_p = tasks[0].p
             super_r = 100
 
             if super_c > super_p:
