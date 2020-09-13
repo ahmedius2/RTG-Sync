@@ -47,8 +47,17 @@ class Task:
         return
 
     def copy(self):
-        return Task (self.tid, self.c, self.p, self.h, self.r, self.e,
-                self.members)
+        '''
+          Perform a "deep" copy of this task.
+        '''
+
+        # List and dictionaries are passed by reference in python. We must
+        # copy each member of the list separately so that we may not end-up
+        # modifying the original reference in the copied object
+        copied_edge_list = [edge for edge in self.e]
+
+        return Task (self.tid, self.c, self.p, self.h, self.r,
+                copied_edge_list, self.members)
 
     def __str__(self):
         u = self.c * self.h / float(self.p)

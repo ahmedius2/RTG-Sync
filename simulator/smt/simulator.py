@@ -16,33 +16,75 @@ import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
 
-def check_cli_params():
-    if len(sys.argv) != 2:
-        print 'usage: %s <TASKSET_TYPE>' % (sys.argv[0])
+PRISTINE = False
+NUM_OF_CORES = 8
+MAX_TASKS_PER_PERIOD = 8
+RESULT_FILE = 'vgangs.txt'
+UTILIZATIONS = range(1, NUM_OF_CORES + 1)
+PARALLELISM = multiprocessing.cpu_count()
+
+def get_cli_params():
+    demand_type = ''
+    taskset_type = ''
+    num_of_tasksets = 0
+    edge_probability = 0
+
+    if len(sys.argv) < 5:
+        print 'usage: %s <TASKSET_TYPE> <NUM_OF_TASKSETS> <EDGE_PROB> ' \
+                '<DEMAND_TYPE>' % (sys.argv[0])
+
         sys.exit()
 
+    taskset_type = sys.argv[1]
     valid_taskset_types = ['light', 'mixed', 'heavy']
-    if sys.argv[1] not in valid_taskset_types:
+
+    if taskset_type not in valid_taskset_types:
         print '[ERROR] Invalid taskset type: <%s>' % (sys.argv[1])
         print '        - Allowed Values: %s' % ', '.join([t for t in
             valid_taskset_types])
-
         sys.exit()
 
-    return
+    try:
+        num_of_tasksets = int(sys.argv[2])
+        valid_tasksets_range = range(1, 1001)
 
-# Make sure that the required parameters have been supplied
-check_cli_params()
+        if num_of_tasksets not in valid_tasksets_range:
+            print '[ERROR] Invalid # of tasksets: <%d>' % (num_of_tasksets)
+            print '        - Allowed Values: %s' % \
+                    '%d ... %d' % (valid_taskset_range[0], valid_taskset_range[-1])
 
-PRISTINE = False
-NUM_OF_CORES = 8
-EDGE_PROBABILITY = 25
-MAX_TASKS_PER_PERIOD = 8
-RESULT_FILE = 'vgangs.txt'
-TASKSET_TYPE = sys.argv[1]
-NUM_OF_TEST_TASKSETS = 10000
-UTILIZATIONS = range(1, NUM_OF_CORES + 1)
-PARALLELISM = multiprocessing.cpu_count()
+            sys.exit()
+    except:
+        raise ValueError, ('# of tasksets must be an integer value: <%s>' %
+                (sys.argv[2]))
+
+    try:
+        edge_probability = int(sys.argv[3])
+        valid_eprob_range = range(0, 100)
+
+        if edge_probability not in valid_eprob_range:
+            print '[ERROR] Invalid edge probability: <%d>' % (edge_probability)
+            print '        - Allowed Values: %s' % \
+                    '%d ... %d' % (valid_eprob_range[0], valid_eprob_range[-1])
+
+            sys.exit()
+    except:
+        raise ValueError, ('Edge probability must be an integer value: <%s>' %
+                (sys.argv[3]))
+
+    demand_type = sys.argv[4]
+    valid_demand_types = ['r', '0']
+
+    if demand_type not in valid_demand_types:
+        print '[ERROR] Invalid resource demand type: <%s>' % (sys.argv[4])
+        print '        - Allowed Values: %s' % ', '.join([r for r in
+            valid_demand_types])
+        sys.exit()
+
+    return taskset_type, num_of_tasksets, edge_probability, demand_type
+
+TASKSET_TYPE, NUM_OF_TEST_TASKSETS, EDGE_PROBABILITY, DEMAND_TYPE = \
+        get_cli_params()
 
 # Debug single candidate-set. The candidate-set must be present in the
 # generated directory
@@ -88,7 +130,10 @@ def main():
 
     # Aggregate results by parsing the file-system logs and re-create real and
     # virtual tasksets for further processing
-    aggregator = Aggregator(TASKSET_TYPE)
+    gen_dir = 'generated/%s_e%d_r%s' % (TASKSET_TYPE, EDGE_PROBABILITY,
+            DEMAND_TYPE)
+
+    aggregator = Aggregator(gen_dir)
     tasksets = aggregator.run()
     # dbg_dump_vgang_info(tasksets)
 
@@ -98,19 +143,30 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync', 'h1-len-dsc']
+    rtgsync = ['RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb', 'h4-mlt-scr',
+            'h5-lnr-hyb', 'h6-crt-pth']
     schedulers = ['RT-Gang']  + rtgsync
 
     color_scheme = {
         'RT-Gang'       : 'magenta',
         'RTG-Sync'      : 'green',
-        'h1-len-dsc'    : 'cyan'
+        'h1-len-dsc'    : 'cyan',
+        'h2-lnr-hyb'    : 'blue',
+        'h3-crt-pth'    : 'purple',
+        'h4-mlt-scr'    : 'orange',
+        'h5-lnr-hyb'    : 'red',
+        'h6-crt-pth'    : 'brown'
     }
 
     sched_markers = {
         'RT-Gang'       : 'o',
         'RTG-Sync'      : '*',
-        'h1-len-dsc'    : '^'
+        'h1-len-dsc'    : '^',
+        'h2-lnr-hyb'    : '8',
+        'h3-crt-pth'    : 's',
+        'h4-mlt-scr'    : 'd',
+        'h5-lnr-hyb'    : 'p',
+        'h6-crt-pth'    : 'x'
     }
 
     sched_ratio = {s: {} for s in schedulers}
@@ -127,7 +183,7 @@ def main():
                     sched_ratio[s][u] = 0
 
                 print "[PROGRESS]   Analyzing: U=%2d | Scheduler=%20s | " \
-                        "Taskset: %5d / %-5d\r" % (u, s, tsIdx,
+                        "Taskset: %5d / %-5d\r" % (u, s, tsIdx + 1,
                                 num_of_tasksets),
 
                 schedulable = rta.run(ts, s)
@@ -192,8 +248,8 @@ def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type):
 
     plt.legend(fontsize = 'x-large')
 
-    plt.savefig('sched_%s_%s.pdf' % (TASKSET_TYPE, plot_type),
-            bbox_inches = 'tight')
+    plt.savefig('figures/%s_e%d_r%s_%s.png' % (TASKSET_TYPE, EDGE_PROBABILITY,
+        DEMAND_TYPE, plot_type))
 
     return
 
@@ -252,7 +308,7 @@ def parallel_create_virtual_taskset():
     # if os.path.exists(generated_dir): shutil.rmtree(generated_dir)
 
     print
-    for r in range(1000, NUM_OF_TEST_TASKSETS, PARALLELISM):
+    for r in range(1, NUM_OF_TEST_TASKSETS, PARALLELISM):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
             processes[tsIdx] = multiprocessing.Process(target = \
                     virtual_gang_generator_thread_entry, args = (tsIdx,))
@@ -268,10 +324,17 @@ def parallel_create_virtual_taskset():
 
 def virtual_gang_generator_thread_entry(tsIdx):
     # Generate taskset and then create SMT script
-    taskFactory = Generator(NUM_OF_CORES, UTILIZATIONS, EDGE_PROBABILITY,
-            tsIdx + 1, MAX_TASKS_PER_PERIOD)
+    tf_params = {
+        'seed'              : tsIdx + 1,
+        'demand_type'       : DEMAND_TYPE,
+        'num_of_cores'      : NUM_OF_CORES,
+        'utils'             : UTILIZATIONS,
+        'edge_prob'         : EDGE_PROBABILITY,
+        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+    }
 
-    taskset = taskFactory.create_taskset('heavy')
+    taskFactory = Generator(tf_params)
+    taskset = taskFactory.create_taskset(TASKSET_TYPE)
 
     virtual_taskset = {}
     for util in taskset:
@@ -279,6 +342,9 @@ def virtual_gang_generator_thread_entry(tsIdx):
         virtual_taskset[util] = {}
 
         for period, candidate_set in taskset[util].items():
+            gen_dir = '/generated/%s_e%d_r%s' % (TASKSET_TYPE, EDGE_PROBABILITY,
+                    DEMAND_TYPE)
+
             vgc_params = {
                 'stop_interval'     : 1,
                 'timeout'           : 2,
@@ -288,6 +354,7 @@ def virtual_gang_generator_thread_entry(tsIdx):
                 'verify'            : True,
                 'debug'             : False,
                 'period'            : period,
+                'gen_dir'           : gen_dir,
                 'num_of_cores'      : NUM_OF_CORES,
                 'candidate_set'     : candidate_set,
                 'tasks_per_period'  : MAX_TASKS_PER_PERIOD

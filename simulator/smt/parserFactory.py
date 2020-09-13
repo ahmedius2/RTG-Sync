@@ -2,8 +2,8 @@ import os, re, sys
 from taskFactory import Task
 
 class Aggregator:
-    def __init__(self, taskset_type):
-        self.gen_dir = 'gen_%s' % (taskset_type)
+    def __init__(self, gen_dir):
+        self.gen_dir = gen_dir
 
         assert os.path.exists(self.gen_dir), ("Directory of generated data "
             "<%s> does not exists in the current folder." % (self.gen_dir))
