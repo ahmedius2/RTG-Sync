@@ -5,7 +5,8 @@ class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
         self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'h1-len-dsc',
-                'h2-lnr-hyb', 'h3-crt-pth']
+                'h2-lnr-hyb', 'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb',
+                'h6-crt-pth']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -19,20 +20,26 @@ class RTA:
         pq = []
         self.__check_scheduler(scheduler)
 
-        if scheduler in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth']:
-
-            if scheduler == 'h2-lnr-hyb':
-                # print
-                self.__form_virtual_gangs_heuristic_h2(taskset, scheduler, False)
-                # print
-
-            if scheduler == 'h3-crt-pth':
-                # print
-                self.__form_virtual_gangs_heuristic_h3(taskset, scheduler, True)
-                # print
+        if scheduler in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth',
+                'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
 
             if scheduler == 'h1-len-dsc':
                 self.__form_virtual_gangs_heuristic_h1(taskset, scheduler, debug)
+
+            if scheduler == 'h2-lnr-hyb':
+                self.__form_virtual_gangs_heuristic_h2(taskset, scheduler, debug)
+
+            if scheduler == 'h3-crt-pth':
+                self.__form_virtual_gangs_heuristic_h3(taskset, scheduler, debug)
+
+            if scheduler == 'h4-mlt-scr':
+                self.__form_virtual_gangs_heuristic_h4(taskset, scheduler, debug)
+
+            if scheduler == 'h5-lnr-hyb':
+                self.__form_virtual_gangs_heuristic_h5(taskset, scheduler, debug)
+
+            if scheduler == 'h6-crt-pth':
+                self.__form_virtual_gangs_heuristic_h6(taskset, scheduler, debug)
 
             # for p in taskset:
             #     print '-' * 30, 'Period: %d' % (p), '-' * 30
@@ -50,7 +57,8 @@ class RTA:
             #     self.__print_pq(taskset[p]['RTG-Sync-H1'])
             #     print "\n" + "-" * 50 + "\n"
 
-        if scheduler in ['RT-Gang', 'RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb']:
+        if scheduler in ['RT-Gang', 'RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb',
+                'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
             pq, sched_test_1 = self.__create_rtg_pq(taskset, scheduler)
 
             # Taskset has failed the preliminary schedulability test
@@ -71,7 +79,260 @@ class RTA:
 
         return 1
 
+    def __form_virtual_gangs_heuristic_h6(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
+
+        for period in taskset:
+            virtual_taskset = []
+            candidate_set = taskset[period]['Real']
+
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
+
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            min_virt_gang = math.ceil(sum([t.h for t in candidate_set]) /
+                    self.num_of_cores)
+
+            max_tasks_paths = self.__calc_nodes_in_longest_path(graph)
+            critical_length = int(max(min_virt_gang, max_tasks_paths))
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
+                print "\n  * max_tasks_path: %d | critical_length: %d" % (
+                        max_tasks_paths, critical_length)
+
+            while len(pq) != 0:
+                tk = pq.pop(0)
+                sweep_list = []
+                candidate_list = []
+
+                if debug:
+                    print '-' * 50
+                    print 'tk: %s' % (tk)
+
+                for tj in pq:
+                    if debug: print 'tj: %s' % (tj)
+                    if tk.h + tj.h > self.num_of_cores:
+                        continue
+
+                    if self.__are_related(tk, tj, graph):
+                        continue
+
+                    candidate_list.append(tj)
+
+                if debug:
+                    print 'Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                candidate_list = self.__score_candidates_path2(tk, candidate_list, graph, critical_length, debug)
+
+                # if debug:
+                #     print 'Ranked Candidates:'
+                #     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                while len(candidate_list) != 0:
+                    tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if debug: print '    * Pairing: %s' % (tc)
+                    sweep_list.append(tc)
+                    tk = self.__create_virtual_task(tk, tc, vIdx, graph)
+                    if debug: print '    * Vgang: %s' % (tk)
+
+                    # We cannot pair any more tasks with ti
+                    if tk.h == self.num_of_cores:
+                        break
+
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
+
+                self.__scale_virtual_task(tk)
+                virtual_taskset.append(tk)
+                vIdx += 1
+
+                # Remove paired tasks from pq
+                for tx in sweep_list:
+                    pq.remove(tx)
+
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
+            taskset[period][heuristic] = virtual_taskset
+
+        return
+
+
     def __form_virtual_gangs_heuristic_h3(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
+
+        for period in taskset:
+            virtual_taskset = []
+            candidate_set = taskset[period]['Real']
+
+            if debug:
+                print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+                self.__print_pq(candidate_set)
+
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
+
+            while len(pq) != 0:
+                tk = pq.pop(0)
+                sweep_list = []
+                candidate_list = []
+
+                if debug:
+                    print '-' * 50
+                    print 'tk: %s' % (tk)
+
+                for tj in pq:
+                    if debug: print 'tj: %s' % (tj)
+                    if tk.h + tj.h > self.num_of_cores:
+                        continue
+
+                    if self.__are_related(tk, tj, graph):
+                        continue
+
+                    candidate_list.append(tj)
+
+                if debug:
+                    print 'Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                candidate_list = self.__score_candidates_path(tk, candidate_list, graph)
+
+                if debug:
+                    print 'Ranked Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                while len(candidate_list) != 0:
+                    tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if debug: print '    * Pairing: %s' % (tc)
+                    sweep_list.append(tc)
+                    tk = self.__create_virtual_task(tk, tc, vIdx, graph)
+                    if debug: print '    * Vgang: %s' % (tk)
+
+                    # We cannot pair any more tasks with ti
+                    if tk.h == self.num_of_cores:
+                        break
+
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
+
+                self.__scale_virtual_task(tk)
+                virtual_taskset.append(tk)
+                vIdx += 1
+
+                # Remove paired tasks from pq
+                for tx in sweep_list:
+                    pq.remove(tx)
+
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
+            taskset[period][heuristic] = virtual_taskset
+
+        return
+
+    def __form_virtual_gangs_heuristic_h4(self, taskset, heuristic,
+            debug = False):
+        vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
+
+        for period in taskset:
+            virtual_taskset = []
+            candidate_set = taskset[period]['Real']
+
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
+
+            # if debug:
+            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
+            #     self.__print_pq(candidate_set)
+
+            pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
+
+            if debug:
+                print "[DEBUG]<%s> PQ:" % (heuristic)
+                self.__print_pq(pq)
+
+            while len(pq) != 0:
+                tk = pq.pop(0)
+                sweep_list = []
+                candidate_list = []
+
+                if debug:
+                    print '-' * 50
+                    print 'tk: %s' % (tk)
+
+                for tj in pq:
+                    if debug: print 'tj: %s' % (tj)
+                    if tk.h + tj.h > self.num_of_cores:
+                        continue
+
+                    if self.__are_related(tk, tj, graph):
+                        continue
+
+                    candidate_list.append(tj)
+
+                if debug:
+                    print 'Candidates:'
+                    print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                candidate_list = self.__score_candidates_h4(tk, candidate_list, avg_r_core, debug)
+
+                # if debug:
+                #     print 'Ranked Candidates:'
+                #     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
+
+                while len(candidate_list) != 0:
+                    tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if debug: print '    * Pairing: %s' % (tc)
+                    sweep_list.append(tc)
+                    tk = self.__create_virtual_task(tk, tc, vIdx, graph)
+                    if debug: print '    * Vgang: %s' % (tk)
+
+                    # We cannot pair any more tasks with ti
+                    if tk.h == self.num_of_cores:
+                        break
+
+                if tk.members == '':
+                    tk.members = 't%d' % (tk.tid)
+
+                self.__scale_virtual_task(tk)
+                virtual_taskset.append(tk)
+                vIdx += 1
+
+                # Remove paired tasks from pq
+                for tx in sweep_list:
+                    pq.remove(tx)
+
+            if debug:
+                print "\n[DEBUG] Virtual Set:"
+                self.__print_pq(virtual_taskset)
+                print "\nLength = %.2f" % (sum([t.c for t in virtual_taskset]))
+                print '\n', "-" * 78, '\n'
+
+            taskset[period][heuristic] = virtual_taskset
+
+        return
+
+    def __form_virtual_gangs_heuristic_h5(self, taskset, heuristic,
             debug = False):
         vIdx = sum([len(taskset[p]['Real']) for p in taskset])+ 1
 
@@ -112,7 +373,7 @@ class RTA:
                     print 'Candidates:'
                     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
-                candidate_list = self.__score_candidates(tk, candidate_list)
+                candidate_list = self.__score_candidates_h5(tk, candidate_list)
 
                 if debug:
                     print 'Ranked Candidates:'
@@ -252,15 +513,158 @@ class RTA:
 
         return tc
 
-    def __score_candidates_path(self, tk, candidate_list):
+    def __calc_nodes_in_longest_path(self, graph):
+        x = 0
+        path = []
+
+        # Find out all the source nodes in this graph
+        sources = []
+        for node in graph:
+            predecessors = self.__get_predecessors(node.tid, graph)
+
+            if predecessors == []:
+                sources.append(node)
+
+        for s in sources:
+            sub_path = self.__calc_longest_path_from_source(s, graph)
+            sub_path_len = len(sub_path)
+
+            if sub_path_len > x:
+                path = sub_path
+                x = sub_path_len
+
+        return x
+
+    def __calc_paths_longer_than_crit_len(self, graph, crit_len, debug = False):
+        paths = []
+
+        # Find out all the source nodes in this graph
+        sources = []
+        for node in graph:
+            predecessors = self.__get_predecessors(node.tid, graph)
+
+            if predecessors == []:
+                sources.append(node)
+
+        for s in sources:
+            path = self.__calc_longest_path_from_source(s, graph)
+            path_len = len(path)
+
+            if path_len > crit_len:
+                paths.append(path)
+
+        return paths
+
+    def __calc_longest_path_from_source(self, s, graph):
+        path = []
+        max_nodes_path = []
+        max_nodes_path_len = 0
+
+        for vidx in s.e:
+            node = self.__get_task_by_tid(vidx, graph)
+            sub_path = self.__calc_longest_path_from_source(node, graph)
+            sub_path_len = len(sub_path)
+
+            if sub_path_len > max_nodes_path_len:
+                max_nodes_path = sub_path
+                max_nodes_path_len = sub_path_len
+
+        path = [s] + max_nodes_path
+
+        return path
+
+    def __score_candidates_path2(self, tk, candidate_list, graph,
+            critical_length, debug = False):
+        score_hash = {}
+
+        for tp in candidate_list:
+            # Create a tmp graph containing replicas of the tasks
+            tmp_graph = [t.copy() for t in graph]
+            tmp_vidx  = max([t.tid for t in tmp_graph]) + 1
+            tk_copy = [t for t in tmp_graph if t.tid == tk.tid][0]
+            tp_copy =  [t for t in tmp_graph if t.tid == tp.tid][0]
+
+            tmp_gang = self.__tmp_create_virtual_task(tk_copy, tp_copy, tmp_vidx, tmp_graph)
+            paths = self.__calc_paths_longer_than_crit_len(tmp_graph, critical_length, debug)
+
+            penalty = self.__calc_penalty(paths, critical_length)
+            score = tp.c - penalty
+
+            # print '    # tc:', tc.__str__()
+            # print '    # tg:', tmp_gang.__str__(), ' |', score
+
+            while score in score_hash:
+                score -= 0.001
+
+            score_hash[score] = tp
+
+        sorted_scores = sorted(score_hash.keys(), reverse = True)
+        scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        if debug:
+            if candidate_list != []:
+                print '    - Scores:'
+
+                for sc in sorted_scores:
+                    print '      + %.2f | %s' % (sc, score_hash[sc])
+            else:
+                print '    - No candidates!'
+
+        return scored_candidate_list
+
+    def __calc_penalty(self, paths, critical_length):
+        penalty = 0
+
+        for p in paths:
+            last_node_idx = len(p) - 1
+            x = len(p) - critical_length
+
+            assert x >= 0, ('Path is shorter than critical length <%d>: \n%s' %
+                    (critical_length, '\n'.join(['  + %s' % t for t in path])))
+
+            # xa = x
+            min_possible_len_this_path = sum([t.c for t in p[:x]])
+
+            for xa in range(0, x):
+                xb = x - xa
+
+                left_len = 0
+                right_len = 0
+
+                # xa nodes from beginning of p
+                for node in p[:xa]:
+                    left_len += node.c
+
+                # xb nodes from end of p
+                if xb != 0:
+                    for node in p[-xb:]:
+                        right_len += node.c
+
+                path_len = left_len + right_len
+
+                if path_len < min_possible_len_this_path:
+                    min_possible_len_this_path = path_len
+
+            if min_possible_len_this_path > penalty:
+                penalty = min_possible_len_this_path
+
+        return penalty
+
+    def __score_candidates_path(self, tk, candidate_list, graph):
         score_hash = {}
 
         for tc in candidate_list:
-            # Assume that we pair tc with tk and evaluate the resulting vgang
-            vg_demand = tc.r + tk.r
+            # Create a tmp graph containing replicas of the tasks
+            tmp_graph = [t.copy() for t in graph]
+            tmp_vidx  = max([t.tid for t in tmp_graph]) + 1
+            tk_copy = [t for t in tmp_graph if t.tid == tk.tid][0]
+            tc_copy =  [t for t in tmp_graph if t.tid == tc.tid][0]
 
-            vg_scaled_length = tk.c * max(1.0, vg_demand / 100.0)
-            score = vg_scaled_length - tc.c
+            tmp_gang = self.__tmp_create_virtual_task(tk_copy, tc_copy, tmp_vidx, tmp_graph)
+            score = self.__calc_crit_path(tmp_gang, tmp_graph)
+
+            # print '    # tc:', tc.__str__()
+            # print '    # tg:', tmp_gang.__str__(), ' |', score
 
             while score in score_hash:
                 score += 1
@@ -268,7 +672,118 @@ class RTA:
             score_hash[score] = tc
 
         sorted_scores = sorted(score_hash.keys())
+
+        # print '  * Candidate Scores:'
+        # for sc in sorted_scores:
+        #     print '    > score=%d | %s' % (sc, score_hash[sc])
+
         scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        return scored_candidate_list
+
+    def __calc_crit_path(self, node, graph):
+        '''
+          Calculate the length of the 'critical' path for 'node'.
+          i.e., the longest path through the graph containing 'node'.
+        '''
+
+        left_path = self.__calc_left_crit_path(node, graph, True)
+        right_path = self.__calc_right_crit_path(node, graph, True)
+        crit_path_len = node.c +  left_path + right_path
+
+        # print '    # Graph:'
+        # for v in graph:
+        #     print '      > %s' % (v)
+
+        # print '        @  left path:', left_path
+        # print '        @ right path:', right_path
+
+        return crit_path_len
+
+    def __calc_left_crit_path(self, node, graph, first = False):
+        max_path_length = 0
+        predecessors = self.__get_predecessors(node.tid, graph)
+
+        # print '          - Left Path Debug: node =', node.__str__()
+        # print '          -    Predecessors: node =', predecessors
+
+        for p in predecessors:
+            pt = self.__get_task_by_tid(p, graph)
+            length = self.__calc_left_crit_path(pt, graph)
+
+            if length > max_path_length:
+                max_path_length = length
+
+        if not first:
+            max_path_length += node.c
+
+        return max_path_length
+
+    def __calc_right_crit_path(self, node, graph, first = False):
+        max_path_length = 0
+        successors = node.e
+
+        for s in successors:
+            st = self.__get_task_by_tid(s, graph)
+            length = self.__calc_right_crit_path(st, graph)
+
+            if length > max_path_length:
+                max_path_length = length
+
+        if not first:
+            max_path_length += node.c
+
+        return max_path_length
+
+    def __score_candidates_h4(self, tk, candidate_list, avg_r_core, debug = False):
+        alpha = 1.0
+        score_hash = {}
+
+        for tp in candidate_list:
+            penalty = abs((tk.r + tp.r) / (tk.h + tp.h) - avg_r_core) / float(avg_r_core)
+            score = tp.c / (1 + penalty * alpha)
+
+            while score in score_hash:
+                score -= 0.0001
+
+            score_hash[score] = tp
+
+        sorted_scores = sorted(score_hash.keys(), reverse = True)
+        scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        if debug:
+            print '    - avg_r_core=%.2f' % (avg_r_core)
+            print '    - Scores:'
+
+            for sc in sorted_scores:
+                print '      + %.2f | %s' % (sc, score_hash[sc])
+
+        return scored_candidate_list
+
+    def __score_candidates_h5(self, tk, candidate_list, debug = False):
+        alpha = 2.00
+        score_hash = {}
+
+        for tc in candidate_list:
+            penalty = tc.r / 100.0
+            score = tc.c / (1 + penalty * alpha)
+
+            while score in score_hash:
+                score -= 0.001
+
+            score_hash[score] = tc
+
+        sorted_scores = sorted(score_hash.keys(), reverse = True)
+        scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
+
+        if debug:
+            if candidate_list != []:
+                print '    - Scores:'
+
+                for sc in sorted_scores:
+                    print '      + %.2f | %s' % (sc, score_hash[sc])
+            else:
+                print '    - No candidates!'
 
         return scored_candidate_list
 
@@ -438,6 +953,48 @@ class RTA:
 
         return None
 
+    def __tmp_create_virtual_task(self, ti, tj, vIdx, graph):
+        virt_c = max(ti.c, tj.c)
+        virt_r = ti.r + tj.r
+        virt_h = ti.h + tj.h
+        virt_e = list(set(ti.e + tj.e))
+        virt_p = ti.p
+
+        ti_ancestors = self.__get_predecessors(ti.tid, graph)
+        tj_ancestors = self.__get_predecessors(tj.tid, graph)
+
+        for tx in ti_ancestors:
+            Tx = self.__get_task_by_tid(tx, graph)
+            Tx.e.remove(ti.tid)
+            Tx.e.append(vIdx)
+
+        for tx in tj_ancestors:
+            Tx = self.__get_task_by_tid(tx, graph)
+            Tx.e.remove(tj.tid)
+            if vIdx not in Tx.e: Tx.e.append(vIdx)
+
+        virt_members = ''
+        if ti.members == '':
+            if tj.members == '':
+                virt_members = 't%d+t%d' % (ti.tid, tj.tid)
+            else:
+                virt_members = 't%d+%s' % (ti.tid, tj.members)
+        else:
+            if tj.members == '':
+                virt_members = '%s+t%d' % (ti.members, tj.tid)
+            else:
+                virt_members = '%s+%s' % (ti.members, tj.members)
+
+        # virt_c = virt_c * max(1, virt_r / 100.0) - (tj.c * tj.h)
+        virt_c = virt_c * max(1, virt_r / 100.0)
+        vTask = Task(vIdx, virt_c, virt_p, virt_h, virt_r, virt_e, virt_members)
+
+        graph.remove(ti)
+        graph.remove(tj)
+        graph.append(vTask)
+
+        return vTask
+
     def __create_virtual_task(self, ti, tj, vIdx, graph):
         virt_c = max(ti.c, tj.c)
         virt_r = ti.r + tj.r
@@ -456,7 +1013,7 @@ class RTA:
         for tx in tj_ancestors:
             Tx = self.__get_task_by_tid(tx, graph)
             Tx.e.remove(tj.tid)
-            Tx.e.append(vIdx)
+            if vIdx not in Tx.e: Tx.e.append(vIdx)
 
         virt_members = ''
         if ti.members == '':
@@ -501,12 +1058,17 @@ class RTA:
 
     def __sort(self, ti, tj, heuristic):
         try:
-            if heuristic in ['h1-len-dsc', 'h2-lnr-hyb']:
+            if heuristic in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth',
+                    'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
                 # Higher 'C', higher priority
                 return ti.c <= tj.c
-            else:
-                raise ValueError, ('Heuristic <%s> not registered' %
-                        (heuristic))
+
+            # if heuristic == 'h3-crt-pth':
+            #     if len(ti.e) != len(tj.e):
+            #         return len(ti.e) < len(tj.e)
+            #     else:
+            #         return ti.c <= tj.c
+
         except:
             raise ValueError, ('Invalid task(s)!\n  ti: %s\n  tj: %s' %
                     (ti, tj))
@@ -522,7 +1084,8 @@ class RTA:
                 tasks = taskset[p]['Real']
             elif scheduler == 'RTG-Sync':
                 tasks = taskset[p]['Virtual']
-            elif scheduler in ['h1-len-dsc', 'h2-lnr-hyb']:
+            elif scheduler in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth',
+                    'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
                 tasks = taskset[p][scheduler]
             else:
                 raise ValueError, ('Unknown scheduler: %s' % scheduler)
