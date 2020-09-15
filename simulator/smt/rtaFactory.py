@@ -99,6 +99,10 @@ class RTA:
             max_tasks_paths = self.__calc_nodes_in_longest_path(graph)
             critical_length = int(max(min_virt_gang, max_tasks_paths))
 
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
+
             if debug:
                 print "[DEBUG]<%s> PQ:" % (heuristic)
                 self.__print_pq(pq)
@@ -128,7 +132,7 @@ class RTA:
                     print 'Candidates:'
                     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
-                candidate_list = self.__score_candidates_path2(tk, candidate_list, graph, critical_length, debug)
+                candidate_list = self.__score_candidates_path2(tk, candidate_list, graph, critical_length, avg_r_core, debug)
 
                 # if debug:
                 #     print 'Ranked Candidates:'
@@ -574,10 +578,12 @@ class RTA:
         return path
 
     def __score_candidates_path2(self, tk, candidate_list, graph,
-            critical_length, debug = False):
+            critical_length, avg_r_core, debug = False):
         score_hash = {}
 
         for tp in candidate_list:
+            r_penalty = tp.r / 100
+
             # Create a tmp graph containing replicas of the tasks
             tmp_graph = [t.copy() for t in graph]
             tmp_vidx  = max([t.tid for t in tmp_graph]) + 1
@@ -587,11 +593,9 @@ class RTA:
             tmp_gang = self.__tmp_create_virtual_task(tk_copy, tp_copy, tmp_vidx, tmp_graph)
             paths = self.__calc_paths_longer_than_crit_len(tmp_graph, critical_length, debug)
 
-            penalty = self.__calc_penalty(paths, critical_length)
-            score = tp.c - penalty
-
-            # print '    # tc:', tc.__str__()
-            # print '    # tg:', tmp_gang.__str__(), ' |', score
+            self.__scale_virtual_task(tmp_gang)
+            c_penalty = self.__calc_penalty(paths, critical_length)
+            score = (tp.c - c_penalty) / (1 + r_penalty)
 
             while score in score_hash:
                 score -= 0.001
@@ -986,7 +990,7 @@ class RTA:
                 virt_members = '%s+%s' % (ti.members, tj.members)
 
         # virt_c = virt_c * max(1, virt_r / 100.0) - (tj.c * tj.h)
-        virt_c = virt_c * max(1, virt_r / 100.0)
+        # virt_c = virt_c * max(1, virt_r / 100.0)
         vTask = Task(vIdx, virt_c, virt_p, virt_h, virt_r, virt_e, virt_members)
 
         graph.remove(ti)
