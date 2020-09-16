@@ -248,6 +248,24 @@ def unit_test3_heuristic_crit_path2():
 
     return
 
+def unit_test_heuristic_perf():
+    period = 980
+    taskset = {period: {'Real': []}}
+    taskset[period]['Real'] = [Task(1, 119, period, 1, 95, [3]),
+                               Task(2, 167, period, 3, 49),
+                               Task(3, 100, period, 3, 27)]
+
+    rta_params = {
+            'num_of_cores': 8
+    }
+
+    rta = RTA(rta_params)
+    scheulable = rta.run(taskset, 'h6-crt-pth', True)
+    sys.exit()
+
+    return
+
+# unit_test_heuristic_perf()
 # unit_test3_heuristic_crit_path2()
 
 def main():

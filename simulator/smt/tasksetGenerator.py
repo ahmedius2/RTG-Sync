@@ -35,7 +35,7 @@ class Generator:
                 "0." % self.seed)
 
         # Initialize the random number generator with the provided seed
-        random.seed(time()) # self.seed)
+        random.seed(self.seed)
 
         return
 
