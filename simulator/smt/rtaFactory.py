@@ -141,6 +141,9 @@ class RTA:
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
 
+                    if (tk.r + tc.r) > (avg_r_core * self.num_of_cores):
+                        break
+
                     if debug: print '    * Pairing: %s' % (tc)
                     sweep_list.append(tc)
                     tk = self.__create_virtual_task(tk, tc, vIdx, graph)
@@ -184,6 +187,10 @@ class RTA:
                 print "[DEBUG]<%s> Candidate Set:" % (heuristic)
                 self.__print_pq(candidate_set)
 
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
+
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
             if debug:
@@ -221,6 +228,9 @@ class RTA:
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if (tk.r + tc.r) > (avg_r_core * self.num_of_cores):
+                        break
 
                     if debug: print '    * Pairing: %s' % (tc)
                     sweep_list.append(tc)
@@ -267,6 +277,9 @@ class RTA:
             # if debug:
             #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
             #     self.__print_pq(candidate_set)
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -305,6 +318,9 @@ class RTA:
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if (tk.r + tc.r) > (avg_r_core * self.num_of_cores):
+                        break
 
                     if debug: print '    * Pairing: %s' % (tc)
                     sweep_list.append(tc)
@@ -347,6 +363,9 @@ class RTA:
             # if debug:
             #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
             #     self.__print_pq(candidate_set)
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -385,6 +404,9 @@ class RTA:
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if (tk.r + tc.r) > (avg_r_core * self.num_of_cores):
+                        break
 
                     if debug: print '    * Pairing: %s' % (tc)
                     sweep_list.append(tc)
@@ -427,6 +449,9 @@ class RTA:
             # if debug:
             #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
             #     self.__print_pq(candidate_set)
+            num_cores = sum([t.h for t in candidate_set])
+            total_r = sum([t.r for t in candidate_set])
+            avg_r_core = total_r / float(num_cores)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -465,6 +490,9 @@ class RTA:
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
+
+                    if (tk.r + tc.r) > (avg_r_core * self.num_of_cores):
+                        break
 
                     if debug: print '    * Pairing: %s' % (tc)
                     sweep_list.append(tc)
