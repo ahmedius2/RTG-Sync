@@ -1,12 +1,13 @@
-import math, sys, re
+import math, os, sys, re
 from taskFactory import Task
+from combinationGenerator import CombinationGenerator
 
 class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
         self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'h1-len-dsc',
                 'h2-lnr-hyb', 'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb',
-                'h6-crt-pth']
+                'h6-crt-pth', 'GFTP', 'GFTPi', 'Threaded', 'Threadedi']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -14,9 +15,111 @@ class RTA:
 
             setattr(self, rp, params[rp])
 
+        self.gang_factory = CombinationGenerator(self.num_of_cores)
+
         return
 
-    def run(self, taskset, scheduler, debug = False):
+    def __calc_task_scaling_factor(self, task, corunners):
+        worst_gang, max_demand = self.gang_factory.find_worst_corunner_gang(task, corunners)
+        scaling_factor = max(1, max_demand / 100.0)
+
+        return scaling_factor
+
+    def __get_corunners_of_task (self, subject_task, taskset):
+        corunner_taskset = []
+
+        for p in taskset:
+            for t in taskset[p]:
+                if t == subject_task:
+                    continue
+
+                if (t.h + subject_task.h) <= self.num_of_cores:
+                    corunner_taskset.append(t)
+
+        return corunner_taskset
+
+    def __scale_taskset(self, taskset):
+        scaling_factors = {}
+
+        for p in taskset:
+            for t in taskset[p]:
+                if t.h == self.num_of_cores:
+                    # There cannot be any corunners of this task since it
+                    # requires all the cores
+                    scaling_factors[t] = 1.0
+                    continue
+
+                corunner_taskset = self.__get_corunners_of_task(t, taskset)
+
+                if corunner_taskset != []:
+                    scaling_factors[t] = self.__calc_task_scaling_factor(t, corunner_taskset)
+                    continue
+
+                scaling_factors[t] = 1.0
+
+        for p in taskset:
+            for t in taskset[p]:
+                t.c *= scaling_factors[t]
+
+        return taskset
+
+    def __deep_copy_taskset(self, taskset):
+        copied_taskset = {}
+
+        for p in taskset:
+            copied_taskset[p] = [t.copy() for t in taskset[p]['Real']]
+
+        return copied_taskset
+
+    def __check_schedulability_gftp(self, tk, hp_tasks):
+        schedulable = False
+        rk_prev = tk.c
+
+        iIk = self.__calc_task_iIk(tk, hp_tasks)
+        while (1):
+            iWk = self.__calc_workload_iWk(rk_prev, hp_tasks)
+            interferenceFactor = sum([iIk [ti] * iWk [ti] for ti in hp_tasks])
+            rk_new = tk.c + math.floor(interferenceFactor)
+
+            if rk_new == rk_prev or rk_new > tk.p:
+                if rk_new == rk_prev:
+                    schedulable = True
+                break
+            rk_prev = rk_new
+
+        return schedulable, rk_new
+
+    def __calc_workload_iWk(self, t, hp_tasks):
+        iWk = {}
+        for ti in hp_tasks:
+            delta_i = ti.p - hp_tasks[ti] + ti.c
+
+            if t <= delta_i:
+                iWk[ti] = min(t, ti.c)
+            else:
+                iWk[ti] = ti.c + ti.c * \
+                           math.floor(float(t - delta_i) / ti.p) + \
+                           min(ti.c, (t - delta_i) % ti.p)
+
+        return iWk
+
+    def __calc_task_iIk(self, tk, hp_tasks):
+        iIk = {}
+        for ti in hp_tasks:
+            iIk[ti] = float(min(ti.h, self.num_of_cores - tk.h + 1)) / \
+                    (self.num_of_cores - tk.h + 1)
+
+        return iIk
+
+    def __get_gftp_scaled_taskset(self, taskset):
+        gftp_taskset = {}
+
+        for p in taskset:
+            gftp_taskset[p] = [t.copy() for t in taskset[p]['GFTP']]
+
+        return gftp_taskset
+
+    def run(self, taskset, scheduler, gen_dir = '', dry_run = False, debug = False):
         pq = []
         self.__check_scheduler(scheduler)
 
@@ -57,6 +160,77 @@ class RTA:
             #     self.__print_pq(taskset[p]['RTG-Sync-H1'])
             #     print "\n" + "-" * 50 + "\n"
 
+        if scheduler in ['GFTP', 'GFTPi', 'Threaded', 'Threadedi']:
+            if scheduler == 'GFTP' and dry_run:
+                taskset = self.__deep_copy_taskset(taskset)
+                taskset = self.__scale_taskset(taskset)
+
+                for p in taskset:
+                    target_dir = gen_dir + str(p)
+                    if debug:
+                        print
+                        print target_dir
+                        print
+
+                    assert os.path.exists(target_dir), ('Target folder <%s> '
+                            'for GFTP does not exist.' % (target_dir))
+
+                    gftp_file = target_dir + '/gftp.txt'
+                    with open(gftp_file, 'w') as fdo:
+                        fdo.write('======== Scaled GFTP Taskset =============\n')
+                        fdo.write('\n'.join([t.__str__() for t in taskset[p]]))
+                        fdo.write('\n')
+
+                return 0
+
+            if scheduler == 'GFTP':
+                taskset = self.__get_gftp_scaled_taskset(taskset)
+            else:
+                taskset = self.__deep_copy_taskset(taskset)
+
+                if scheduler in ['Threaded', 'Threadedi']:
+                    taskset = self.__split_gangs_into_threads(taskset)
+
+                    if scheduler == 'Threaded':
+                        taskset = self.__scale_threadset(taskset)
+
+            periods = sorted(taskset.keys())
+            hp_tasks = {}
+
+            if debug:
+                print '===== GFTP'
+                print '  - Taskset:'
+
+                for p in taskset:
+                    print '    * Period=%d' % (p)
+                    print '\n'.join(['      + %s' % t for t in taskset[p]])
+
+            for p in periods:
+                tasks = [t.copy() for t in taskset[p]]
+
+                # Scheduling jobs of the same period - SJF policy
+                keys = sorted(list(set([t.c for t in tasks])))
+                pQueues = {k:[] for k in keys}
+
+                # Populate priority-queues
+                for k in keys:
+                    for t in tasks:
+                        if t.c == k:
+                            pQueues[k].append(t)
+
+                for k in keys:
+                    for t in pQueues[k]:
+                        schedulable, responseTime = self.__check_schedulability_gftp(t, hp_tasks)
+
+                        if not schedulable:
+                            if debug: print '  = Unschedulable!'
+                            return 0
+
+                        hp_tasks[t] = responseTime
+
+            if debug: print '  = Schedulable!'
+            return 1
+
         if scheduler in ['RT-Gang', 'RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb',
                 'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
             pq, sched_test_1 = self.__create_rtg_pq(taskset, scheduler)
@@ -78,6 +252,65 @@ class RTA:
                 idx += 1
 
         return 1
+
+    def __scale_threadset (self, taskset):
+        # with open('tscl.log', 'a') as fdo:
+        #     fdo.write("==== Threaded Scaling\n")
+        #     fdo.write("  - Taskset\n")
+        #     for p in taskset:
+        #         fdo.write('\n'.join('    + %s' % (t) for t in taskset[p]))
+        #         fdo.write('\n')
+
+        sorted_tasks = []
+        scaling_factors = {}
+        temp_taskset = [t for p in taskset for t in taskset[p]]
+        sorted_resource_demands = list(set(sorted([t.r for t in temp_taskset], reverse = True)))
+
+        for r in sorted_resource_demands:
+            for t in temp_taskset:
+                if t.r == r:
+                    sorted_tasks.append(t)
+                    temp_taskset.remove(t)
+
+        for p in taskset:
+            for t in taskset [p]:
+                worst_corunners = sorted_tasks[:self.num_of_cores]
+
+                if t in worst_corunners:
+                    worst_corunners.remove(t)
+                else:
+                    del (worst_corunners[-1])
+
+                max_demand = t.r + sum([w.r for w in worst_corunners])
+                scaling_factors[t] = max(1, max_demand / 100.0)
+
+        for p in taskset:
+            for t in taskset[p]:
+                t.c *= scaling_factors[t]
+
+        # with open('tscl.log', 'a') as fdo:
+        #     fdo.write("  - Scaled Taskset\n")
+        #     for p in taskset:
+        #         fdo.write('\n'.join('    + %s' % (t) for t in taskset[p]))
+        #         fdo.write('\n')
+
+        #     fdo.write('-' * 50 + '\n')
+
+        return taskset
+
+    def __split_gangs_into_threads(self, taskset):
+        threadset = {}
+        threadIdx = 1
+
+        for p in taskset:
+            threadset[p] = []
+            for t in taskset [p]:
+                for th in range(int(t.h)):
+                    thread = Task(threadIdx, t.c, t.p, 1, t.r/t.h)
+                    threadset[p].append(thread)
+                    threadIdx += 1
+
+        return threadset
 
     def __form_virtual_gangs_heuristic_h6(self, taskset, heuristic,
             debug = False):

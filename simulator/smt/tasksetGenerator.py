@@ -36,7 +36,7 @@ class Generator:
                 "0." % self.seed)
 
         # Initialize the random number generator with the provided seed
-        random.seed(time()) # self.seed)
+        random.seed(self.seed)
 
         return
 
@@ -62,8 +62,7 @@ class Generator:
                 # Randomly select the number of tasks to generate for the
                 # current period
                 if not self.tasks_per_period:
-                    self.tasks_per_period = random.randint(4,
-                            self.num_of_cores)
+                    self.tasks_per_period = random.randint(5, self.num_of_cores)
 
                 while (tid % self.tasks_per_period):
                     task, remUtil, stop = self.gen_task_params(tasksetType,
@@ -115,6 +114,7 @@ class Generator:
                     edge_list = []
                     this_task_edge_prob = self.edge_prob / \
                             ((last_task_tid - t.tid + 1) / 2.0)
+                    # this_task_edge_prob = self.edge_prob
 
                     for tnext in range(t.tid + 1, last_task_tid + 1):
                         p = random.randint(1, 100)

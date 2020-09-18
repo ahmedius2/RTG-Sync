@@ -39,6 +39,7 @@ class Task:
         self.r = int(r)
         self.tid = taskId
         self.members = members
+        self.name = 't%d' % taskId
 
         return
 

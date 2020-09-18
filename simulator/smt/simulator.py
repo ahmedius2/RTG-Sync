@@ -86,18 +86,14 @@ def get_cli_params():
 TASKSET_TYPE, NUM_OF_TEST_TASKSETS, EDGE_PROBABILITY, DEMAND_TYPE = \
         get_cli_params()
 
-# Debug single candidate-set. The candidate-set must be present in the
-# generated directory
 DEBUG = False
-
-DEBUG_SEED = None
+# DEBUG_SEED = None
 # DEBUG_SEED = {
 #     'util'      :   2,
 #     'period'    :   170,
 #     'tsIdx'     :   7467
 # }
-
-CANDIDATE_SET = 'ts7467_u2_p170'
+# CANDIDATE_SET = 'ts7467_u2_p170'
 
 def unit_test_rtg_rta():
     taskset = {491: {'Virtual': []}, 731: {'Virtual': []}}
@@ -124,9 +120,21 @@ def unit_test_rtg_rta():
 
     return
 
+def smt_timinig_experiment():
+    '''
+      Vary the tasks per period param. and measure the impact on SMT timing.
+
+      U = [8], TPP = 5 -- 15 (or until SMT becomes too long)
+    '''
+    # Generate tasksets
+
+    # Solve SMT and measure time taken
+
+    return
+
 def main():
-    if DEBUG: dbg_single_candidate_set()
-    if PRISTINE: parallel_create_virtual_taskset(); sys.exit(1)
+    # if DEBUG: dbg_single_candidate_set()
+    if PRISTINE: parallel_create_virtual_taskset(); sys.exit()
 
     # Aggregate results by parsing the file-system logs and re-create real and
     # virtual tasksets for further processing
@@ -134,8 +142,7 @@ def main():
             DEMAND_TYPE)
 
     aggregator = Aggregator(gen_dir)
-    tasksets = aggregator.run()
-    # dbg_dump_vgang_info(tasksets)
+    tasksets = aggregator.run((EDGE_PROBABILITY == 0))
 
     rta_params = {
             'num_of_cores': NUM_OF_CORES
@@ -143,27 +150,46 @@ def main():
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb', 'h4-mlt-scr',
-            'h5-lnr-hyb', 'h6-crt-pth']
-    schedulers = ['RT-Gang']  + rtgsync
+    rtgsync = ['RTG-Sync', 'h2-lnr-hyb'] # , 'h5-lnr-hyb', 'h6-crt-pth']
+
+    if EDGE_PROBABILITY == 0:
+        schedulers = ['RT-Gang', 'GFTP', 'GFTPi', 'Threaded', 'Threadedi'] + rtgsync
+    else:
+        schedulers = ['RT-Gang'] + rtgsync
 
     color_scheme = {
-        'RT-Gang'       : 'magenta',
-        'RTG-Sync'      : 'green',
-        'h1-len-dsc'    : 'cyan',
-        'h2-lnr-hyb'    : 'blue',
-        'h3-crt-pth'    : 'purple',
+        'RT-Gang'       : 'red', # 'magenta',
+        'RTG-Sync'      : 'blue', # 'green',
+        'GFTP'          : 'magenta', #'cyan',
+        'GFTPi'         : 'magenta', # 'cyan',
+        'h2-lnr-hyb'    : 'green', # 'blue',
+        'Threaded'      : 'cyan', # 'purple',
+        'Threadedi'     : 'cyan', # 'purple',
         'h4-mlt-scr'    : 'orange',
-        'h5-lnr-hyb'    : 'red',
+        'h5-lnr-hyb'    : 'purple', # 'red',
         'h6-crt-pth'    : 'brown'
+    }
+
+    sched_labels = {
+        'RT-Gang'       : 'RT-Gang',
+        'RTG-Sync'      : 'Virtual-Gang (SMT)',
+        'GFTP'          : 'Gang FTP',
+        'GFTPi'         : 'Gang FTP (Ideal)',
+        'Threaded'      : 'Threaded',
+        'Threadedi'     : 'Threaded (Ideal)',
+        'h2-lnr-hyb'    : 'Virtual-Gang (Greedy)',
+        'h5-lnr-hyb'    : 'h5-lnr-hyb',
+        'h6-crt-pth'    : 'h6-crt-pth'
     }
 
     sched_markers = {
         'RT-Gang'       : 'o',
         'RTG-Sync'      : '*',
-        'h1-len-dsc'    : '^',
+        'GFTP'          : '^',
+        'GFTPi'         : '^',
         'h2-lnr-hyb'    : '8',
-        'h3-crt-pth'    : 's',
+        'Threaded'      : 's',
+        'Threadedi'     : 's',
         'h4-mlt-scr'    : 'd',
         'h5-lnr-hyb'    : 'p',
         'h6-crt-pth'    : 'x'
@@ -186,28 +212,53 @@ def main():
                         "Taskset: %5d / %-5d\r" % (u, s, tsIdx + 1,
                                 num_of_tasksets),
 
+                gen_dir = 'generated/%s_e%d_r%s/ts%d_u%d_p' % (TASKSET_TYPE,
+                        EDGE_PROBABILITY, DEMAND_TYPE, tsIdx, u)
+
+                # schedulable = rta.run(ts, s, gen_dir, True)
                 schedulable = rta.run(ts, s)
 
-                if u == NUM_OF_CORES and schedulable == 1:
-                    print
-                    print "  !DANGER!  " * 5
-                    print "  - Util : 8 taskset was found schedulable"
-                    print
+                if not DEBUG:
+                    sched_ratio[s][u] += schedulable
+                else:
+                    sched_ratio[s][u] = schedulable
 
-                    # Re-run the analysis on the taskset with debugging on
-                    rta.run(ts, s, True)
-                    sys.exit()
+            # if DEBUG:
+            #     smt_schedulable = sched_ratio['RTG-Sync'][u]
+            #     all_else_schedl = any([sched_ratio[s][u] for s in schedulers if s != 'RTG-Sync'])
 
-                sched_ratio[s][u] += schedulable
+            #     if smt_schedulable and not all_else_schedl:
+            #         with open('dbg_workbook.txt', 'w') as fdo:
+            #             fdo.write('-' * 50 + '\n')
+            #             fdo.write('Taskset:\n')
+            #             dbg_print_vgangs(fdo, ts, 'Real', '')
+            #             dbg_print_vgangs(fdo, ts, 'Virtual', 'SMT')
+            #             dbg_print_vgangs(fdo, ts, 'h1-len-dsc', 'H1')
+            #             dbg_print_vgangs(fdo, ts, 'h2-lnr-hyb', 'H2')
+            #             dbg_print_vgangs(fdo, ts, 'h4-mlt-scr', 'H4')
+            #             dbg_print_vgangs(fdo, ts, 'h5-lnr-hyb', 'H5')
+            #             dbg_print_vgangs(fdo, ts, 'h6-crt-pth', 'H6')
 
-    print
+            #         sys.exit()
+
     print "[PROGRESS] Creating plots..."
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers,
-            'bar')
+    # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_labels,
+    #         sched_markers, 'bar')
 
-    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_markers,
-            'line')
+    create_sched_plots(sched_ratio, schedulers, color_scheme, sched_labels,
+            sched_markers, 'line')
     print "[PROGRESS Done!"
+
+    return
+
+def dbg_print_vgangs(fdo, ts, s, label):
+    if label: fdo.write('  * %s\n' % (label))
+
+    for p in ts:
+        fdo.write('    - Period=%d\n' % (p))
+        fdo.write('\n'.join(['      + %s' % t for t in ts[p][s]]) + '\n')
+        fdo.write('        = %d\n' % (sum([t.c for t in ts[p][s]])))
+    fdo.write('\n')
 
     return
 
@@ -217,7 +268,8 @@ def stratify_data(data, idx, wd):
 
     return x, y
 
-def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type):
+def create_sched_plots(sched_hash, sched_list, clist, slabels, smarks,
+        plot_type):
 
     fig = plt.subplots(1, 1, figsize = (10, 8))
 
@@ -225,17 +277,20 @@ def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type):
     wd = 0.1 if plot_type == 'bar' else 0.0
 
     for s in sched_list:
+        ls = '-'
+        if s[-1] == 'i': ls = '--'
+
         x, y = stratify_data(sched_hash[s], idx, wd)
         idx += 1
 
         if plot_type == 'bar':
             plt.bar(x, y, color = clist[s], width = wd, lw = 1.0,
-                    edgecolor = 'black', label = s)
+                    edgecolor = 'black', label = slabels[s])
 
             continue
 
-        plt.plot(x, y, lw = 1.5, color = clist[s], label = s,
-                marker = smarks[s])
+        plt.plot(x, y, lw = 1.5, color = clist[s], marker = smarks[s],
+                label = slabels[s], linestyle = ls)
 
     plt.xlim([0.5, NUM_OF_CORES + 0.5])
     plt.ylim([0, NUM_OF_TEST_TASKSETS * 1.05])
@@ -246,10 +301,10 @@ def create_sched_plots(sched_hash, sched_list, clist, smarks, plot_type):
     plt.title(TASKSET_TYPE.capitalize(), fontsize = 'xx-large',
             fontweight = 'bold')
 
-    plt.legend(fontsize = 'x-large')
+    if TASKSET_TYPE == 'mixed': plt.legend(fontsize = 'x-large')
 
-    plt.savefig('figures/%s_e%d_r%s_%s.png' % (TASKSET_TYPE, EDGE_PROBABILITY,
-        DEMAND_TYPE, plot_type))
+    plt.savefig('figures/%s_e%d_r%s_%s.png' % (TASKSET_TYPE,
+        EDGE_PROBABILITY, DEMAND_TYPE, plot_type))
 
     return
 
@@ -330,7 +385,7 @@ def virtual_gang_generator_thread_entry(tsIdx):
         'num_of_cores'      : NUM_OF_CORES,
         'utils'             : UTILIZATIONS,
         'edge_prob'         : EDGE_PROBABILITY,
-        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+        # 'tasks_per_period'  : MAX_TASKS_PER_PERIOD
     }
 
     taskFactory = Generator(tf_params)

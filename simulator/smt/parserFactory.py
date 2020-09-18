@@ -10,7 +10,7 @@ class Aggregator:
 
         return
 
-    def run(self):
+    def run(self, gftp = False):
         '''
           Traverse the directory containing generated tasksets and their
           respective virtual-gangs data for further processing.
@@ -42,6 +42,10 @@ class Aggregator:
             tasksets[tsIdx][util][period]['Virtual'] = \
                     self.parse_taskset(ts, 'virtual')
 
+            if gftp:
+                tasksets[tsIdx][util][period]['GFTP'] = \
+                        self.parse_taskset(ts, 'scaled')
+
             if debug:
                 print
                 print "Taskset:", tsIdx
@@ -57,12 +61,20 @@ class Aggregator:
         return tasksets
 
     def parse_taskset(self, taskset_dir, nature, debug = False):
-        name_prefix = 'candidate_' if nature == 'real' else 'virtual_task'
-        taskset_file = '%s/%s/%sset.txt' % (self.gen_dir, taskset_dir,
-                name_prefix)
+        if nature != 'scaled':
+            name_prefix = 'candidate_' if nature == 'real' else 'virtual_task'
+            taskset_file = '%s/%s/%sset.txt' % (self.gen_dir, taskset_dir,
+                    name_prefix)
+        else:
+            taskset_file = '%s/%s/gftp.txt' % (self.gen_dir, taskset_dir)
 
-        assert os.path.exists(taskset_file), ("Taskset file <%s> does "
-                "not exists in the generated directory." % (taskset_file))
+        # assert os.path.exists(taskset_file), ("Taskset file <%s> does "
+        #         "not exists in the generated directory." % (taskset_file))
+        if not os.path.exists(taskset_file):
+            print
+            print "[ERROR] File does not exist: %s" % (taskset_file)
+            print
+            return []
 
         pattern = '^Task:\s+([\d]+) \| C=\s*([\d.]+) P=\s*([\d]+)' \
             ' h=\s*([\d]+) r=\s*([\d]+) u=\s*([\d.]+)(.*)$'
@@ -94,6 +106,11 @@ class Aggregator:
                 if nature == 'virtual': members = self.__parse_members(m.group(7))
 
                 taskset.append(Task(tid, C, p, h, r, e, members))
+
+        if taskset == []:
+            print
+            print "Empty taskset: %s" % (taskset_file)
+            print
 
         return taskset
 
