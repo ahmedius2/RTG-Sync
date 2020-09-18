@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import json
+import json, math
 from time import time
 import os, sys, shutil
 import multiprocessing
@@ -48,8 +48,8 @@ def plot_timing_data(data):
     fig = plt.subplots(1, 1, figsize = (10, 8))
 
     bar_width = 0.25
-    h2_xaxis  = [x - bar_width * 2 for x in data['x']]
-    smt_xaxis = data['x']
+    h2_xaxis  = [x - bar_width/2 for x in data['x']]
+    smt_xaxis = [x + bar_width/2 for x in data['x']]
 
     plt.bar(smt_xaxis, data['smt'], color = 'orange', width = bar_width,
             lw = 1.0, edgecolor = 'black', label = 'SMT')
@@ -57,9 +57,10 @@ def plot_timing_data(data):
     plt.bar(h2_xaxis, data['h2'], color = 'green', width = bar_width,
             lw = 1.0, edgecolor = 'black', label = 'Heuristic')
 
+    plt.grid(True, ls = '--')
+    plt.yscale('log')
     plt.legend(fontsize = 'x-large')
     plt.xlim([0, len(data['x']) + 1])
-    plt.ylim([0, max(data['smt']) * 1.05])
     plt.ylabel('Time (seconds)', fontsize = 'x-large', fontweight = 'bold')
     plt.xlabel('Tasks Per Period', fontsize = 'x-large', fontweight = 'bold')
 
