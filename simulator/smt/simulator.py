@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import json
+from time import time
 import os, sys, shutil
 import multiprocessing
 from rtaFactory import RTA
@@ -8,6 +10,7 @@ from tasksetGenerator import Generator
 from virtualGangFactory import VirtualGangCreator
 
 from taskFactory import Task
+from heuristics import H2
 
 import matplotlib
 matplotlib.use('Agg')
@@ -22,6 +25,199 @@ MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
+
+def calc_time_avgs(time_data):
+    avg_data = {}
+    avg_data['x'] = sorted(time_data.keys())
+    avg_data['smt'] = []
+    avg_data['h2']  = []
+
+    for tpp in avg_data['x']:
+        total_smt_time = sum([time_data[tpp][tsIdx]['SMT'] for tsIdx in
+            time_data[tpp].keys()])
+
+        total_h2_time  = sum([time_data[tpp][tsIdx]['H2'] for tsIdx in
+            time_data[tpp].keys()])
+
+        avg_data['smt'].append(float(total_smt_time)/len(time_data[tpp].keys()))
+        avg_data['h2'].append(float(total_h2_time)/len(time_data[tpp].keys()))
+
+    return avg_data
+
+def plot_timing_data(data):
+    fig = plt.subplots(1, 1, figsize = (10, 8))
+
+    bar_width = 0.25
+    h2_xaxis  = [x - bar_width * 2 for x in data['x']]
+    smt_xaxis = data['x']
+
+    plt.bar(smt_xaxis, data['smt'], color = 'orange', width = bar_width,
+            lw = 1.0, edgecolor = 'black', label = 'SMT')
+
+    plt.bar(h2_xaxis, data['h2'], color = 'green', width = bar_width,
+            lw = 1.0, edgecolor = 'black', label = 'Heuristic')
+
+    plt.legend(fontsize = 'x-large')
+    plt.xlim([0, len(data['x']) + 1])
+    plt.ylim([0, max(data['smt']) * 1.05])
+    plt.ylabel('Time (seconds)', fontsize = 'x-large', fontweight = 'bold')
+    plt.xlabel('Tasks Per Period', fontsize = 'x-large', fontweight = 'bold')
+
+    plt.savefig('plots_for_paper/smt_timing.png')
+
+    return
+
+def smt_timing_experiment():
+    '''
+      Vary the tasks per period param. and measure the impact on SMT timing.
+
+      U = [8], TPP = 5 -- 15 (or until SMT becomes too long)
+    '''
+    # Generate tasksets
+    NUM_OF_CORES = 8
+    EDGE_PROBABILITY = 25
+    TASKSET_TYPE = 'light'
+    NUM_OF_TEST_TASKSETS = 10
+    MAX_TASKS_PER_PERIOD = 10
+    UTILIZATIONS = [NUM_OF_CORES]
+
+    init_tpp = 1
+    init_tsIdx = 1
+    reuse = True
+
+    tasksets = {}
+    time_taken = {}
+
+    durations_file = "timing/durations.json"
+    if os.path.exists(durations_file):
+        with open(durations_file, 'r') as fdi:
+            dictionary = json.load(fdi)
+
+            for tpp in dictionary:
+                time_taken[int(tpp)] = {}
+
+                for tsIdx in dictionary[tpp]:
+                    time_taken[int(tpp)][int(tsIdx)] = {}
+
+                    for sched in dictionary[tpp][tsIdx]:
+                        time_taken[int(tpp)][int(tsIdx)][str(sched)] = \
+                                dictionary[tpp][tsIdx][sched]
+
+        init_tpp = max(time_taken.keys())
+        init_tsIdx = max(time_taken[init_tpp].keys())
+
+    h2_params = {
+        'num_of_cores': NUM_OF_CORES
+    }
+
+    h2 = H2(h2_params)
+
+    print
+    for tpp in range(1, MAX_TASKS_PER_PERIOD + 1):
+        tasksets[tpp] = {}
+
+        if tpp not in time_taken:
+            time_taken[tpp] = {}
+
+        for tsIdx in range(1, NUM_OF_TEST_TASKSETS + 1):
+            if tsIdx in time_taken[tpp]:
+                continue
+
+            reuse = False
+            tasksets[tpp][tsIdx] = {}
+            time_taken[tpp][tsIdx] = {}
+
+            tf_params = {
+                'seed'              : tsIdx + 1,
+                'demand_type'       : 'r',
+                'num_of_cores'      : NUM_OF_CORES,
+                'utils'             : UTILIZATIONS,
+                'edge_prob'         : EDGE_PROBABILITY,
+                'tasks_per_period'  : tpp
+            }
+
+            taskFactory = Generator(tf_params)
+            taskset = taskFactory.create_taskset(TASKSET_TYPE)
+
+            period = -1
+            tpp_taskset = []
+
+            for p in taskset[NUM_OF_CORES]:
+                if len(taskset[NUM_OF_CORES][p]) == tpp:
+                    tpp_taskset = taskset[NUM_OF_CORES][p]
+                    period = p
+                    break
+
+            if period == -1:
+                print "[ERROR] No taskset with tpp <%d> tasks: " % (tpp)
+                print "  - Taskset:"
+                for p in taskset:
+                    '\n'.join(['    + %s' % (t) for t in taskset[p]])
+                    print
+
+                sys.exit()
+
+            tasksets[tpp][tsIdx]['SMT'] = tpp_taskset
+
+            # Solve SMT and measure time taken
+            gen_dir = '/timing/tpp%d' % (tpp)
+            vgc_params = {
+                'stop_interval'     : 1,
+                'timeout'           : 2,
+                'tasks_per_period'  : tpp,
+                'max_timeout'       : 999,
+                'verify'            : True,
+                'debug'             : False,
+                'taskset_index'     : tsIdx,
+                'period'            : period,
+                'gen_dir'           : gen_dir,
+                'candidate_set'     : tpp_taskset,
+                'utilization'       : NUM_OF_CORES,
+                'num_of_cores'      : NUM_OF_CORES
+            }
+
+            vgc = VirtualGangCreator(vgc_params)
+
+            start = time()
+            smt_virtual_taskset = vgc.run(1)
+            time_taken[tpp][tsIdx]['SMT'] = time() - start
+
+            start = time()
+            result_dir = gen_dir + '/ts%d_u8_p%d' % (tsIdx, period)
+            h2_virtual_taskset = h2.run(tpp_taskset, result_dir)
+            time_taken[tpp][tsIdx]['H2'] = time() - start
+
+            print '[PROGRESS] TPP: %2d | Taskset: %2d | SMT: %3.3f sec ' \
+                    '| H2: %3.3f\r' % (tpp, tsIdx,
+                            time_taken[tpp][tsIdx]['SMT'],
+                            time_taken[tpp][tsIdx]['H2']),
+
+            sys.stdout.flush()
+
+            with open('timing/durations.json', 'w') as fdo:
+                json.dump(time_taken, fdo)
+
+            if time_taken[tpp][tsIdx]['SMT'] > 1800:
+                print
+                print "[xxxxxxxx] Time limit exceeded. Stopping experiment!"
+
+                return
+
+    if not reuse: print '\n',
+    print '[PROGRESS] Plotting timing data...'
+    if reuse: print "           + Reusing results"
+
+    time_avgs = calc_time_avgs(time_taken)
+    plot_timing_data(time_avgs)
+
+    print '[PROGRESS] Done!'
+    print
+
+    # Exit normally
+    return
+
+smt_timing_experiment()
+sys.exit()
 
 def get_cli_params():
     demand_type = ''
@@ -117,18 +313,6 @@ def unit_test_rtg_rta():
     print 'Taskset is %s' % ('schedulable' if schedulable == 1 else 'not schedulable')
 
     sys.exit()
-
-    return
-
-def smt_timinig_experiment():
-    '''
-      Vary the tasks per period param. and measure the impact on SMT timing.
-
-      U = [8], TPP = 5 -- 15 (or until SMT becomes too long)
-    '''
-    # Generate tasksets
-
-    # Solve SMT and measure time taken
 
     return
 
