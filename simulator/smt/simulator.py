@@ -26,6 +26,117 @@ RESULT_FILE = 'vgangs.txt'
 UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 PARALLELISM = multiprocessing.cpu_count()
 
+def print_taskset(taskset):
+    print 'Taskset:'
+    for p in taskset:
+        print '  - Period=%d' % (p)
+        print '\n'.join(['    + %s' % (t) for t in taskset[p]])
+
+    return
+
+def print_progress_edge(cur_taskset, ep, period):
+    print '[PROGRESS] Processing Taskset: %4d | EP: %2d | Period: %4d\r' \
+            % (cur_taskset, ep, period),
+
+    sys.stdout.flush()
+
+    return
+
+def parallel_create_virtual_taskset_edge(ep):
+    processes = {}
+    PARALLELISM = 2 # multiprocessing.cpu_count()
+    NUM_OF_TEST_TASKSETS = PARALLELISM + 1
+
+    print
+    for r in range(1, NUM_OF_TEST_TASKSETS, PARALLELISM):
+        for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
+            processes[tsIdx] = multiprocessing.Process(target = \
+                    virtual_gang_generator_thread_entry_edge, args = (tsIdx,
+                        ep))
+
+            processes[tsIdx].start()
+
+        for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
+            processes[tsIdx].join()
+
+    print '\n'
+
+    return
+
+def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
+    NUM_OF_CORES = 8
+    TASKSET_TYPE = 'light'
+    MAX_TASKS_PER_PERIOD = 8
+    NUM_OF_TEST_TASKSETS = 10
+    UTILIZATIONS = [NUM_OF_CORES/2]
+
+    # Generate taskset and then create SMT script
+    tf_params = {
+        'edge_prob'         : ep,
+        'demand_type'       : 'r',
+        'seed'              : tsIdx + 1,
+        'num_of_cores'      : NUM_OF_CORES,
+        'utils'             : UTILIZATIONS,
+        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+    }
+
+    taskFactory = Generator(tf_params)
+    taskset = taskFactory.create_taskset(TASKSET_TYPE)
+
+    virtual_taskset = {}
+    for util in taskset:
+        vg_idx = 0
+        virtual_taskset[util] = {}
+
+        for period, candidate_set in taskset[util].items():
+            gen_dir = '/edge/ep%d' % (ep)
+
+            vgc_params = {
+                'stop_interval'     : 1,
+                'timeout'           : 2,
+                'max_timeout'       : 30,
+                'utilization'       : util,
+                'taskset_index'     : tsIdx,
+                'verify'            : True,
+                'debug'             : False,
+                'period'            : period,
+                'gen_dir'           : gen_dir,
+                'num_of_cores'      : NUM_OF_CORES,
+                'candidate_set'     : candidate_set,
+                'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+            }
+
+            print_progress_edge(tsIdx + 1, ep, period)
+
+            vgc_factory = VirtualGangCreator(vgc_params)
+            virtual_taskset[util][period] = vgc_factory.run(vg_idx)
+
+            try:
+                vg_idx = virtual_taskset[util][period][-1].tid
+            except:
+                raise ValueError, ("Virtual taskset does not exist for: "
+                        "tsIdx=%d util=%d period=%d" % (tsIdx, util, period))
+
+    return
+
+def edge_prob_experiment():
+    '''
+      Vary the edge probability param. and measure the impact on SMT solution
+      and heuristic solution.
+
+      U = [8], TPP = 8, EDGE_PROBABILITY = 10 -- 90
+    '''
+    EDGE_PROBABILITY_RANGE = range(10, 20, 10)
+
+    schedulability = {}
+    for ep in EDGE_PROBABILITY_RANGE:
+        parallel_create_virtual_taskset_edge(ep)
+
+    return
+
+edge_prob_experiment()
+sys.exit()
+
 def calc_time_avgs(time_data):
     avg_data = {}
     avg_data['x'] = sorted(time_data.keys())
