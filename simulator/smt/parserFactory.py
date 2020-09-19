@@ -10,7 +10,7 @@ class Aggregator:
 
         return
 
-    def run(self, gftp = False):
+    def run(self, gftp = False, max_ts = None):
         '''
           Traverse the directory containing generated tasksets and their
           respective virtual-gangs data for further processing.
@@ -21,11 +21,14 @@ class Aggregator:
 
         for ts in generated_taskset_dirs:
             idx += 1
+            tsIdx, util, period = self.parse_taskset_dir(ts)
+            if max_ts and tsIdx > max_ts: continue
+            debug = False
+
             print "[PROGRESS] %4d / %4d | Parsing: <%20s>\r" % (idx,
                     len(generated_taskset_dirs), ts),
 
-            tsIdx, util, period = self.parse_taskset_dir(ts)
-            debug = False
+            sys.stdout.flush()
 
             if not tasksets.has_key(tsIdx):
                 tasksets[tsIdx] = {}
@@ -56,8 +59,8 @@ class Aggregator:
                 print "   ", '\n    '.join([t.__str__() for t in tasksets[tsIdx][util][period]['Virtual']])
                 print
 
-        print
-        print "[PROGRESS] Parsing Complete!"
+        if not max_ts: print
+        if not max_ts: print "[PROGRESS] Parsing Complete!"
         return tasksets
 
     def parse_taskset(self, taskset_dir, nature, debug = False):

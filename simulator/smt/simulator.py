@@ -23,7 +23,7 @@ PRISTINE = False
 NUM_OF_CORES = 8
 MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
-UTILIZATIONS = range(1, NUM_OF_CORES + 1)
+UTILIZATIONS = range(1, NUM_OF_CORES)
 PARALLELISM = multiprocessing.cpu_count()
 
 def print_taskset(taskset):
@@ -34,9 +34,9 @@ def print_taskset(taskset):
 
     return
 
-def print_progress_edge(cur_taskset, ep, period):
-    print '[PROGRESS] Processing Taskset: %4d | EP: %2d | Period: %4d\r' \
-            % (cur_taskset, ep, period),
+def print_progress_edge(cur_taskset, ep, util, period):
+    print '[PROGRESS] Processing Taskset: %4d | EP: %2d | Util: %d | ' \
+            'Period: %4d\r' % (cur_taskset, ep, util, period),
 
     sys.stdout.flush()
 
@@ -44,10 +44,8 @@ def print_progress_edge(cur_taskset, ep, period):
 
 def parallel_create_virtual_taskset_edge(ep):
     processes = {}
-    PARALLELISM = 2 # multiprocessing.cpu_count()
-    NUM_OF_TEST_TASKSETS = PARALLELISM + 1
+    NUM_OF_TEST_TASKSETS = 100
 
-    print
     for r in range(1, NUM_OF_TEST_TASKSETS, PARALLELISM):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
             processes[tsIdx] = multiprocessing.Process(target = \
@@ -59,16 +57,13 @@ def parallel_create_virtual_taskset_edge(ep):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
             processes[tsIdx].join()
 
-    print '\n'
-
     return
 
 def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
     NUM_OF_CORES = 8
-    TASKSET_TYPE = 'light'
+    TASKSET_TYPE = 'mixed'
     MAX_TASKS_PER_PERIOD = 8
     NUM_OF_TEST_TASKSETS = 10
-    UTILIZATIONS = [NUM_OF_CORES/2]
 
     # Generate taskset and then create SMT script
     tf_params = {
@@ -89,7 +84,7 @@ def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
         virtual_taskset[util] = {}
 
         for period, candidate_set in taskset[util].items():
-            gen_dir = '/edge/ep%d' % (ep)
+            gen_dir = '/edge_all/ep%d' % (ep)
 
             vgc_params = {
                 'stop_interval'     : 1,
@@ -106,7 +101,7 @@ def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
                 'tasks_per_period'  : MAX_TASKS_PER_PERIOD
             }
 
-            print_progress_edge(tsIdx + 1, ep, period)
+            print_progress_edge(tsIdx + 1, ep, util, period)
 
             vgc_factory = VirtualGangCreator(vgc_params)
             virtual_taskset[util][period] = vgc_factory.run(vg_idx)
@@ -126,15 +121,89 @@ def edge_prob_experiment():
 
       U = [8], TPP = 8, EDGE_PROBABILITY = 10 -- 90
     '''
-    EDGE_PROBABILITY_RANGE = range(10, 20, 10)
-
+    tasksets = {}
+    NUM_OF_CORES = 8
     schedulability = {}
+    EDGE_PROBABILITY_RANGE = range(10, 100, 10)
+
+    if PRISTINE:
+        print '\n[PROGRESS] Collecting pristine data for SMT'
+        for ep in EDGE_PROBABILITY_RANGE:
+            parallel_create_virtual_taskset_edge(ep)
+
+        print '\n[PROGRESS] Pristine data collection complete. Exiting!'
+        sys.exit()
+
+    print '\n[PROGRESS] Reading data from file-system'
     for ep in EDGE_PROBABILITY_RANGE:
-        parallel_create_virtual_taskset_edge(ep)
+        gen_dir = 'edge_all/ep%d/' % (ep)
+
+        # Collect the results from the file-system
+        aggregator = Aggregator(gen_dir)
+        tasksets[ep] = aggregator.run(max_ts = 100)
+    print
+
+    rta_params = {
+            'num_of_cores': NUM_OF_CORES
+    }
+
+    rta = RTA(rta_params)
+    schedulers = ['RTG-Sync', 'h2-lnr-hyb', 'h6-crt-pth']
+
+    for ep in EDGE_PROBABILITY_RANGE:
+        schedulability[ep] = {}
+
+        print '[PROGRESS] Conducting RTA | ep=%2d\r' % (ep),
+
+        for tsIdx in tasksets[ep]:
+            u_tasksets = tasksets[ep][tsIdx]
+
+            for u, ts in u_tasksets.items():
+                if u not in schedulability[ep]:
+                    schedulability[ep][u] = {}
+
+                for s in schedulers:
+                    if s not in schedulability[ep][u]:
+                        schedulability[ep][u][s] = 0
+
+                    schedulability[ep][u][s] += rta.run(ts, s)
+
+    print '\n', schedulability
+
+    sched_file = 'edge_all/sched.json'
+    with open(sched_file, 'w') as fdo:
+        json.dump(schedulability, fdo)
 
     return
 
-edge_prob_experiment()
+def plot_edge_prob_data():
+    sched_file = 'edge_all/sched.json'
+
+    assert os.path.exists(sched_file), ('File containing sched. data <%s> '
+            'does not exist.' % (sched_file))
+
+    with open(sched_file, 'r') as fdi:
+        sched_dict = json.load(fdi)
+
+    sched_data = {}
+    for ep in sched_dict:
+        epi = int(ep)
+        sched_data[epi] = {}
+
+        for u in sched_dict[ep]:
+            ui = int(u)
+            sched_data[epi][ui] = {}
+
+            for s in sched_dict[ep][u]:
+                ss = str(s)
+                sched_data[epi][ui][ss] = sched_dict[ep][u][s]
+
+    print sched_data
+
+    return
+
+# edge_prob_experiment()
+plot_edge_prob_data()
 sys.exit()
 
 def calc_time_avgs(time_data):
