@@ -20,6 +20,7 @@ from matplotlib import mlab
 import matplotlib.pyplot as plt
 
 PRISTINE = False
+SMT_IDEAL = False
 NUM_OF_CORES = 8
 GFTP_DRYRUN = False
 MAX_TASKS_PER_PERIOD = 8
@@ -45,7 +46,7 @@ def print_progress_edge(cur_taskset, ep, util, period):
 
 def parallel_create_virtual_taskset_edge(ep):
     processes = {}
-    NUM_OF_TEST_TASKSETS = 100
+    NUM_OF_TEST_TASKSETS = 1000
 
     for r in range(1, NUM_OF_TEST_TASKSETS, PARALLELISM):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
@@ -120,12 +121,12 @@ def edge_prob_experiment():
       Vary the edge probability param. and measure the impact on SMT solution
       and heuristic solution.
 
-      U = [8], TPP = 8, EDGE_PROBABILITY = 10 -- 90
+      U = [8], TPP = 8, EDGE_PROBABILITY = 0 -- 100
     '''
     tasksets = {}
     NUM_OF_CORES = 8
     schedulability = {}
-    EDGE_PROBABILITY_RANGE = range(10, 100, 10)
+    EDGE_PROBABILITY_RANGE = range(0, 101, 10)
 
     if PRISTINE:
         print '\n[PROGRESS] Collecting pristine data for SMT'
@@ -169,11 +170,13 @@ def edge_prob_experiment():
 
                     schedulability[ep][u][s] += rta.run(ts, s)
 
-    print '\n', schedulability
+    print '\n'
 
     sched_file = 'edge_all/sched.json'
     with open(sched_file, 'w') as fdo:
         json.dump(schedulability, fdo)
+
+    sys.exit()
 
     return
 
@@ -548,6 +551,14 @@ def unit_test_rtg_rta():
 
     return
 
+def merge_tasksets(tasksets, smti):
+    for ts in tasksets:
+        for u in tasksets[ts]:
+            for p in tasksets[ts][u]:
+                tasksets[ts][u][p]['RTG-Synci'] = smti[ts][u][p]['Virtual']
+
+    return
+
 def main():
     # if DEBUG: dbg_single_candidate_set()
     if PRISTINE: parallel_create_virtual_taskset(); sys.exit()
@@ -565,18 +576,25 @@ def main():
         # For GFTP dry-run only
         tasksets = aggregator.run()
 
+    if SMT_IDEAL:
+        gen_dir = 'generated/%s_e%d_r0' % (TASKSET_TYPE, EDGE_PROBABILITY)
+        aggregator = Aggregator(gen_dir)
+        smti_tasksets = aggregator.run()
+
+        merge_tasksets(tasksets, smti_tasksets)
+
     rta_params = {
             'num_of_cores': NUM_OF_CORES
     }
 
     rta = RTA(rta_params)
 
-    rtgsync = ['RTG-Sync', 'h2-lnr-hyb'] # , 'h5-lnr-hyb', 'h6-crt-pth']
 
     if EDGE_PROBABILITY == 0:
-        schedulers = ['RT-Gang', 'GFTP', 'GFTPi', 'Threaded', 'Threadedi'] + rtgsync
+        schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Synci', 'GFTP', 'GFTPi',
+                'Threaded', 'Threadedi']
     else:
-        schedulers = ['RT-Gang'] + rtgsync
+        schedulers = ['RT-Gang', 'RTG-Sync', 'h2-lnr-hyb']
 
     if GFTP_DRYRUN:
         if EDGE_PROBABILITY != 0:
@@ -589,6 +607,7 @@ def main():
     color_scheme = {
         'RT-Gang'       : 'red',        # 'magenta',
         'RTG-Sync'      : 'blue',       # 'green',
+        'RTG-Synci'     : 'blue',       # 'green',
         'GFTP'          : 'magenta',    # 'cyan',
         'GFTPi'         : 'magenta',    # 'cyan',
         'h2-lnr-hyb'    : 'green',      # 'blue',
@@ -601,7 +620,8 @@ def main():
 
     sched_labels = {
         'RT-Gang'       : 'RT-Gang',
-        'RTG-Sync'      : 'Virtual-Gang (SMT)',
+        'RTG-Sync'      : 'Virtual-Gang',
+        'RTG-Synci'     : 'Virtual-Gang (Ideal)',
         'GFTP'          : 'Gang FTP',
         'GFTPi'         : 'Gang FTP (Ideal)',
         'Threaded'      : 'Threaded',
@@ -614,6 +634,7 @@ def main():
     sched_markers = {
         'RT-Gang'       : 'o',
         'RTG-Sync'      : '*',
+        'RTG-Synci'     : '*',
         'GFTP'          : '^',
         'GFTPi'         : '^',
         'h2-lnr-hyb'    : '8',
@@ -674,6 +695,12 @@ def main():
 
     # For GFTP dry-run, we cannot create plots yet
     if GFTP_DRYRUN: sys.exit()
+
+    sched_hash_file = 'plot_data/%s_e%d_r%s.json' % (TASKSET_TYPE,
+            EDGE_PROBABILITY, DEMAND_TYPE)
+
+    with open(sched_hash_file, 'w') as fdi:
+        json.dump(sched_ratio, fdi)
 
     print "[PROGRESS] Creating plots..."
     # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_labels,
@@ -811,6 +838,12 @@ def parallel_create_virtual_taskset():
 
     return
 
+def set_rd1(candidate_set):
+    for t in candidate_set:
+        t.r = 1
+
+    return
+
 def virtual_gang_generator_thread_entry(tsIdx):
     # Generate taskset and then create SMT script
     tf_params = {
@@ -819,7 +852,6 @@ def virtual_gang_generator_thread_entry(tsIdx):
         'num_of_cores'      : NUM_OF_CORES,
         'utils'             : UTILIZATIONS,
         'edge_prob'         : EDGE_PROBABILITY,
-        # 'tasks_per_period'  : MAX_TASKS_PER_PERIOD
     }
 
     taskFactory = Generator(tf_params)
@@ -831,6 +863,10 @@ def virtual_gang_generator_thread_entry(tsIdx):
         virtual_taskset[util] = {}
 
         for period, candidate_set in taskset[util].items():
+            if SMT_IDEAL:
+                set_rd1(candidate_set)
+                DEMAND_TYPE = '0'
+
             gen_dir = '/generated/%s_e%d_r%s' % (TASKSET_TYPE, EDGE_PROBABILITY,
                     DEMAND_TYPE)
 
