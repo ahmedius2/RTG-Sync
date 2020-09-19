@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 
 PRISTINE = False
 NUM_OF_CORES = 8
+GFTP_DRYRUN = False
 MAX_TASKS_PER_PERIOD = 8
 RESULT_FILE = 'vgangs.txt'
 UTILIZATIONS = range(1, NUM_OF_CORES)
@@ -253,8 +254,8 @@ def plot_edge_prob_data():
     return
 
 # edge_prob_experiment()
-plot_edge_prob_data()
-sys.exit()
+# plot_edge_prob_data()
+# sys.exit()
 
 def calc_time_avgs(time_data):
     avg_data = {}
@@ -447,8 +448,8 @@ def smt_timing_experiment():
     # Exit normally
     return
 
-smt_timing_experiment()
-sys.exit()
+# smt_timing_experiment()
+# sys.exit()
 
 def get_cli_params():
     demand_type = ''
@@ -557,7 +558,12 @@ def main():
             DEMAND_TYPE)
 
     aggregator = Aggregator(gen_dir)
-    tasksets = aggregator.run((EDGE_PROBABILITY == 0))
+
+    if not GFTP_DRYRUN:
+        tasksets = aggregator.run((EDGE_PROBABILITY == 0))
+    else:
+        # For GFTP dry-run only
+        tasksets = aggregator.run()
 
     rta_params = {
             'num_of_cores': NUM_OF_CORES
@@ -572,16 +578,24 @@ def main():
     else:
         schedulers = ['RT-Gang'] + rtgsync
 
+    if GFTP_DRYRUN:
+        if EDGE_PROBABILITY != 0:
+            print '[ERROR] in GFTP dry run mode. EP must be 0!'
+            sys.exit()
+
+        # Only run GFTP rta in dry-run mode
+        schedulers = ['GFTP']
+
     color_scheme = {
-        'RT-Gang'       : 'red', # 'magenta',
-        'RTG-Sync'      : 'blue', # 'green',
-        'GFTP'          : 'magenta', #'cyan',
-        'GFTPi'         : 'magenta', # 'cyan',
-        'h2-lnr-hyb'    : 'green', # 'blue',
-        'Threaded'      : 'cyan', # 'purple',
-        'Threadedi'     : 'cyan', # 'purple',
+        'RT-Gang'       : 'red',        # 'magenta',
+        'RTG-Sync'      : 'blue',       # 'green',
+        'GFTP'          : 'magenta',    # 'cyan',
+        'GFTPi'         : 'magenta',    # 'cyan',
+        'h2-lnr-hyb'    : 'green',      # 'blue',
+        'Threaded'      : 'cyan',       # 'purple',
+        'Threadedi'     : 'cyan',       # 'purple',
         'h4-mlt-scr'    : 'orange',
-        'h5-lnr-hyb'    : 'purple', # 'red',
+        'h5-lnr-hyb'    : 'purple',     # 'red',
         'h6-crt-pth'    : 'brown'
     }
 
@@ -630,8 +644,10 @@ def main():
                 gen_dir = 'generated/%s_e%d_r%s/ts%d_u%d_p' % (TASKSET_TYPE,
                         EDGE_PROBABILITY, DEMAND_TYPE, tsIdx, u)
 
-                # schedulable = rta.run(ts, s, gen_dir, True)
-                schedulable = rta.run(ts, s)
+                if not GFTP_DRYRUN:
+                    schedulable = rta.run(ts, s)
+                else:
+                    schedulable = rta.run(ts, s, gen_dir, True)
 
                 if not DEBUG:
                     sched_ratio[s][u] += schedulable
@@ -656,6 +672,9 @@ def main():
 
             #         sys.exit()
 
+    # For GFTP dry-run, we cannot create plots yet
+    if GFTP_DRYRUN: sys.exit()
+
     print "[PROGRESS] Creating plots..."
     # create_sched_plots(sched_ratio, schedulers, color_scheme, sched_labels,
     #         sched_markers, 'bar')
@@ -678,8 +697,8 @@ def dbg_print_vgangs(fdo, ts, s, label):
     return
 
 def stratify_data(data, idx, wd):
-    x = [v + (idx * wd) for v in sorted(data.keys())]
-    y = [data[v] for v in sorted(data.keys())]
+    x = [v + (idx * wd) for v in sorted(data.keys())] + [NUM_OF_CORES]
+    y = [data[v] for v in sorted(data.keys())] + [0]
 
     return x, y
 
@@ -718,7 +737,7 @@ def create_sched_plots(sched_hash, sched_list, clist, slabels, smarks,
 
     if TASKSET_TYPE == 'mixed': plt.legend(fontsize = 'x-large')
 
-    plt.savefig('figures/%s_e%d_r%s_%s.png' % (TASKSET_TYPE,
+    plt.savefig('plots_for_paper/%s_e%d_r%s_%s.png' % (TASKSET_TYPE,
         EDGE_PROBABILITY, DEMAND_TYPE, plot_type))
 
     return
