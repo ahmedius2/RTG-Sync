@@ -176,7 +176,8 @@ def edge_prob_experiment():
 
     return
 
-def plot_edge_prob_data():
+def read_sched_data():
+    sched_data = {}
     sched_file = 'edge_all/sched.json'
 
     assert os.path.exists(sched_file), ('File containing sched. data <%s> '
@@ -185,7 +186,6 @@ def plot_edge_prob_data():
     with open(sched_file, 'r') as fdi:
         sched_dict = json.load(fdi)
 
-    sched_data = {}
     for ep in sched_dict:
         epi = int(ep)
         sched_data[epi] = {}
@@ -198,7 +198,57 @@ def plot_edge_prob_data():
                 ss = str(s)
                 sched_data[epi][ui][ss] = sched_dict[ep][u][s]
 
-    print sched_data
+    return sched_data
+
+def stratify_sched_data(data):
+    plot_data = {}
+
+    # Assuming that we have 1 ... NUM_OF_CORES util. levels
+    plot_data['x'] = range(1, NUM_OF_CORES + 1)
+
+    plot_data['smt_e10'] = [data[10][u]['RTG-Sync']   for u in UTILIZATIONS]
+    plot_data['smt_e50'] = [data[50][u]['RTG-Sync']   for u in UTILIZATIONS]
+    plot_data['smt_e90'] = [data[90][u]['RTG-Sync']   for u in UTILIZATIONS]
+    plot_data['h2_e10']  = [data[10][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
+    plot_data['h2_e50']  = [data[50][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
+    plot_data['h2_e90']  = [data[90][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
+
+    plot_data['smt_e10'] += [0]
+    plot_data['smt_e50'] += [0]
+    plot_data['smt_e90'] += [0]
+    plot_data['h2_e10']  += [0]
+    plot_data['h2_e50']  += [0]
+    plot_data['h2_e90']  += [0]
+
+    return plot_data
+
+def plot_edge_prob_data():
+    sched_data = read_sched_data()
+    plot_data = stratify_sched_data(sched_data)
+
+    fig = plt.subplots(1, 1, figsize = (10, 8))
+    plt.plot(plot_data['x'], plot_data['smt_e10'], 'green', lw = 1.0, ls = '--',
+            marker = 'o', label = 'SMT-EP10')
+    # plt.plot(plot_data['x'], plot_data['smt_e50'], 'green', lw = 1.0, ls = '--',
+    #         marker = 'D', label = 'SMT-EP50')
+    plt.plot(plot_data['x'], plot_data['smt_e90'], 'green', lw = 1.0, ls = '-',
+            marker = 's', label = 'SMT-EP90')
+
+    plt.plot(plot_data['x'], plot_data['h2_e10'], 'blue', lw = 1.0, ls = '--',
+            marker = 'o', label = 'HUR-EP10')
+    # plt.plot(plot_data['x'], plot_data['h2_e50'], 'blue', lw = 1.0, ls = '--',
+    #         marker = 'D', label = 'HUR-EP50')
+    plt.plot(plot_data['x'], plot_data['h2_e90'], 'blue', lw = 1.0, ls = '-',
+            marker = 's', label = 'HUR-EP90')
+
+    plt.xlim([0.5, NUM_OF_CORES + 0.5])
+    plt.ylim([0, 105])
+    plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
+    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
+            fontweight = 'bold')
+
+    plt.legend(fontsize = 'x-large')
+    plt.savefig('plots_for_paper/edge_probability.png')
 
     return
 
