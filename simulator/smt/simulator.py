@@ -48,7 +48,7 @@ def print_progress_edge(cur_taskset, ep, util, period):
 
 def parallel_create_virtual_taskset_edge(ep):
     processes = {}
-    NUM_OF_TEST_TASKSETS = 1000
+    NUM_OF_TEST_TASKSETS = 98
 
     for r in range(1, NUM_OF_TEST_TASKSETS, PARALLELISM):
         for tsIdx in range(r, min(r + PARALLELISM, NUM_OF_TEST_TASKSETS)):
@@ -65,7 +65,7 @@ def parallel_create_virtual_taskset_edge(ep):
 
 def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
     NUM_OF_CORES = 8
-    TASKSET_TYPE = 'mixed'
+    TASKSET_TYPE = 'light'
     MAX_TASKS_PER_PERIOD = 8
     NUM_OF_TEST_TASKSETS = 10
 
@@ -88,7 +88,7 @@ def virtual_gang_generator_thread_entry_edge(tsIdx, ep):
         virtual_taskset[util] = {}
 
         for period, candidate_set in taskset[util].items():
-            gen_dir = '/edge_all/ep%d' % (ep)
+            gen_dir = '/edge_all_light/ep%d' % (ep)
 
             vgc_params = {
                 'stop_interval'     : 1,
@@ -140,7 +140,7 @@ def edge_prob_experiment():
 
     print '\n[PROGRESS] Reading data from file-system'
     for ep in EDGE_PROBABILITY_RANGE:
-        gen_dir = 'edge_all/ep%d/' % (ep)
+        gen_dir = 'edge_all_light/ep%d/' % (ep)
 
         # Collect the results from the file-system
         aggregator = Aggregator(gen_dir)
@@ -174,7 +174,7 @@ def edge_prob_experiment():
 
     print '\n'
 
-    sched_file = 'edge_all/sched.json'
+    sched_file = 'edge_all_light/sched.json'
     with open(sched_file, 'w') as fdo:
         json.dump(schedulability, fdo)
 
@@ -184,7 +184,7 @@ def edge_prob_experiment():
 
 def read_sched_data_edge():
     sched_data = {}
-    sched_file = 'edge_all/sched.json'
+    sched_file = 'edge_all_light/sched.json'
 
     assert os.path.exists(sched_file), ('File containing sched. data <%s> '
             'does not exist.' % (sched_file))
@@ -212,7 +212,7 @@ def stratify_sched_data(data):
     # Hardcode the parameters used in this experiment.
     # FIXME We should get these value from the json dataset for this experiment
     NUM_OF_CORES = 8
-    NUM_OF_TASKSETS = 100
+    NUM_OF_TASKSETS = 98
     UTILIZATIONS = range(1, NUM_OF_CORES + 1)
 
     # Assuming that we have 1 ... NUM_OF_CORES util. levels
@@ -255,9 +255,9 @@ def plot_edge_prob_data():
 
     return
 
-# edge_prob_experiment()
-plot_edge_prob_data()
-sys.exit()
+edge_prob_experiment()
+# plot_edge_prob_data()
+# sys.exit()
 
 def calc_time_avgs(time_data):
     avg_data = {}
