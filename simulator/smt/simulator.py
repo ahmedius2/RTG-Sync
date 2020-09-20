@@ -18,7 +18,9 @@ matplotlib.use('Agg')
 import numpy as np
 from matplotlib import mlab
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 
+REUSE = True
 PRISTINE = False
 SMT_IDEAL = False
 NUM_OF_CORES = 8
@@ -180,7 +182,7 @@ def edge_prob_experiment():
 
     return
 
-def read_sched_data():
+def read_sched_data_edge():
     sched_data = {}
     sched_file = 'edge_all/sched.json'
 
@@ -207,58 +209,55 @@ def read_sched_data():
 def stratify_sched_data(data):
     plot_data = {}
 
+    # Hardcode the parameters used in this experiment.
+    # FIXME We should get these value from the json dataset for this experiment
+    NUM_OF_CORES = 8
+    NUM_OF_TASKSETS = 100
+    UTILIZATIONS = range(1, NUM_OF_CORES + 1)
+
     # Assuming that we have 1 ... NUM_OF_CORES util. levels
-    plot_data['x'] = range(1, NUM_OF_CORES + 1)
+    edge_probs = sorted(data.keys())
 
-    plot_data['smt_e10'] = [data[10][u]['RTG-Sync']   for u in UTILIZATIONS]
-    plot_data['smt_e50'] = [data[50][u]['RTG-Sync']   for u in UTILIZATIONS]
-    plot_data['smt_e90'] = [data[90][u]['RTG-Sync']   for u in UTILIZATIONS]
-    plot_data['h2_e10']  = [data[10][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
-    plot_data['h2_e50']  = [data[50][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
-    plot_data['h2_e90']  = [data[90][u]['h2-lnr-hyb'] for u in UTILIZATIONS]
+    plot_data['h2']  = []
+    plot_data['smt'] = []
+    plot_data['x'] = edge_probs
 
-    plot_data['smt_e10'] += [0]
-    plot_data['smt_e50'] += [0]
-    plot_data['smt_e90'] += [0]
-    plot_data['h2_e10']  += [0]
-    plot_data['h2_e50']  += [0]
-    plot_data['h2_e90']  += [0]
+    max_sched_x_util = sum(UTILIZATIONS) * NUM_OF_TASKSETS
+
+    for ep in edge_probs:
+        sum_sched_x_util_smt = sum([data[ep][u]['RTG-Sync']   * u for u in data[ep]])
+        sum_sched_x_util_h2  = sum([data[ep][u]['h2-lnr-hyb'] * u for u in data[ep]])
+
+        plot_data['smt'].append(round(float(sum_sched_x_util_smt) / max_sched_x_util, 3))
+        plot_data['h2'].append(round(float(sum_sched_x_util_h2) / max_sched_x_util, 3))
 
     return plot_data
 
 def plot_edge_prob_data():
-    sched_data = read_sched_data()
+    sched_data = read_sched_data_edge()
     plot_data = stratify_sched_data(sched_data)
 
-    fig = plt.subplots(1, 1, figsize = (10, 8))
-    plt.plot(plot_data['x'], plot_data['smt_e10'], 'green', lw = 1.0, ls = '--',
-            marker = 'o', label = 'SMT-EP10')
-    # plt.plot(plot_data['x'], plot_data['smt_e50'], 'green', lw = 1.0, ls = '--',
-    #         marker = 'D', label = 'SMT-EP50')
-    plt.plot(plot_data['x'], plot_data['smt_e90'], 'green', lw = 1.0, ls = '-',
-            marker = 's', label = 'SMT-EP90')
+    fig, ax = plt.subplots(1, 1, figsize = (5, 4))
+    plt.plot(plot_data['x'], plot_data['smt'], 'blue', lw = 1.0, ls = '-',
+            marker = 'o', label = 'SMT')
+    plt.plot(plot_data['x'], plot_data['h2'], 'green', lw = 1.0, ls = '-',
+            marker = 's', label = 'Heuristic')
 
-    plt.plot(plot_data['x'], plot_data['h2_e10'], 'blue', lw = 1.0, ls = '--',
-            marker = 'o', label = 'HUR-EP10')
-    # plt.plot(plot_data['x'], plot_data['h2_e50'], 'blue', lw = 1.0, ls = '--',
-    #         marker = 'D', label = 'HUR-EP50')
-    plt.plot(plot_data['x'], plot_data['h2_e90'], 'blue', lw = 1.0, ls = '-',
-            marker = 's', label = 'HUR-EP90')
-
-    plt.xlim([0.5, NUM_OF_CORES + 0.5])
-    plt.ylim([0, 105])
-    plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
-    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
+    plt.ylim([0.3, 0.5])
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    plt.xlabel('Edge Probability (%)', fontsize = 'large', fontweight = 'bold')
+    plt.ylabel('Weighted Utilization', fontsize = 'large',
             fontweight = 'bold')
 
-    plt.legend(fontsize = 'x-large')
-    plt.savefig('plots_for_paper/edge_probability.png')
+    plt.legend(fontsize = 'medium')
+    plt.savefig('final_plots/edge_probability.pdf', bbox_inches = 'tight',
+            pad_inches = 0)
 
     return
 
 # edge_prob_experiment()
-# plot_edge_prob_data()
-# sys.exit()
+plot_edge_prob_data()
+sys.exit()
 
 def calc_time_avgs(time_data):
     avg_data = {}
@@ -279,7 +278,7 @@ def calc_time_avgs(time_data):
     return avg_data
 
 def plot_timing_data(data):
-    fig = plt.subplots(1, 1, figsize = (10, 8))
+    fig = plt.subplots(1, 1, figsize = (5, 4))
 
     bar_width = 0.25
     h2_xaxis  = [x - bar_width/2 for x in data['x']]
@@ -293,12 +292,13 @@ def plot_timing_data(data):
 
     plt.grid(True, ls = '--')
     plt.yscale('log')
-    plt.legend(fontsize = 'x-large')
+    plt.legend(fontsize = 'medium')
     plt.xlim([0, len(data['x']) + 1])
-    plt.ylabel('Time (seconds)', fontsize = 'x-large', fontweight = 'bold')
-    plt.xlabel('Tasks Per Period', fontsize = 'x-large', fontweight = 'bold')
+    plt.ylabel('Time (seconds)', fontsize = 'large', fontweight = 'bold')
+    plt.xlabel('Tasks Per Period', fontsize = 'large', fontweight = 'bold')
 
-    plt.savefig('plots_for_paper/smt_timing.png')
+    plt.savefig('plots_for_paper/smt_timing.pdf', bbox_inches = 'tight',
+            pad_inches = 0)
 
     return
 
@@ -559,8 +559,88 @@ def merge_tasksets(tasksets, smti):
 
     return
 
+def read_sched_data(sched_hash_file):
+    sched_hash = {}
+
+    with open(sched_hash_file, 'r') as fdo:
+            sched_json = json.load(fdo)
+
+    for s in sched_json:
+        ss = str(s)
+        sched_hash[ss] = {}
+
+        for u in sched_json[s]:
+            ui = int(u)
+            sched_hash[ss][ui] = int(sched_json[s][u])
+
+    return sched_hash
+
+def stratify_data_final(data):
+    x = [v for v in sorted(data.keys())] + [NUM_OF_CORES]
+    y = [data[v] for v in sorted(data.keys())] + [0]
+
+    return x, y
+
+def create_sched_plots_final(sched_hash, sched_list, style):
+    fig = plt.subplots(1, 1, figsize = (5, 4))
+
+    for s in sched_list:
+        x, y = stratify_data_final(sched_hash[s])
+        plt.plot(x, y, lw = 1.0,
+                color  = style[s]['c'],
+                label  = style[s]['l'],
+                marker = style[s]['m'],
+                ls = '--' if s[-1] == 'i' else '-')
+
+    plt.grid(True, ls = '--')
+    plt.xlim([0.5, NUM_OF_CORES + 0.5])
+    plt.ylim([0, NUM_OF_TEST_TASKSETS * 1.05])
+    plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
+    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
+            fontweight = 'bold')
+
+    if TASKSET_TYPE == 'mixed': plt.legend(fontsize = 'small',
+            loc = 'lower left')
+
+    plt.savefig('final_plots/%s_e%d_r%s.pdf' % (TASKSET_TYPE,
+        EDGE_PROBABILITY, DEMAND_TYPE), bbox_inches = 'tight', pad_inches = 0)
+
+    return
+
 def main():
     # if DEBUG: dbg_single_candidate_set()
+    if REUSE:
+        sched_hash_file = 'plot_data/%s_e%d_r%s.json' % (TASKSET_TYPE,
+                EDGE_PROBABILITY, DEMAND_TYPE)
+
+        assert os.path.exists(sched_hash_file), ('Dictionary for sched. '
+                'result not found here: <%s>' % (sched_hash_file))
+
+        print '[PROGRESS] Resuing data:', sched_hash_file
+        sched_hash = read_sched_data(sched_hash_file)
+
+        style = {}
+        style['RT-Gang']    = {'c': 'red',      'm': 'o',   'l': 'RT-Gang'}
+        style['RTG-Sync']   = {'c': 'blue',     'm': '*',   'l': 'Virtual-Gang'}
+        style['RTG-Synci']  = {'c': 'blue',     'm': '*',   'l': 'Virtual-Gang (Ideal)'}
+        style['h2-lnr-hyb'] = {'c': 'green',    'm': '*',   'l': 'Virtual-Gang (Greedy)'}
+        style['Threaded']   = {'c': 'cyan',     'm': 's',   'l': 'Threaded'}
+        style['Threadedi']  = {'c': 'cyan',     'm': 's',   'l': 'Threaded (Ideal)'}
+        style['GFTP']       = {'c': 'magenta',  'm': '^',   'l': 'Gang FTP'}
+        style['GFTPi']      = {'c': 'magenta',  'm': '^',   'l': 'Gang FTP (Ideal)'}
+
+        if EDGE_PROBABILITY != 0:
+            schedulers = ['RTG-Sync', 'h2-lnr-hyb', 'RT-Gang']
+            style['RTG-Sync']['l'] = 'Virtual-Gang (SMT)'
+        else:
+            schedulers = ['RTG-Synci', 'RTG-Sync', 'RT-Gang', 'Threadedi',
+                    'Threaded', 'GFTPi', 'GFTP']
+
+        create_sched_plots_final(sched_hash, schedulers, style)
+        print '[PROGRESS] Plot done!'
+
+        sys.exit()
+
     if PRISTINE: parallel_create_virtual_taskset(); sys.exit()
 
     # Aggregate results by parsing the file-system logs and re-create real and
