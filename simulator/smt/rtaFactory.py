@@ -5,9 +5,10 @@ from combinationGenerator import CombinationGenerator
 class RTA:
     def __init__(self, params):
         required_params = ['num_of_cores']
-        self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'h1-len-dsc',
-                'h2-lnr-hyb', 'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb',
-                'h6-crt-pth', 'GFTP', 'GFTPi', 'Threaded', 'Threadedi']
+        self.allowed_schedulers = ['RT-Gang', 'RTG-Sync', 'RTG-Synci',
+                'h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth', 'h4-mlt-scr',
+                'h5-lnr-hyb', 'h6-crt-pth', 'GFTP', 'GFTPi', 'Threaded',
+                'Threadedi']
 
         for rp in required_params:
             assert params.has_key(rp), ("%s is a required parameter "
@@ -231,8 +232,9 @@ class RTA:
             if debug: print '  = Schedulable!'
             return 1
 
-        if scheduler in ['RT-Gang', 'RTG-Sync', 'h1-len-dsc', 'h2-lnr-hyb',
-                'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
+        if scheduler in ['RT-Gang', 'RTG-Sync', 'RTG-Synci', 'h1-len-dsc',
+                'h2-lnr-hyb', 'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb',
+                'h6-crt-pth']:
             pq, sched_test_1 = self.__create_rtg_pq(taskset, scheduler)
 
             # Taskset has failed the preliminary schedulability test
@@ -1317,8 +1319,8 @@ class RTA:
                 tasks = taskset[p]['Real']
             elif scheduler == 'RTG-Sync':
                 tasks = taskset[p]['Virtual']
-            elif scheduler in ['h1-len-dsc', 'h2-lnr-hyb', 'h3-crt-pth',
-                    'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
+            elif scheduler in ['RTG-Synci', 'h1-len-dsc', 'h2-lnr-hyb',
+                    'h3-crt-pth', 'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
                 tasks = taskset[p][scheduler]
             else:
                 raise ValueError, ('Unknown scheduler: %s' % scheduler)

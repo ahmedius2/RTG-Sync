@@ -62,7 +62,7 @@ class Generator:
                 # Randomly select the number of tasks to generate for the
                 # current period
                 if not self.tasks_per_period:
-                    self.tasks_per_period = random.randint(5, self.num_of_cores)
+                    self.tasks_per_period = random.randint(2, self.num_of_cores)
 
                 while (tid % self.tasks_per_period):
                     task, remUtil, stop = self.gen_task_params(tasksetType,
