@@ -64,6 +64,7 @@ do {									\
 /* PLATFORM DEPENDENT DECLARATIONS */
 #if (THIS_PLATFORM_ID == ID_TX2)
 #define NR_RTG_SYSCALL		(245)
+#define NR_NPP_SYSCALL		(246)
 #define REGULATION_PERIOD_MSEC	(1)
 
 /* LLC_LINE_SIZE_SHIFT = log2 (LLC_LINE_SIZE_IN_BYTES) */
@@ -110,6 +111,8 @@ static inline void rtg_assert (bool assertion, char* msg)
  * The functions declared below are meant to be called by other programs (which
  * link this library) that want to use this library's services
  */
+void npp_lock();
+void npp_unlock();
 unsigned long parse_color_string (char *buf);
 void register_gang_with_kernel (int id, unsigned long color_mask,
 		unsigned int mem_read_budget, unsigned int mem_write_budget);

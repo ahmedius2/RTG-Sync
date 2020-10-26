@@ -11,6 +11,8 @@
  * 2019-05-20	Use virtual gang ID value for managing runtime resources
  * 2019-05-21	Add kernel interface management during virtual gang setup
  */
+#include <errno.h>
+#include <unistd.h>
 #include "rtg_lib.h"
 
 #ifdef RTG_SYNCH_DEBUG
@@ -219,6 +221,32 @@ void register_gang_with_kernel (int id, unsigned long color_mask,
 	return;
 }
 
+void npp_lock()
+{
+	int ret;
+
+	ret = syscall(NR_NPP_SYSCALL, 1);
+	while (ret == -EBUSY) {
+		printf("[RTG-DEBUG] NPP lock busy. Retrying...\n");
+
+		usleep(100);
+		ret = syscall(NR_NPP_SYSCALL, 1);
+	}
+
+	rtg_assert(ret == 0, "Failed to acquire / nest NPP lock");
+
+	return;
+}
+
+void npp_unlock()
+{
+	int ret;
+
+	ret = syscall(NR_NPP_SYSCALL, 0);
+	rtg_assert(ret == 0, "Failed to release NPP lock");
+
+	return;
+}
 
 /*
  * rtg_daemon_cleanup: Interface function for deleting shared memory based
