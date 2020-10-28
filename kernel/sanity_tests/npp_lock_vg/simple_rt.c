@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <getopt.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "rtg_lib.h"
 
 #define WARN			(1U)
@@ -13,8 +14,9 @@
 #define SECS(ts)		(ts / 1000UL)
 #define MSECS(ts)		(ts % 1000UL)
 #define MS_TO_NANOS(ts)		(ts * 1000000ULL)
-#define GET_VG_INFO(tcb)	(&(tcb)->virtual_gang)
+#define GET_LOCK_INFO(tcb)	(&(tcb)->lock_info)
 #define GET_PERIODICITY(tcb)	(&(tcb)->periodicity)
+#define GET_VG_INFO(tcb)	(&(tcb)->virtual_gang)
 
 #define IS_VIRTUAL_GANG(tcb)	(GET_VG_INFO(tcb)->id != 0)
 
@@ -36,6 +38,11 @@ typedef struct periodicity_control_block {
 	struct timespec 	current_activation;
 } pcb_t;
 
+typedef struct lock_info {
+	uint32_t		delay_ms;
+	uint32_t		duration_ms;
+} lock_info_t;
+
 typedef struct virtual_gang_info {
 	uint32_t 		id;
 	pthread_barrier_t* 	barrier;
@@ -48,6 +55,7 @@ typedef struct task_control_block {
 
 	pcb_t 			periodicity;
 	vg_info_t 		virtual_gang;
+	lock_info_t		lock_info;
 } tcb_t;
 
 void print_usage(char** argv)
@@ -57,6 +65,8 @@ void print_usage(char** argv)
 	printf("  -p: periodic of the periodic task. Default = 10msec\n");
 	printf("  -j: number of jobs to execute. Default = 100\n");
 	printf("  -v: virtual gang id. Default = 0\n");
+	printf("  -l: lock duration. Default = 0\n");
+	printf("  -y: lock delay. Default = 0\n");
 	printf("  -d: debug level. Default = 0\n");
 	printf("  -h: print usage\n\n");
 
@@ -73,11 +83,23 @@ void print_usage(char** argv)
  */
 static int debug_level = 0;
 
-void check_task_params(tcb_t* params)
+void check_task_params(tcb_t* task)
 {
-	if (params->wcet_ms >= params->period_ms) {
+	uint32_t lock_ops_time;
+
+	if (task->wcet_ms >= task->period_ms) {
 		printf("[ERROR] WCET <%u> must be less than period <%u>!\n",
-			params->wcet_ms, params->period_ms);
+			task->wcet_ms, task->period_ms);
+
+		exit(EXIT_FAILURE);
+	}
+
+	lock_ops_time = GET_LOCK_INFO(task)->delay_ms +
+		GET_LOCK_INFO(task)->duration_ms;
+
+	if (task->wcet_ms <= lock_ops_time) {
+		printf("[ERROR] WCET <%u> must accomodate lock ops <%u>!\n",
+			task->wcet_ms, lock_ops_time);
 
 		exit(EXIT_FAILURE);
 	}
@@ -88,30 +110,47 @@ void check_task_params(tcb_t* params)
 void process_one_activation(tcb_t* task)
 {
 	int err;
-	struct timespec cur_thread_time;
-	uint32_t end_thread_time, ts_start, ts_end;
+	bool locked = false;
+	struct timespec cur_time_tspec;
+	uint32_t cur_ts_us, job_start_ts_us, job_end_ts_us, lock_start_ts_us,
+		 lock_end_ts_us;
 
-	err = clock_gettime(CLOCK_MONOTONIC, &cur_thread_time);
+	err = clock_gettime(CLOCK_MONOTONIC, &cur_time_tspec);
 	assert(err == 0);
+	job_start_ts_us = TSPEC_TO_US(cur_time_tspec);
 
-	ts_start = TSPEC_TO_US(cur_thread_time);
-
-	err = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cur_thread_time);
+	err = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cur_time_tspec);
 	assert(err == 0);
+	cur_ts_us = TSPEC_TO_US(cur_time_tspec);
 
-	end_thread_time = TSPEC_TO_US(cur_thread_time) + (task->wcet_ms * 1000);
+	lock_start_ts_us = cur_ts_us + (GET_LOCK_INFO(task)->delay_ms * 1000);
+	lock_end_ts_us = lock_start_ts_us +
+		(GET_LOCK_INFO(task)->duration_ms * 1000);
+	job_end_ts_us =  cur_ts_us + (task->wcet_ms * 1000);
 
-	while(TSPEC_TO_US(cur_thread_time) < end_thread_time) {
-		err = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cur_thread_time);
+	while(cur_ts_us < job_end_ts_us) {
+		err = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cur_time_tspec);
 		assert(err == 0);
+		cur_ts_us = TSPEC_TO_US(cur_time_tspec);
+
+		if (!locked && ((cur_ts_us >= lock_start_ts_us) &&
+					(cur_ts_us < lock_end_ts_us))) {
+			npp_lock();
+			locked = true;
+		}
+
+		if (locked && (cur_ts_us >= lock_end_ts_us)) {
+			npp_unlock();
+			locked = false;
+		}
 	}
 
-	err = clock_gettime(CLOCK_MONOTONIC, &cur_thread_time);
-	ts_end = TSPEC_TO_US(cur_thread_time);
+	err = clock_gettime(CLOCK_MONOTONIC, &cur_time_tspec);
+	job_end_ts_us = TSPEC_TO_US(cur_time_tspec);
 
 	debug_printf(INFO, "job=%-3u start=%u end=%u dur=%u\n",
-			GET_PERIODICITY(task)->current_job_id, ts_start,
-			ts_end, ts_end - ts_start);
+			GET_PERIODICITY(task)->current_job_id, job_start_ts_us,
+			job_end_ts_us, job_end_ts_us - job_start_ts_us);
 
 	return;
 }
@@ -192,7 +231,7 @@ int main(int argc, char** argv)
 		.virtual_gang.id = 0
 	};
 
-	while ((opt = getopt(argc, argv, "c:p:j:v:d:h")) != -1) {
+	while ((opt = getopt(argc, argv, "c:p:j:v:d:l:y:h")) != -1) {
 		switch (opt) {
 			case 'c':
 				tcb.wcet_ms = strtol(optarg, NULL, 0);
@@ -204,6 +243,16 @@ int main(int argc, char** argv)
 
 			case 'j':
 				tcb.jobs = strtol(optarg, NULL, 0);
+				break;
+
+			case 'l':
+				GET_LOCK_INFO(&tcb)->duration_ms =
+					strtol(optarg, NULL, 0);
+				break;
+
+			case 'y':
+				GET_LOCK_INFO(&tcb)->delay_ms =
+					strtol(optarg, NULL, 0);
 				break;
 
 			case 'v':
