@@ -4,12 +4,12 @@ LIBS=-lrtg -lpthread
 LDFLAGS=-Wl,--no-as-needed -lrt
 CFLAGS=-Wall -g -I../../../src/framework/include
 
-all: bandwidth-rt
+all: simple_rt
 
-bandwidth-rt: bandwidth-rt.c
+simple_rt: simple_rt.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS)
 	@cp $@ tau_1
 	@mv $@ tau_2
 
 clean:
-	rm -f bandwidth-rt tau_1 tau_2
+	rm -f simple_rt tau_1 tau_2
