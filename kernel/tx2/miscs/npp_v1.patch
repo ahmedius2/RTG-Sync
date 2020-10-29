@@ -25,10 +25,10 @@ index a90c346..046d0a9 100644
  
  #define __NR_wait4 260
 diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 6e64991..b59ef3c 100644
+index 6e64991..41e1766 100644
 --- a/kernel/sched/deadline.c
 +++ b/kernel/sched/deadline.c
-@@ -1208,10 +1208,17 @@ struct task_struct *pick_next_task_dl(struct rq *rq, struct task_struct *prev)
+@@ -1208,10 +1208,28 @@ struct task_struct *pick_next_task_dl(struct rq *rq, struct task_struct *prev)
  
  #ifdef CONFIG_SCHED_RTGANG
  	if (sched_feat(RT_GANG_LOCK)) {
@@ -42,16 +42,27 @@ index 6e64991..b59ef3c 100644
 +			printk(KERN_WARNING "[RT-GANG] NPP lock has not been "
 +				"tested with deadline tasks. Use at your own "
 +				"risk!\n");
-+			p = prev;
++
++			if (prev->sched_class == &dl_sched_class) {
++				/*
++				 * The 'next' task cannot preempt the 'prev'
++				 * task because of the NPP lock. Since the
++				 * 'prev' task belongs to the deadline class,
++				 * we must return it back to the scheduler so
++				 * that it may continue execution.
++				 */
++				p = prev;
++			} else
++				return BLOCK_TASK;
 +		}
  	}
  #endif
  
 diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 9f8077f..18bf5b5 100644
+index 9f8077f..01ed691 100644
 --- a/kernel/sched/rt.c
 +++ b/kernel/sched/rt.c
-@@ -1541,19 +1541,30 @@ pick_next_task_rt(struct rq *rq, struct task_struct *prev)
+@@ -1541,19 +1541,32 @@ pick_next_task_rt(struct rq *rq, struct task_struct *prev)
  	if (!rt_rq->rt_queued)
  		return NULL;
  
@@ -63,16 +74,19 @@ index 9f8077f..18bf5b5 100644
 -		ret = rtg_try_acquire_lock(p);
 +		ret = rtg_try_acquire_lock(p, prev);
  
- 		if (ret == RTG_BLOCK)
+-		if (ret == RTG_BLOCK)
++		if (ret == RTG_BLOCK || (ret == RTG_NPP_BLOCK &&
++					prev->sched_class != &rt_sched_class))
  			return BLOCK_TASK;
 +
-+		if (ret == RTG_NPP_BLOCK) {
++		if (ret == RTG_NPP_BLOCK &&
++				prev->sched_class == &rt_sched_class) {
 +			/*
 +			 * The 'next' task cannot preempt the 'prev' task
-+			 * because of the NPP lock. We must put the 'prev'
-+			 * task back to the RT ready-queue and return it as
-+			 * the 'next' task so that it may be dequeued by the
-+			 * scheduler again and finish its critical section.
++			 * because of the NPP lock. Since the 'prev' task
++			 * belongs to the RT sched class, we must return it
++			 * back to the scheduler so that it may continue
++			 * execution.
 +			 */
 +			p = prev;
 +		}
@@ -87,7 +101,7 @@ index 9f8077f..18bf5b5 100644
  	/* The running task is never eligible for pushing */
  	dequeue_pushable_task(rq, p);
 diff --git a/kernel/sched/rtgang.c b/kernel/sched/rtgang.c
-index 5917263..a662c24 100644
+index 5917263..ee724e4 100644
 --- a/kernel/sched/rtgang.c
 +++ b/kernel/sched/rtgang.c
 @@ -12,6 +12,7 @@
@@ -171,7 +185,7 @@ index 5917263..a662c24 100644
  {
  	int this_cpu = smp_processor_id();
  	int ret = RTG_CONTINUE;
-@@ -214,6 +228,27 @@ int rtg_try_acquire_lock(struct task_struct *next)
+@@ -214,11 +228,38 @@ int rtg_try_acquire_lock(struct task_struct *next)
  		((IS_EDF(next) && IS_EARLIER_EDF(next, rtg_lock->leader)) ||
  		(!IS_EDF(next) && IS_HIGHER_PRIO(next, rtg_lock->leader)))) ||
  	   ((!IS_SAME_CLASS(next, rtg_lock->leader)) && IS_EDF(next))) {
@@ -199,7 +213,18 @@ index 5917263..a662c24 100644
  		rtg_log_event(RTG_LEVEL_STATE, next, "preemptor");
  		rtg_log_event(RTG_LEVEL_STATE, rtg_lock->leader, "preemptee");
  
-@@ -238,6 +273,70 @@ out:
+ 		do_gang_preemption(next);
+ 
++		/*
++		 * The 'prev' task will now be blocked on this cpu. We must
++		 * update the blocked core mask to reflect that.
++		 */
++		cpumask_set_cpu(this_cpu, rtg_lock->blocked_cores);
++
+ #ifdef CONFIG_SCHED_THROTTLE
+ 		th_rtg_update_budget(GET_RTG_INFO(next)->rd_th,
+ 					GET_RTG_INFO(next)->wr_th);
+@@ -238,6 +279,70 @@ out:
  	return ret;
  }
  
@@ -270,7 +295,7 @@ index 5917263..a662c24 100644
  /*
   * rtg_init_lock - Initialize RT-Gang data-structure and interface
   *
-@@ -257,14 +356,16 @@ static int __init rtg_init_lock(void)
+@@ -257,14 +362,16 @@ static int __init rtg_init_lock(void)
  	if (!debugfs_create_u32("debug_level", mode, dir, &rtg_debug_level))
  		goto fail;
  
