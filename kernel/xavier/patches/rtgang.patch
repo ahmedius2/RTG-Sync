@@ -1,0 +1,354 @@
+diff --git a/Makefile b/Makefile
+index c1207163309a..5d0ebb9c708e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -20,7 +20,7 @@ $(foreach overlay,$(KERNEL_OVERLAYS),$(eval $(value set_srctree_overlay)))
+ VERSION = 4
+ PATCHLEVEL = 9
+ SUBLEVEL = 140
+-EXTRAVERSION =
++EXTRAVERSION = -rtg
+ NAME = Roaring Lionus
+ 
+ # *DOCUMENTATION*
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 182f8ccb7aa7..6d33675f4b14 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -127,6 +127,17 @@ struct sched_attr {
+ 	u64 sched_period;
+ };
+ 
++#ifdef CONFIG_SCHED_RTGANG
++struct rtg_resource_info {
++	int gid;
++	int rd_th;
++	int wr_th;
++	long unsigned bins;
++};
++
++#define GET_RTG_INFO(task)	(&task->rtg_info)
++#endif
++
+ struct futex_pi_state;
+ struct robust_list_head;
+ struct bio_list;
+@@ -1705,6 +1716,10 @@ struct task_struct {
+ #endif
+ 	struct sched_dl_entity dl;
+ 
++#ifdef CONFIG_SCHED_RTGANG
++	struct rtg_resource_info rtg_info;
++#endif
++
+ #ifdef CONFIG_PREEMPT_NOTIFIERS
+ 	/* list of struct preempt_notifier: */
+ 	struct hlist_head preempt_notifiers;
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 91a740f6b884..16f67d09644c 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -903,4 +903,9 @@ asmlinkage long sys_pkey_mprotect(unsigned long start, size_t len,
+ asmlinkage long sys_pkey_alloc(unsigned long flags, unsigned long init_val);
+ asmlinkage long sys_pkey_free(int pkey);
+ 
++#ifdef CONFIG_SCHED_RTGANG
++asmlinkage long sys_rtg_set_params(pid_t pid,
++			struct rtg_resource_info __user *info);
++#endif
++
+ #endif
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 9b1462e38b82..35a2317f0f39 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -665,6 +665,11 @@ __SC_COMP(__NR_recvmmsg, sys_recvmmsg, compat_sys_recvmmsg)
+  */
+ #define __NR_arch_specific_syscall 244
+ 
++#ifdef CONFIG_SCHED_RTGANG
++#define __NR_rtg_set_params 245
++__SYSCALL(__NR_rtg_set_params, sys_rtg_set_params)
++#endif
++
+ #define __NR_wait4 260
+ __SC_COMP(__NR_wait4, sys_wait4, compat_sys_wait4)
+ #define __NR_prlimit64 261
+diff --git a/init/Kconfig b/init/Kconfig
+index 21cc3acbaa19..1d4b9dd03361 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1377,6 +1377,23 @@ config DEFAULT_USE_ENERGY_AWARE
+ 
+ 	  Say N if unsure.
+ 
++config SCHED_RTGANG
++	bool "Include RT_GANG_LOCK in scheduling features"
++	help
++	  This option introduces the RT-Gang scheduling feature. Under RT-Gang,
++	  only one (parallel) real-time task is allowed to execute on all
++	  system cores at any given time. This resolves the problem of shared
++	  resource contention among different real-time tasks and guarantees
++	  complete performance isolation to the highest priority real-time
++	  task.
++
++config SCHED_THROTTLE
++	bool "Enable best-effor task throttling support inside scheduler"
++	help
++	  This option integrates a kernel level task throttling framework into
++	  the scheduler. This framework can be used to limit the interference
++	  from best-effort tasks to real-time tasks.
++
+ config SYSFS_DEPRECATED
+ 	bool "Enable deprecated sysfs features to support old userspace tools"
+ 	depends on SYSFS
+diff --git a/kernel/sched/Makefile b/kernel/sched/Makefile
+index 9708dd34b7e1..1b17eb6f20d0 100644
+--- a/kernel/sched/Makefile
++++ b/kernel/sched/Makefile
+@@ -29,3 +29,5 @@ obj-$(CONFIG_SCHED_TUNE) += tune.o
+ obj-$(CONFIG_CGROUP_CPUACCT) += cpuacct.o
+ obj-$(CONFIG_CPU_FREQ) += cpufreq.o
+ obj-$(CONFIG_CPU_FREQ_GOV_SCHEDUTIL) += cpufreq_schedutil.o
++obj-$(CONFIG_SCHED_RTGANG) += rtgang.o
++obj-$(CONFIG_SCHED_THROTTLE) += throttle.o
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 63c3d3b65e79..f0184cbcb97d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -94,6 +94,10 @@
+ #include <trace/events/sched.h>
+ #include "walt.h"
+ 
++#ifdef CONFIG_SCHED_RTGANG
++#include "rtgang.h"
++#endif
++
+ DEFINE_MUTEX(sched_domains_mutex);
+ DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
+ 
+@@ -580,6 +584,36 @@ void resched_cpu(int cpu)
+ 	raw_spin_unlock_irqrestore(&rq->lock, flags);
+ }
+ 
++#ifdef CONFIG_SCHED_RTGANG
++/*
++ * The purpose of this function is to force rescheduling of a target cpu under
++ * all circumstances. For this reason, this function does not acquire the
++ * target CPU's rq lock and sends a rescheduling interrupt without protection
++ * if need be. It is used exclusively in RT-Gang related code.
++ */
++void resched_cpu_force (int cpu)
++{
++	struct rq *rq = cpu_rq(cpu);
++	struct task_struct *curr = rq->curr;
++
++	if (test_tsk_need_resched(curr))
++		return;
++
++	cpu = cpu_of(rq);
++
++	if (cpu == smp_processor_id()) {
++		set_tsk_need_resched(curr);
++		set_preempt_need_resched();
++		return;
++	}
++
++	if (set_nr_and_not_polling(curr))
++		smp_send_reschedule(cpu);
++	else
++		trace_sched_wake_idle_without_ipi(cpu);
++}
++#endif
++
+ #ifdef CONFIG_SMP
+ #ifdef CONFIG_NO_HZ_COMMON
+ /*
+@@ -3617,6 +3651,7 @@ static inline struct task_struct *
+ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie)
+ {
+ 	const struct sched_class *class = &fair_sched_class;
++	bool skip_retry_flag = false;
+ 	struct task_struct *p;
+ 
+ 	/*
+@@ -3640,9 +3675,16 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie
+ 	for_each_class(class) {
+ 		p = class->pick_next_task(rq, prev, cookie);
+ 		if (p) {
+-			if (unlikely(p == RETRY_TASK))
++			if (p == BLOCK_TASK) {
++				skip_retry_flag = true;
++				continue;
++			}
++
++			if (p != RETRY_TASK)
++				return p;
++
++			if (!skip_retry_flag && p == RETRY_TASK)
+ 				goto again;
+-			return p;
+ 		}
+ 	}
+ 
+@@ -4917,6 +4959,40 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
+ 	return -E2BIG;
+ }
+ 
++#ifdef CONFIG_SCHED_RTGANG
++/*
++ * sys_rtg_set_params - Update task parameters for RT-Gang
++ *
++ * @pid	 : pid of the target process.
++ * @info : Resource requirement information of the target process
++ *
++ * Return: Zero on success. An error code otherwise.
++ */
++SYSCALL_DEFINE2(rtg_set_params, pid_t, pid,
++		struct rtg_resource_info* __user, info)
++{
++	int c;
++	struct task_struct *p;
++
++	/* Obtain the task structure associated with the process
++	   referenced by pid */
++	if (pid == 0 || current->pid == pid)
++		p = current;
++	else
++		p = find_process_by_pid (pid);
++
++	/* Process does not exist or it is not a real-time process */
++	if (!p || !(IS_RTC(p) || IS_EDF(p)))
++		return -EINVAL;
++
++	if (copy_from_user(GET_RTG_INFO(p), info,
++				sizeof(struct rtg_resource_info)))
++		return -EFAULT;
++
++	return 0;
++}
++#endif
++
+ /**
+  * sys_sched_setscheduler - set/change the scheduler policy and RT priority
+  * @pid: the pid in question.
+diff --git a/kernel/sched/features.h b/kernel/sched/features.h
+index bb31820ba5b6..9d71dae20cdd 100644
+--- a/kernel/sched/features.h
++++ b/kernel/sched/features.h
+@@ -5,6 +5,16 @@
+  */
+ SCHED_FEAT(GENTLE_FAIR_SLEEPERS, true)
+ 
++#ifdef CONFIG_SCHED_RTGANG
++/*
++ * Enable real-time gang scheduling framework (RT-Gang). RT-Gang allows
++ * execution of a single (multi-threaded) real-time task (i.e., gang) at any
++ * giving time across all system cores.
++ * NOTE: This feature is disabled by default.
++ */
++SCHED_FEAT(RT_GANG_LOCK, false)
++#endif
++
+ /*
+  * Place new tasks ahead so that they do not starve already running
+  * tasks
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 2dd632436b94..a77d84a2cf27 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include "sched.h"
++#include "rtgang.h"
+ 
+ #include <linux/slab.h>
+ #include <linux/irq_work.h>
+@@ -1551,7 +1552,7 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
+ 	return next;
+ }
+ 
+-static struct task_struct *_pick_next_task_rt(struct rq *rq)
++static struct task_struct *__peek_next_task_rt(struct rq *rq)
+ {
+ 	struct sched_rt_entity *rt_se;
+ 	struct task_struct *p;
+@@ -1564,7 +1565,6 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
+ 	} while (rt_rq);
+ 
+ 	p = rt_task_of(rt_se);
+-	p->se.exec_start = rq_clock_task(rq);
+ 
+ 	return p;
+ }
+@@ -1572,6 +1572,7 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
+ static struct task_struct *
+ pick_next_task_rt(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie)
+ {
++	int ret;
+ 	struct task_struct *p;
+ 	struct rt_rq *rt_rq = &rq->rt;
+ 
+@@ -1599,19 +1600,34 @@ pick_next_task_rt(struct rq *rq, struct task_struct *prev, struct pin_cookie coo
+ 	 * We may dequeue prev's rt_rq in put_prev_task().
+ 	 * So, we update time before rt_nr_running check.
+ 	 */
+-	if (prev->sched_class == &rt_sched_class)
++	if (prev->sched_class == &rt_sched_class) {
+ 		update_curr_rt(rq);
+ 
++#ifdef CONFIG_SCHED_RTGANG
++		if (sched_feat(RT_GANG_LOCK))
++			rtg_try_release_lock(prev);
++#endif
++	}
++
+ 	if (!rt_rq->rt_queued)
+ 		return NULL;
+ 
+-	put_prev_task(rq, prev);
++	p = __peek_next_task_rt (rq);
+ 
+-	p = _pick_next_task_rt(rq);
++#ifdef CONFIG_SCHED_RTGANG
++	if (sched_feat(RT_GANG_LOCK) && RTG_FIFO_CHECK(p)) {
++		ret = rtg_try_acquire_lock(p);
++
++		if (ret == RTG_BLOCK)
++			return BLOCK_TASK;
++	}
++#endif
++
++	put_prev_task (rq, prev);
++	p->se.exec_start = rq_clock_task (rq);
+ 
+ 	/* The running task is never eligible for pushing */
+ 	dequeue_pushable_task(rq, p);
+-
+ 	queue_push_tasks(rq);
+ 
+ 	return p;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 0fd9267831d4..02438430a38f 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -1277,6 +1277,7 @@ extern const u32 sched_prio_to_wmult[40];
+ #define ENQUEUE_WAKEUP_NEW	0x40
+ 
+ #define RETRY_TASK		((void *)-1UL)
++#define BLOCK_TASK		((void *)-2UL)
+ 
+ struct sched_class {
+ 	const struct sched_class *next;
+@@ -1438,6 +1439,10 @@ static inline void resched_curr_lazy(struct rq *rq)
+ }
+ #endif
+ 
++#ifdef CONFIG_SCHED_RTGANG
++extern void resched_cpu_force(int cpu);
++#endif
++
+ extern struct rt_bandwidth def_rt_bandwidth;
+ extern void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime);
+ 
