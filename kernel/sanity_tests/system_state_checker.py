@@ -101,14 +101,23 @@ def get_cpuidle_state(cpu_node):
 
     return cpuidle_state
 
-def get_pretty_info(node, cur_value, possible_values, short = False):
+def get_pretty_info(node, cur_value, possible_values, short = False, gpu = False):
     info_string = ''
     cur_state = run_command("cat %s/%s" % (node, cur_value))
     possible_states = run_command("cat %s/%s" % (node, possible_values)).split()
 
     if short:
-        info_string = BOLD + ULIN + RED + cur_state + ENDC
-        info_string += ' <%s - %s>' % (possible_states[0], possible_states[-1])
+        min_freq = int(possible_states[0]) / 1024
+        max_freq = int(possible_states[-1]) / 1024
+        cur_freq = str(int(cur_state) / 1024)
+
+        if gpu:
+            min_freq /= 1024
+            max_freq /= 1024
+            cur_freq = str(int(cur_state) / 1024 / 1024)
+
+        info_string = BOLD + ULIN + RED + cur_freq + ENDC
+        info_string += ' <%s - %s> MHz' % (min_freq, max_freq)
 
         return info_string
 
@@ -132,19 +141,28 @@ def get_cpufreq_state(cpu_node):
 
     scaling_min_freq = run_command("cat %s/scaling_min_freq" % (cpufreq_node))
     scaling_max_freq = run_command("cat %s/scaling_max_freq" % (cpufreq_node))
-    scaling_range = '%s - %s' % (scaling_min_freq, scaling_max_freq)
+
+    scaling_min_freq = int(scaling_min_freq) / 1024
+    scaling_max_freq = int(scaling_max_freq) / 1024
+
+    scaling_range = '%s - %s MHz' % (scaling_min_freq, scaling_max_freq)
     cpufreq_state[1] = {'name': 'Scaling Allowed Range (min - max)', 'value':
             scaling_range}
 
     scaling_freqs = get_pretty_info(cpufreq_node,
             'scaling_cur_freq', 'scaling_available_frequencies', True)
-    cpufreq_state[2] = {'name' : 'Scaling Frequencies (cur <min - max>)',
+    cpufreq_state[2] = {'name' : 'Possible Frequencies (cur <min - max>)',
             'value': scaling_freqs}
 
     cpuinfo_cur_freq = run_command("cat %s/cpuinfo_cur_freq" % (cpufreq_node))
     cpuinfo_max_freq = run_command("cat %s/cpuinfo_max_freq" % (cpufreq_node))
     cpuinfo_min_freq = run_command("cat %s/cpuinfo_min_freq" % (cpufreq_node))
-    actual_freq = '%s <%s - %s>' % ((BOLD + RED + ULIN + cpuinfo_cur_freq +
+
+    cpuinfo_cur_freq = str(int(cpuinfo_cur_freq) / 1024)
+    cpuinfo_max_freq = int(cpuinfo_max_freq) / 1024
+    cpuinfo_min_freq = int(cpuinfo_min_freq) / 1024
+
+    actual_freq = '%s <%s - %s> MHz' % ((BOLD + RED + ULIN + cpuinfo_cur_freq +
         ENDC), cpuinfo_min_freq, cpuinfo_max_freq)
     cpufreq_state[3] = {'name': 'Actual Frequency (cur <min - max>)', 'value':
             actual_freq}
@@ -182,7 +200,7 @@ def query_cpu_state(state):
     state[2] = {'name': 'Online Cores', 'value': online_cpus}
     state[3] = {'name': 'Offline Cores', 'value':  offline_cpus}
 
-    for core_id in range(num_of_cpus):
+    for core_id in [0]: # range(num_of_cpus):
         core_info = get_core_freq_state(core_id)
 
         if core_info:
@@ -190,13 +208,35 @@ def query_cpu_state(state):
 
     return core_state
 
-def query_gpu_state():
+def query_gpu_state(gpu_node):
     gpu_state = {}
+
+    governor = get_pretty_info(gpu_node,
+            'governor', 'available_governors')
+    gpu_state[0] = {'name': 'Scaling Governors', 'value': governor}
+
+    frequency = get_pretty_info(gpu_node,
+            'target_freq', 'available_frequencies', True, True)
+    gpu_state[1] = {'name': 'Possible Frequencies (cur <min - max>)',
+            'value': frequency}
+
+    gpu_cur_freq = run_command("cat %s/cur_freq" % (gpu_node))
+    gpu_max_freq = run_command("cat %s/max_freq" % (gpu_node))
+    gpu_min_freq = run_command("cat %s/min_freq" % (gpu_node))
+
+    gpu_cur_freq = str(int(gpu_cur_freq) / 1024 / 1024)
+    gpu_max_freq = int(gpu_max_freq) / 1024 / 1024
+    gpu_min_freq = int(gpu_min_freq) / 1024 / 1024
+
+    actual_freq = '%s <%s - %-4s> MHz' % ((BOLD + RED + ULIN + gpu_cur_freq +
+        ENDC), gpu_min_freq, gpu_max_freq)
+    gpu_state[2] = {'name': 'Actual Frequency (cur <min - max>)', 'value':
+            actual_freq}
 
     return gpu_state
 
-def print_state(state, per_core_freq_state):
-    table_fmt = '%40s | %-70s'
+def print_state(state, per_core_freq_state, gpu_state):
+    table_fmt = '%40s | %-75s'
     table_hdr = table_fmt % ('Node', 'State')
     hline = (len(table_hdr) + 5) * '='
     cline = (len(table_hdr) + 5) * '-'
@@ -212,11 +252,11 @@ def print_state(state, per_core_freq_state):
 
     print
     pretty_print(NORMAL, cline)
-    print BOLD + GRN + "Per Core Frequency State (for online cores)" + ENDC
+    print BOLD + GRN + "CPU Frequency State (for online cores)" + ENDC
 
     core_order = sorted(per_core_freq_state.keys())
     for core in core_order:
-        print YLW + "==== Core %d" % (core) + ENDC
+        # print YLW + "==== Core %d" % (core) + ENDC
 
         for policy in per_core_freq_state[core]:
             policy_dict = per_core_freq_state[core][policy]
@@ -228,6 +268,15 @@ def print_state(state, per_core_freq_state):
                 print line
         print
 
+    pretty_print(NORMAL, cline)
+    print BOLD + GRN + "GPU Frequency State" + ENDC
+    order = sorted(gpu_state.keys())
+
+    for key in order:
+        line = table_fmt % (gpu_state[key]['name'],
+                gpu_state[key]['value'])
+        print line
+
     pretty_print(NORMAL, hline)
     print
 
@@ -235,15 +284,18 @@ def print_state(state, per_core_freq_state):
 
 def main():
     state = {}
+    gpu_state = {}
 
     check_root()
     rtgang_enabled = check_rtgang()
     state[0] = {'name': 'RT-Gang', 'value': rtgang_enabled}
     per_core_freq_state = query_cpu_state(state)
 
-    gpu_state = query_gpu_state()
+    if len(sys.argv) > 1 and sys.argv[1] == 'xavier':
+        gpu_sysfs_node = '/sys/devices/gpu.0/devfreq/17000000.gv11b'
+        gpu_state = query_gpu_state(gpu_sysfs_node)
 
-    print_state(state, per_core_freq_state)
+    print_state(state, per_core_freq_state, gpu_state)
 
     return
 
