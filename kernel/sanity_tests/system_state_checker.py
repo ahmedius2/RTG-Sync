@@ -117,7 +117,7 @@ def get_pretty_info(node, cur_value, possible_values, short = False, gpu = False
             cur_freq = str(int(cur_state) / 1024 / 1024)
 
         info_string = BOLD + ULIN + RED + cur_freq + ENDC
-        info_string += ' <%s - %s> MHz' % (min_freq, max_freq)
+        info_string += ' <%4s - %-4s> MHz' % (min_freq, max_freq)
 
         return info_string
 
@@ -145,7 +145,7 @@ def get_cpufreq_state(cpu_node):
     scaling_min_freq = int(scaling_min_freq) / 1024
     scaling_max_freq = int(scaling_max_freq) / 1024
 
-    scaling_range = '%s - %s MHz' % (scaling_min_freq, scaling_max_freq)
+    scaling_range = '%4s - %-4s MHz' % (scaling_min_freq, scaling_max_freq)
     cpufreq_state[1] = {'name': 'Scaling Allowed Range (min - max)', 'value':
             scaling_range}
 
@@ -162,7 +162,7 @@ def get_cpufreq_state(cpu_node):
     cpuinfo_max_freq = int(cpuinfo_max_freq) / 1024
     cpuinfo_min_freq = int(cpuinfo_min_freq) / 1024
 
-    actual_freq = '%s <%s - %s> MHz' % ((BOLD + RED + ULIN + cpuinfo_cur_freq +
+    actual_freq = '%s <%4s - %-4s> MHz' % ((BOLD + RED + ULIN + cpuinfo_cur_freq +
         ENDC), cpuinfo_min_freq, cpuinfo_max_freq)
     cpufreq_state[3] = {'name': 'Actual Frequency (cur <min - max>)', 'value':
             actual_freq}
@@ -194,7 +194,11 @@ def query_cpu_state(state):
 
     num_of_cpus = int(re.findall('CPU\(s\):.*([\d]+)', lscpu)[0])
     online_cpus = re.findall('On-line CPU\(s\).*:\D+([\d\-]+)', lscpu)[0]
-    offline_cpus = re.findall('Off-line CPU\(s\).*:\D+([\d\-]+)', lscpu)[0]
+
+    try:
+        offline_cpus = re.findall('Off-line CPU\(s\).*:\D+([\d\-]+)', lscpu)[0]
+    except:
+        offline_cpus = '(nill)'
 
     state[1] = {'name': '# of Cores',   'value': num_of_cpus}
     state[2] = {'name': 'Online Cores', 'value': online_cpus}
@@ -228,7 +232,7 @@ def query_gpu_state(gpu_node):
     gpu_max_freq = int(gpu_max_freq) / 1024 / 1024
     gpu_min_freq = int(gpu_min_freq) / 1024 / 1024
 
-    actual_freq = '%s <%s - %-4s> MHz' % ((BOLD + RED + ULIN + gpu_cur_freq +
+    actual_freq = '%s <%4s - %-4s> MHz' % ((BOLD + RED + ULIN + gpu_cur_freq +
         ENDC), gpu_min_freq, gpu_max_freq)
     gpu_state[2] = {'name': 'Actual Frequency (cur <min - max>)', 'value':
             actual_freq}
