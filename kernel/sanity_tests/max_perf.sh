@@ -1,6 +1,7 @@
-# Invoke as "sudo bash max_perf.sh" or your shell can exit unexpectedly
+# NOTE: Invoke as "sudo bash max_perf.sh" or your shell may exit unexpectedly
+#
 # Can be used as-is on Xavier. Can potentially be used on TX-2 as well but
-# update the GPU node address below
+# the GPU node address below must be updated accordingly
 sysfs_cpu_node="/sys/devices/system/cpu"
 sysfs_gpu_node="/sys/devices/gpu.0/devfreq/17000000.gv11b"
 proc_rtthrottle_node="/proc/sys/kernel/sched_rt_runtime_us"

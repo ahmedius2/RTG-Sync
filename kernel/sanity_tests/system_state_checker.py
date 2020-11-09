@@ -63,12 +63,21 @@ def check_rtgang():
         sched_features = fdi.readlines()[-1]
 
     if 'RT_GANG_LOCK' not in sched_features:
-        return 'Not Available'
+        return RED + ULIN + BOLD + 'Not Available' + ENDC
 
     if 'NO_RT_GANG_LOCK' in sched_features:
-        return 'Disabled'
+        return YLW + 'Disabled' + ENDC
 
-    return 'Enabled'
+    return GRN + 'Enabled' + ENDC
+
+def check_rt_rate_limit():
+    rt_runtime_file = '/proc/sys/kernel/sched_rt_runtime_us'
+    rt_runtime_val = run_command('cat %s' % (rt_runtime_file))
+
+    if rt_runtime_val == '-1':
+        return GRN + 'Disabled' + ENDC
+
+    return RED + BOLD + ULIN + 'Enabled' + ENDC
 
 def get_cpuidle_state(cpu_node):
     cpuidle_state = {}
@@ -198,7 +207,7 @@ def query_cpu_state(state):
     try:
         offline_cpus = re.findall('Off-line CPU\(s\).*:\D+([\d\-]+)', lscpu)[0]
     except:
-        offline_cpus = '(nill)'
+        offline_cpus = GRN + '(nill)' + ENDC
 
     state[1] = {'name': '# of Cores',   'value': num_of_cpus}
     state[2] = {'name': 'Online Cores', 'value': online_cpus}
@@ -292,7 +301,9 @@ def main():
 
     check_root()
     rtgang_enabled = check_rtgang()
+    rt_rate_limit_enabled = check_rt_rate_limit()
     state[0] = {'name': 'RT-Gang', 'value': rtgang_enabled}
+    state[5] = {'name': 'RT Rate Limit', 'value': rt_rate_limit_enabled}
     per_core_freq_state = query_cpu_state(state)
 
     if len(sys.argv) > 1 and sys.argv[1] == 'xavier':
