@@ -31,3 +31,44 @@ set_node_value () {
 		let time_passed+=1
 	done
 }
+
+check_executables () {
+	for exe in $@; do
+		if [ ! -f ${exe} ]; then
+			echo -e "${R}[ERROR] Required executable <${exe}> not found!${N}"
+			exit
+		fi
+	done
+}
+
+rtgang_enable () {
+	local enable=${1}
+	local sched_feats_file="/sys/kernel/debug/sched_features"
+
+	case ${enable} in
+		0)
+			echo "NO_RT_GANG_LOCK" > ${sched_feats_file}
+			;;
+		1)
+			echo "RT_GANG_LOCK" > ${sched_feats_file}
+			;;
+		*)
+			echo -e "${R}[ERROR] Invalid value <${enable}> for RT-Gang lock!${N}"
+			;;
+	esac
+}
+
+start_tracing () {
+	local core=${1}
+
+	taskset -c ${core} trace-cmd record -e "sched_switch" &> /dev/null
+}
+
+stop_tracing () {
+	local trace_pid=`pgrep trace-cmd`
+
+	kill -s SIGINT ${trace_pid} &> /dev/null
+	while [ ! -f "trace.dat" ]; do
+		sleep 1
+	done
+}
