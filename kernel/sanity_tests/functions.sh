@@ -4,6 +4,9 @@ Y='\033[0;33m'
 C='\033[0;36m'
 N='\033[0m'
 
+root="`pwd`"
+rtgsync_dir=${root}/../../../src/framework/build
+
 check_root () {
 	if [ "`whoami`" != 'root' ]; then
 		echo -e "${R}[ERROR] Must be root!${N}"
@@ -71,4 +74,46 @@ stop_tracing () {
 	while [ ! -f "trace.dat" ]; do
 		sleep 1
 	done
+}
+
+start_vgang_daemon () {
+	local core=${1}
+
+	if [ ! -d ${rtgsync_dir} ]; then
+		echo -e "${R}[ERROR] RTG-Sync userspace executables not found!${N}"
+		exit
+	fi
+
+	taskset -c ${core} ${rtgsync_dir}/rtg_daemon &> /dev/null
+}
+
+stop_vgang_daemon () {
+	${rtgsync_dir}/rtg_client -t &> /dev/null
+
+	if [ "$?" != "0" ]; then
+		echo -e "${R}[ERROR] Unable to terminate RTG-Sync daemon!${N}"
+		exit
+	fi
+}
+
+create_vgang () {
+	local num_of_members=${1}
+
+	${rtgsync_dir}/rtg_client -c ${num_of_members} &> /dev/null
+
+	if [ "$?" != "0" ]; then
+		echo -e "${R}[ERROR] Unable to create virtual-gangs!${N}"
+		exit
+	fi
+}
+
+destroy_vgang () {
+	local gang_id=${1}
+
+	${rtgsync_dir}/rtg_client -f ${gang_id} &> /dev/null
+
+	if [ "$?" != "0" ]; then
+		echo -e "${R}[ERROR] Unable to destroy virtual-gang <${gang_id}>!${N}"
+		exit
+	fi
 }
