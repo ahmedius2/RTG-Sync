@@ -11,16 +11,25 @@
 ###############################################################################
 source functions.sh
 
+FULL_L4T_BUILD_WARNING="You are about to compile the full L4T kernel! (long operation > 20-mins)"
+FULL_L4T_BUILD_EXIT_HINT="Please leave the 1st arg blank to compile the minimum kernel image"
+
+PREEMPT_RT_PATCH_WARNING="You are about to apply the preempt_rt patch to the L4T kernel!"
+PREEMPT_RT_PATCH_EXIT_HINT="Please leave the 2nd arg blank to compile the default kernel"
+
+DEFCONFIG_WARNING="You are about to generate default tegra config!"
+DEFCONFIG_EXIT_HINT="Please leave the 3nd arg blank to use the current config (if exists)"
+
 # Make sure that we are executing this script as root
 check_root
 
 cd ${KERNEL_SRC_DIR}
 
 if [ "${1}" == "full" ]; then
-	warn_arg "You are about to compile the full L4T kernel! (long operation > 20-mins)" "Please leave the 1st arg blank to compile the minimum kernel image"
+	warn_arg  ${FULL_L4T_BUILD_WARNING} ${FULL_L4T_BUILD_EXIT_HINT}
 
 	if [ "${2}" == "preempt_rt" ]; then
-		warn_arg "You are about to apply the preempt_rt patch to the L4T kernel!" "Please leave the 2nd arg blank to compile the default kernel"
+		warn_arg ${PREEMPT_RT_PATCH_WARNING} ${PREEMPT_RT_PATCH_EXIT_HINT}
 
 		echo
 		echo -e "${G}[STATUS] Patching the kernel with PREEMPT_RT${N}"
@@ -29,7 +38,7 @@ if [ "${1}" == "full" ]; then
 	fi
 
 	if [ "${3}" == "defconfig" ]; then
-		warn_arg "You are about to generate default tegra config!" "Please leave the 3nd arg blank to use the current config (if exists)"
+		warn_arg ${DEFCONFIG_WARNING} ${DEFCONFIG_EXIT_HINT}
 
 		echo
 		echo -e "${G}[STATUS] Making default kernel config${N}"

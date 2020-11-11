@@ -1,24 +1,23 @@
-R='\033[0;31m'
-G='\033[0;32m'
-Y='\033[0;33m'
-C='\033[0;36m'
-N='\033[0m'
+###############################################################################
+# Usage:
+#   sudo bash ./update_and_sign_kernel.sh <full>
+#
+#   Options:
+#     <full>	: Copy kernel as well as DTBs to the output directory
+###############################################################################
+source functions.sh
 
-ROOT="`pwd`"
-KERNEL_OUT_DIR="${ROOT}/Linux_for_Tegra/kernel"
-KERNEL_SRC_DIR="${ROOT}/Linux_for_Tegra/sources/kernel/kernel-4.9"
-
-copy_kernel_image_and_dtbs () {
+copy_kernel_image () {
 	if [ ! -f ${KERNEL_SRC_DIR}/build/arch/arm64/boot/Image ]; then
 		echo -e "${R}[ERROR] Kernel image not found!${N}"
 		exit
 	fi
 
-	echo
 	echo -e "${G}[STATUS] Copying kernel image${N}"
 	cp ${KERNEL_SRC_DIR}/build/arch/arm64/boot/Image ${KERNEL_OUT_DIR}/Image
+}
 
-	echo
+copy_dtbs () {
 	echo -e "${G}[STATUS] Copying dtbs${N}"
 	cp -r ${KERNEL_SRC_DIR}/build/arch/arm64/boot/dts/* ${KERNEL_OUT_DIR}/dtb/.
 }
@@ -26,7 +25,6 @@ copy_kernel_image_and_dtbs () {
 sign_kernel_image () {
 	cd Linux_for_Tegra
 
-	echo
 	echo -e "${G}[STATUS] Signing kernel image${N}"
 	./l4t_sign_image.sh --file kernel/Image --chip 0x19 &>> ${ROOT}/update.log
 
@@ -34,12 +32,14 @@ sign_kernel_image () {
 }
 
 # This script must be executed as sudo
-if [ "`whoami`" != "root" ]; then
-	echo -e "${R}[ERROR] Must be root!${N}"
-	return
+check_root
+
+copy_kernel_image
+
+if [ "${1}" == "full" ]; then
+	copy_dtbs
 fi
 
-copy_kernel_image_and_dtbs
 sign_kernel_image
 
 echo
