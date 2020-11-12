@@ -16,7 +16,7 @@ echo -e "${G}[STATUS] Updating binaries${N}"
 ./apply_binaries.sh
 
 if [ "${1}" == "full" ]; then
-	warn_arg ${FULL_FLASH_WARNING} ${FULL_FLASH_EXIT_HINT}
+	warn_arg "${FULL_FLASH_WARNING}" "${FULL_FLASH_EXIT_HINT}"
 
 	echo -e "${G}[STATUS]${N} ${R}Erasing eMMC${N}${G} and Flashing full L4T${N}"
 	./flash.sh jetson-xavier mmcblk0p1

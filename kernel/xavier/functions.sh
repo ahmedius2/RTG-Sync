@@ -8,7 +8,7 @@ ROOT="`pwd`"
 L4T_DIR="${ROOT}/Linux_for_Tegra"
 ROOTFS_DIR="${L4T_DIR}/rootfs"
 KERNEL_SRC_DIR="${L4T_DIR}/sources/kernel/kernel-4.9"
-KERNEL_OUT_DIR="${L3T_DIR}/kernel"
+KERNEL_OUT_DIR="${L4T_DIR}/kernel"
 CROSS_COMPILE="${ROOT}/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
 
 # This script must be executed as sudo

@@ -26,10 +26,10 @@ check_root
 cd ${KERNEL_SRC_DIR}
 
 if [ "${1}" == "full" ]; then
-	warn_arg  ${FULL_L4T_BUILD_WARNING} ${FULL_L4T_BUILD_EXIT_HINT}
+	warn_arg  "${FULL_L4T_BUILD_WARNING}" "${FULL_L4T_BUILD_EXIT_HINT}"
 
 	if [ "${2}" == "preempt_rt" ]; then
-		warn_arg ${PREEMPT_RT_PATCH_WARNING} ${PREEMPT_RT_PATCH_EXIT_HINT}
+		warn_arg "${PREEMPT_RT_PATCH_WARNING}" "${PREEMPT_RT_PATCH_EXIT_HINT}"
 
 		echo
 		echo -e "${G}[STATUS] Patching the kernel with PREEMPT_RT${N}"
@@ -38,7 +38,7 @@ if [ "${1}" == "full" ]; then
 	fi
 
 	if [ "${3}" == "defconfig" ]; then
-		warn_arg ${DEFCONFIG_WARNING} ${DEFCONFIG_EXIT_HINT}
+		warn_arg "${DEFCONFIG_WARNING}" "${DEFCONFIG_EXIT_HINT}"
 
 		echo
 		echo -e "${G}[STATUS] Making default kernel config${N}"
