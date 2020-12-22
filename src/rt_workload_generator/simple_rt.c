@@ -36,11 +36,33 @@
 #define MSECS(ts)		(ts % 1000UL)
 #define MS_TO_NANOS(ts)		(ts * 1000000ULL)
 
+#define SYNC_OFFSET_NS		(10UL * 1000000000UL)
+
 #define TSPEC_TO_MS(tspec)					\
 	(tspec.tv_sec * 1000UL + tspec.tv_nsec / 1000000UL)
 
 #define TSPEC_TO_US(tspec)					\
 	(tspec.tv_sec * 1000000UL + tspec.tv_nsec / 1000UL)
+
+#define TSPEC_TO_NS(tspec)					\
+	(tspec.tv_sec * 1000000000UL + tspec.tv_nsec)
+
+#define GET_NS_TIMESTAMP(ts_var)				\
+do {								\
+	int tmp_err;						\
+	struct timespec tmp_tspec;				\
+	tmp_err = clock_gettime(CLOCK_REALTIME, &tmp_tspec);	\
+	assert(tmp_err == 0);					\
+	ts_var = TSPEC_TO_NS(tmp_tspec);			\
+} while (0);
+
+#define TIME_FORMAT						\
+		"%ld.%ld.%ld"
+
+#define TIMESTAMP_TO_TIME(tstamp)				\
+	(tstamp / 1000000000UL),				\
+	((tstamp % 1000000000UL) / 1000000UL),			\
+	(((tstamp % 1000000000UL) % 1000000UL) / 1000UL)
 
 #define debug_printf(lvl, format, ...)				\
 do {								\
@@ -105,6 +127,9 @@ void print_usage(char** argv)
  * 3 : Print everything
  */
 static int debug_level = 0;
+static long sync_time_ns = 0;
+static long tmp_cur_time = 0;
+static bool debug_switch_vgang = false;
 
 void check_rt_params(rt_params_t* rt_params)
 {
@@ -183,7 +208,7 @@ void process_one_activation(tcb_t* thread)
 	err = clock_gettime(CLOCK_MONOTONIC, &cur_time_tspec);
 	job_end_ts_us = TSPEC_TO_US(cur_time_tspec);
 
-	debug_printf(INFO, "job=%-3u start=%u end=%u dur=%u\n",
+	debug_printf(VERBOSE, "job=%-3u start=%u end=%u dur=%u\n",
 			thread->current_job_id, job_start_ts_us,
 			job_end_ts_us, job_end_ts_us - job_start_ts_us);
 
@@ -206,7 +231,15 @@ void sleep_until_next_activation(tcb_t *thread)
 
 void timespec_update(struct timespec* t1, uint32_t period_ms)
 {
+	static bool plus = true;
 	uint64_t nsecs = t1->tv_nsec + MS_TO_NANOS(period_ms);
+
+	if (debug_switch_vgang) {
+		srand(time(NULL));
+		unsigned long int jitter_nsec = (rand() % 10) * 1000;
+		nsecs = plus? (nsecs + jitter_nsec) : (nsecs - jitter_nsec);
+		plus = !plus;
+	}
 
 	t1->tv_sec += nsecs / 1000000000ULL;
 	t1->tv_nsec = nsecs % 1000000000ULL;
@@ -217,7 +250,17 @@ void timespec_update(struct timespec* t1, uint32_t period_ms)
 void process_activations(void* arg)
 {
 	int err;
+	long int time_till_sync;
 	tcb_t* thread = (tcb_t *)arg;
+
+	GET_NS_TIMESTAMP(tmp_cur_time);
+	time_till_sync = sync_time_ns - tmp_cur_time;
+
+	while (time_till_sync > 0) {
+		GET_NS_TIMESTAMP(tmp_cur_time);
+		time_till_sync = sync_time_ns - tmp_cur_time;
+	}
+	debug_printf(INFO, "[ SYNC ] Thread Synced!\n");
 
 	thread->current_job_id = 1;
 	err = clock_gettime(CLOCK_MONOTONIC, &thread->first_activation);
@@ -234,6 +277,12 @@ void process_activations(void* arg)
 
 		if (thread->current_job_id > thread->rt_params->num_of_jobs)
 			break;
+
+		if (debug_switch_vgang && thread->current_job_id > 100) {
+			register_gang_with_kernel(
+					(thread->rt_params->virtual_gang->id +
+					 1), 0, 0);
+		}
 
 		timespec_update(&thread->current_activation,
 				thread->rt_params->period_ms);
@@ -275,7 +324,7 @@ int main(int argc, char** argv)
 
 	tcb_t threads[MAX_THREAD_COUNT];
 
-	while ((opt = getopt(argc, argv, "a:n:c:p:j:v:d:l:y:h")) != -1) {
+	while ((opt = getopt(argc, argv, "a:n:c:p:j:v:d:s:l:y:xh")) != -1) {
 		switch (opt) {
 			case 'a':
 				params.affinity = strtol(optarg, NULL, 0);
@@ -314,6 +363,15 @@ int main(int argc, char** argv)
 				debug_level = strtol(optarg, NULL, 0);
 				break;
 
+			case 's':
+				sync_time_ns = strtol(optarg, NULL, 0) +
+					SYNC_OFFSET_NS;
+				break;
+
+			case 'x':
+				debug_switch_vgang = true;
+				break;
+
 			case 'h':
 			default:
 				print_usage(argv);
@@ -332,14 +390,45 @@ int main(int argc, char** argv)
 			params.num_of_threads, params.affinity);
 
 	if (vgang_info.id > 0) {
-		vgang_info.barrier = rtg_member_setup(vgang_info.id, 0, 0, 0);
-		assert(vgang_info.barrier != NULL);
+		if (sync_time_ns != 0) {
+			/******************************************************
+			 * USE SYNC-POINT SYNCHRONIZATION
+			 *****************************************************/
 
-		/*
-		 * Synchronize with other member tasks of the virtual gang
-		 * before creating threads for periodic execution.
-		 */
-		rtg_member_sync(vgang_info.barrier);
+			/*
+			 * Have we arleady missed the synchronization instant?
+			 */
+			GET_NS_TIMESTAMP(tmp_cur_time);
+			long int time_till_sync = sync_time_ns - tmp_cur_time;
+
+			if (time_till_sync < 0) {
+				printf("[ ERROR] Sync time already missed!\n"
+					  "\t Sync Time: " TIME_FORMAT "\n"
+					  "\t Curr Time: " TIME_FORMAT "\n",
+					  TIMESTAMP_TO_TIME(sync_time_ns),
+					  TIMESTAMP_TO_TIME(tmp_cur_time));
+				exit(EXIT_FAILURE);
+			} else {
+				debug_printf(INFO, "[ SYNC ] SyncTime Offset: "
+					  TIME_FORMAT "\n",
+					  TIMESTAMP_TO_TIME(time_till_sync));
+			}
+
+			register_gang_with_kernel(vgang_info.id, 0, 0);
+		} else {
+			/******************************************************
+			 * USE BARRIER SYNCHRONIZATION
+			 *****************************************************/
+			vgang_info.barrier = rtg_member_setup(vgang_info.id, 0,
+					0);
+			assert(vgang_info.barrier != NULL);
+
+			/*
+			 * Synchronize with other member tasks of the virtual gang
+			 * before creating threads for periodic execution.
+			 */
+			rtg_member_sync(vgang_info.barrier);
+		}
 	}
 
 	num_of_processors = sysconf(_SC_NPROCESSORS_ONLN);

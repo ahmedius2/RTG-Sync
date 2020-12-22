@@ -16,8 +16,7 @@
 
 struct rtg_resource_info {
 	int gid;
-	int rd_th;
-	int wr_th;
+	int budget;
 	unsigned long bins;
 };
 
@@ -115,9 +114,9 @@ void npp_lock();
 void npp_unlock();
 unsigned long parse_color_string (char *buf);
 void register_gang_with_kernel (int id, unsigned long color_mask,
-		unsigned int mem_read_budget, unsigned int mem_write_budget);
+		unsigned int mem_budget);
 pthread_barrier_t* rtg_member_setup (int id, unsigned long color_mask,
-		unsigned int mem_read_budget, unsigned int mem_write_budget);
+		unsigned int mem_budget);
 void rtg_member_sync (pthread_barrier_t* barrier);
 pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count);
 void rtg_daemon_cleanup (pthread_barrier_t* barrier, int id);

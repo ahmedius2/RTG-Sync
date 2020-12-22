@@ -203,18 +203,17 @@ static inline uint64_t budget_to_events (unsigned int budget)
  * @mem_write_budget	Memory usage budget (write traffic) for corunning
  * 			best-effort processes in MBytes/sec
  */
-void register_gang_with_kernel (int id, unsigned long color_mask,
-		unsigned int mem_read_budget, unsigned int mem_write_budget)
+void register_gang_with_kernel(int id, unsigned long color_mask,
+		unsigned int mem_budget)
 {
 	int ret;
 	struct rtg_resource_info info;
 
 	info.gid = id;
 	info.bins = color_mask;
-	info.rd_th = budget_to_events (mem_read_budget);
-	info.wr_th = budget_to_events (mem_write_budget);
+	info.budget = budget_to_events(mem_budget);
 
-	ret = syscall (NR_RTG_SYSCALL, 0, &info);
+	ret = syscall(NR_RTG_SYSCALL, 0, &info);
 	rtg_assert (ret >= 0, "Failed to register virtual gang. Make sure "
 			"that the process is real-time (FIFO or Deadline)");
 
@@ -298,25 +297,21 @@ pthread_barrier_t* rtg_daemon_setup (int id, int waiter_count)
  *
  * @id			Integer id issued by RT-Gang daemon
  * @color_mask		Required page-colors for the RT task
- * @mem_read_budget	Memory usage budget (read traffic) for corunning
- * 			best-effort processes in MBytes/sec
- * @mem_write_budget	Memory usage budget (write traffic) for corunning
+ * @mem_budget		Memory usage budget (read traffic) for corunning
  * 			best-effort processes in MBytes/sec
  * @return		Pthread barrier object in shared memory
  */
-pthread_barrier_t* rtg_member_setup (int id, unsigned long color_mask,
-		unsigned int mem_read_budget, unsigned int mem_write_budget)
+pthread_barrier_t* rtg_member_setup(int id, unsigned long color_mask,
+		unsigned int mem_budget)
 {
 	int fd;
 	pthread_barrier_t *shmem_barrier;
-	PRINT_BARRIER_FILENAME (barrier_file, id);
+	PRINT_BARRIER_FILENAME(barrier_file, id);
 
-	rtg_assert (CHECK_BUDGET (mem_read_budget), BUDGET_ERROR_MSG);
-	rtg_assert (CHECK_BUDGET (mem_write_budget), BUDGET_ERROR_MSG);
-	rtg_assert (CHECK_COLORS (color_mask), COLOR_ERROR_MSG);
+	rtg_assert(CHECK_BUDGET(mem_budget), BUDGET_ERROR_MSG);
+	rtg_assert(CHECK_COLORS(color_mask), COLOR_ERROR_MSG);
 
-	register_gang_with_kernel (id, color_mask, mem_read_budget,
-			mem_write_budget);
+	register_gang_with_kernel(id, color_mask, mem_budget);
 	fd = open_shared_file (barrier_file, O_RDWR);
 	shmem_barrier = map_pthread_barrier (fd);
 
