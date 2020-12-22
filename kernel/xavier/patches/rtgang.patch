@@ -116,7 +116,7 @@ index fb499510fcec..b00a0e67f03e 100644
 +obj-$(CONFIG_SCHED_RTGANG) += rtgang.o
 +obj-$(CONFIG_SCHED_THROTTLE) += throttle.o
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 04e8fc2225fd..81e9e179f82f 100644
+index 04e8fc2225fd..81b9538e8515 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -94,6 +94,10 @@
@@ -130,7 +130,7 @@ index 04e8fc2225fd..81e9e179f82f 100644
  DEFINE_MUTEX(sched_domains_mutex);
  DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
  
-@@ -528,6 +532,36 @@ void resched_cpu(int cpu)
+@@ -528,6 +532,35 @@ void resched_cpu(int cpu)
  	raw_spin_unlock_irqrestore(&rq->lock, flags);
  }
  
@@ -146,11 +146,6 @@ index 04e8fc2225fd..81e9e179f82f 100644
 +	struct rq *rq = cpu_rq(cpu);
 +	struct task_struct *curr = rq->curr;
 +
-+	if (test_tsk_need_resched(curr))
-+		return;
-+
-+	cpu = cpu_of(rq);
-+
 +	if (cpu == smp_processor_id()) {
 +		set_tsk_need_resched(curr);
 +		set_preempt_need_resched();
@@ -159,15 +154,19 @@ index 04e8fc2225fd..81e9e179f82f 100644
 +
 +	if (set_nr_and_not_polling(curr))
 +		smp_send_reschedule(cpu);
-+	else
++	else {
++		rtg_trace_printk(RTG_LEVEL_CRITICAL, "[WARN] Resched IPI NOT "
++				"sent to cpu=%d. THIS MIGHT BE A BUG!!!\n",
++				cpu);
 +		trace_sched_wake_idle_without_ipi(cpu);
++	}
 +}
 +#endif
 +
  #ifdef CONFIG_SMP
  #ifdef CONFIG_NO_HZ_COMMON
  /*
-@@ -3373,6 +3407,7 @@ static inline struct task_struct *
+@@ -3373,6 +3406,7 @@ static inline struct task_struct *
  pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie)
  {
  	const struct sched_class *class = &fair_sched_class;
@@ -175,7 +174,7 @@ index 04e8fc2225fd..81e9e179f82f 100644
  	struct task_struct *p;
  
  	/*
-@@ -3396,9 +3431,16 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie
+@@ -3396,9 +3430,16 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie
  	for_each_class(class) {
  		p = class->pick_next_task(rq, prev, cookie);
  		if (p) {
@@ -194,7 +193,7 @@ index 04e8fc2225fd..81e9e179f82f 100644
  		}
  	}
  
-@@ -4589,6 +4631,39 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
+@@ -4589,6 +4630,39 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
  	return -E2BIG;
  }
  
@@ -377,10 +376,10 @@ index e69de29bb2d1..96fd371a5524 100644
 +
 +#endif /* __RTG_THROTTLE_H__ */
 diff --git a/kernel/sched/rtgang.c b/kernel/sched/rtgang.c
-index e69de29bb2d1..e45491298ed6 100644
+index e69de29bb2d1..c48f4a4aec2d 100644
 --- a/kernel/sched/rtgang.c
 +++ b/kernel/sched/rtgang.c
-@@ -0,0 +1,397 @@
+@@ -0,0 +1,410 @@
 +/*
 + * kernel/sched/rtgang.c
 + *
@@ -431,9 +430,6 @@ index e69de29bb2d1..e45491298ed6 100644
 +
 +	cpumask_set_cpu(cpu, rtg_lock->locked_cores);
 +	rtg_lock->gthreads[cpu] = thread;
-+	rtg_debug(RTG_LEVEL_SUBSTATE, "    rtg_lock_thread: comm=%s sched=%s "
-+			"pid=%d tgid=%d rtgid=%d\n", thread->comm, PRINT_SCHED(thread),
-+			thread->pid, thread->tgid, GET_RTG_INFO(thread)->gid);
 +
 +	return;
 +}
@@ -447,8 +443,8 @@ index e69de29bb2d1..e45491298ed6 100644
 +	int this_cpu = smp_processor_id();
 +
 +	for_each_cpu (cpu, mask) {
-+		rtg_debug(RTG_LEVEL_ALL, "        rtg_resched_cpu: cpu=%d\n",
-+			cpu);
++		rtg_trace_printk(RTG_LEVEL_ALL, "    event=resched_ipi "
++				"to_cpu=%d\n", cpu);
 +
 +		if (cpu == this_cpu)
 +			continue;
@@ -476,13 +472,15 @@ index e69de29bb2d1..e45491298ed6 100644
 +		if (cpu != this_cpu)
 +			resched_cpu_force(cpu);
 +
-+		rtg_debug(RTG_LEVEL_SUBSTATE, "    rtg_preempt_thread: cpu=%d "
-+				"comm=%s sched=%s pid=%d tgid=%d rtgid=%d\n", cpu,
++		rtg_trace_printk(RTG_LEVEL_SUBSTATE, "  event=preempt_thread "
++				"on_cpu=%d comm=%s " "pid=%d tgid=%d rtgid=%d "
++				"prio=%d\n", cpu,
 +				rtg_lock->gthreads[cpu]->comm,
-+				PRINT_SCHED(rtg_lock->gthreads[cpu]),
 +				rtg_lock->gthreads[cpu]->pid,
 +				rtg_lock->gthreads[cpu]->tgid,
-+				GET_RTG_INFO(rtg_lock->gthreads[cpu])->gid);
++				GET_RTG_INFO(rtg_lock->gthreads[cpu])->gid,
++				rtg_lock->gthreads[cpu]->prio);
++
 +		rtg_lock->gthreads [cpu] = NULL;
 +	}
 +
@@ -515,10 +513,13 @@ index e69de29bb2d1..e45491298ed6 100644
 +			rtg_lock->gthreads[cpu] = NULL;
 +			cpumask_clear_cpu(cpu, rtg_lock->locked_cores);
 +
-+			rtg_debug(RTG_LEVEL_SUBSTATE, "    rtg_unlock_thread: "
-+				"cpu=%d comm=%s sched=%s pid=%d tgid=%d rtgid=%d\n", cpu,
-+				thread->comm, PRINT_SCHED(thread),
-+				thread->pid, thread->tgid, GET_RTG_INFO(thread)->gid);
++			rtg_trace_printk(RTG_LEVEL_SUBSTATE,
++					"  event=lock_rel on_cpu=%d comm=%s "
++					"pid=%d " "tgid=%d rtgid=%d prio=%d\n",
++					cpu, thread->comm, thread->pid,
++					thread->tgid,
++					GET_RTG_INFO(thread)->gid,
++					thread->prio);
 +		}
 +	}
 +
@@ -534,6 +535,7 @@ index e69de29bb2d1..e45491298ed6 100644
 +	if ((rtg_lock->no_preempt == 0) &&
 +			(cpumask_weight(rtg_lock->locked_cores) == 0)) {
 +		/* RT-Gang lock is now free. Reschedule blocked cores */
++		rtg_log_event(RTG_LEVEL_STATE, thread, "unlock");
 +		rtg_lock->leader = NULL;
 +		rtg_lock->busy = false;
 +		resched_cpus(rtg_lock->blocked_cores);
@@ -542,8 +544,6 @@ index e69de29bb2d1..e45491298ed6 100644
 +#ifdef CONFIG_SCHED_THROTTLE
 +		th_rtg_update_budget(TH_RTG_EVT_MAX_BUDGET);
 +#endif
-+
-+		rtg_log_event(RTG_LEVEL_STATE, thread, "release");
 +	}
 +
 +	return;
@@ -586,7 +586,12 @@ index e69de29bb2d1..e45491298ed6 100644
 +		BUG_ON(cpumask_weight(rtg_lock->locked_cores) != 0);
 +		BUG_ON(cpumask_weight(rtg_lock->blocked_cores) != 0);
 +
-+		rtg_log_event(RTG_LEVEL_STATE, next, "acquire");
++		rtg_trace_printk(RTG_LEVEL_STATE, "event=lock on_cpu=%d "
++				"leader=%s " "pid=%d tgid=%d rtgid=%d "
++				"prio=%d\n", this_cpu, next->comm, next->pid,
++				next->tgid, GET_RTG_INFO(next)->gid,
++				next->prio);
++
 +		gang_lock_cpu(next);
 +		rtg_lock->busy = true;
 +		rtg_lock->leader = next;
@@ -604,7 +609,12 @@ index e69de29bb2d1..e45491298ed6 100644
 +	BUG_ON(cpumask_weight(rtg_lock->locked_cores) == 0);
 +	if (IS_GANG_MEMBER(next)) {
 +		/* 'next' is part of the current RT gang */
-+		rtg_log_event(RTG_LEVEL_SUBSTATE, next, "    add");
++		rtg_trace_printk(RTG_LEVEL_SUBSTATE, "  event=lock_add "
++				"on_cpu=%d member=%s pid=%d tgid=%d rtgid=%d "
++				"prio=%d\n", this_cpu, next->comm, next->pid,
++				next->tgid, GET_RTG_INFO(next)->gid,
++				next->prio);
++
 +		gang_lock_cpu(next);
 +		goto out;
 +	}
@@ -642,8 +652,7 @@ index e69de29bb2d1..e45491298ed6 100644
 +			goto out;
 +		}
 +
-+		rtg_log_event(RTG_LEVEL_STATE, next, "preemptor");
-+		rtg_log_event(RTG_LEVEL_STATE, rtg_lock->leader, "preemptee");
++		rtg_log_event(RTG_LEVEL_STATE, next, "preemption");
 +
 +		do_gang_preemption(next);
 +
@@ -654,7 +663,10 @@ index e69de29bb2d1..e45491298ed6 100644
 +		cpumask_set_cpu(this_cpu, rtg_lock->blocked_cores);
 +
 +#ifdef CONFIG_SCHED_THROTTLE
-+		th_rtg_update_budget(GET_RTG_INFO(next)->budget);
++		if (GET_RTG_INFO(next)->budget == 0)
++			th_rtg_update_budget(rtg_throttle_budget);
++		else
++			th_rtg_update_budget(GET_RTG_INFO(next)->budget);
 +#endif
 +	} else {
 +		/* 'p' has lower priority; blocked */
@@ -751,7 +763,7 @@ index e69de29bb2d1..e45491298ed6 100644
 +	if (!dir)
 +		return PTR_ERR(dir);
 +
-+	if (!debugfs_create_u32("debug_level", mode, dir, &rtg_debug_level))
++	if (!debugfs_create_u32("debug_lvl", mode, dir, &rtg_debug_level))
 +		goto fail;
 +
 +#ifdef CONFIG_SCHED_THROTTLE
@@ -779,14 +791,16 @@ index e69de29bb2d1..e45491298ed6 100644
 +
 +late_initcall(rtg_init_lock);
 diff --git a/kernel/sched/rtgang.h b/kernel/sched/rtgang.h
-index e69de29bb2d1..a4a8aeb1e752 100644
+index e69de29bb2d1..a94b25ac4c30 100644
 --- a/kernel/sched/rtgang.h
 +++ b/kernel/sched/rtgang.h
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,103 @@
 +#ifndef __RTGANG_H__
 +#define __RTGANG_H__
 +
 +#ifdef CONFIG_SCHED_RTGANG
++
++extern int rtg_debug_level;
 +
 +#define RTG_FIFO_PRIO_THRESHOLD		(50)
 +#define	RTG_CONTINUE			(0)
@@ -837,28 +851,32 @@ index e69de29bb2d1..a4a8aeb1e752 100644
 +#define PRINT_PRIO(p)						\
 +	(IS_EDF(p)? p->dl.deadline:(u64)p->prio)
 +
-+#define RTG_DEBUG 1
++#define RTG_DEBUG
 +#ifdef RTG_DEBUG
-+#define rtg_log_event(level, task, event)			\
++#define rtg_trace_printk(level, format, ...)			\
 +do {								\
-+	rtg_debug(level, "rtg_%s: comm=%s rtgid=%d tgid=%d "    \
-+			"pid=%d prio=%d\n", event, task->comm, 	\
-+			GET_RTG_INFO(task)->gid, task->tgid,	\
-+			task->pid, task->prio);			\
++	if (rtg_debug_level >= level) {				\
++		char buf[256];					\
++		snprintf(buf, 256, "<file=%s line=%d> "		\
++			format, __FILE__, __LINE__, 		\
++			##__VA_ARGS__);				\
++		trace_printk(buf);				\
++	}							\
 +} while (0);
 +
-+#define rtg_debug(level, format, ...)				\
-+do {								\
-+	if (rtg_debug_level >= level)				\
-+		trace_printk(format, ##__VA_ARGS__);		\
-+} while (0);
++#define rtg_log_event(level, task, event)			\
++	rtg_trace_printk(level, "event=%s cpu=%d comm=%s "	\
++			"pid=%d tgid=%d rtgid=%d prio=%d\n",	\
++			event, smp_processor_id(), task->comm,	\
++			task->pid, task->tgid,			\
++			GET_RTG_INFO(task)->gid, task->prio)
 +#else
++#define rtg_trace_printk(level, format, ...)
 +#define rtg_log_event(level, task, event)
-+#define rtg_debug(level, format, ...)
 +#endif
 +
 +/* Debug Levels */
-+#define	RTG_LEVEL_DISABLE		(0)
++#define	RTG_LEVEL_CRITICAL		(0)
 +#define RTG_LEVEL_STATE			(1)
 +#define RTG_LEVEL_SUBSTATE		(2)
 +#define RTG_LEVEL_ALL			(3)
