@@ -91,14 +91,14 @@ class Stack(FIFO):
 class VirtualGangCreator:
     def __init__(self, params):
         required_params = ['candidate_set', 'num_of_cores', 'period',
-                'utilization', 'tasks_per_period', 'taskset_index', 'gen_dir']
+                'utilization', 'tasks_per_period', 'taskset_index'] #, 'gen_dir']
 
         default_optional_params = {
             'timeout'       : 2.0,
             'max_timeout'   : 30,
             'tolerance'     : 1.0,
             'stop_interval' : 1,
-            'gen_dir'       : None,
+            'gen_dir'       : "generated",
             'verify'        : True,
             'debug'         : False
         }

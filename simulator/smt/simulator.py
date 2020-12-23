@@ -255,7 +255,7 @@ def plot_edge_prob_data():
 
     return
 
-edge_prob_experiment()
+# edge_prob_experiment()
 # plot_edge_prob_data()
 # sys.exit()
 
@@ -517,14 +517,14 @@ def get_cli_params():
 TASKSET_TYPE, NUM_OF_TEST_TASKSETS, EDGE_PROBABILITY, DEMAND_TYPE = \
         get_cli_params()
 
-DEBUG = False
-# DEBUG_SEED = None
+DEBUG = True
+DEBUG_SEED = None
 # DEBUG_SEED = {
 #     'util'      :   2,
 #     'period'    :   170,
 #     'tsIdx'     :   7467
 # }
-# CANDIDATE_SET = 'ts7467_u2_p170'
+CANDIDATE_SET = 'dummy'
 
 def unit_test_rtg_rta():
     taskset = {491: {'Virtual': []}, 731: {'Virtual': []}}
@@ -599,8 +599,8 @@ def create_sched_plots_final(sched_hash, sched_list, style):
     plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
             fontweight = 'bold')
 
-    if TASKSET_TYPE == 'mixed': plt.legend(fontsize = 'small',
-            loc = 'lower left')
+    if TASKSET_TYPE == 'light': plt.legend(fontsize = 'x-small',
+            loc = 'upper right')
 
     plt.savefig('final_plots/%s_e%d_r%s.pdf' % (TASKSET_TYPE,
         EDGE_PROBABILITY, DEMAND_TYPE), bbox_inches = 'tight', pad_inches = 0)
@@ -608,7 +608,7 @@ def create_sched_plots_final(sched_hash, sched_list, style):
     return
 
 def main():
-    # if DEBUG: dbg_single_candidate_set()
+    if DEBUG: dbg_single_candidate_set(); exit()
     if REUSE:
         sched_hash_file = 'plot_data/%s_e%d_r%s.json' % (TASKSET_TYPE,
                 EDGE_PROBABILITY, DEMAND_TYPE)
@@ -622,12 +622,12 @@ def main():
         style = {}
         style['RT-Gang']    = {'c': 'red',      'm': 'o',   'l': 'RT-Gang'}
         style['RTG-Sync']   = {'c': 'blue',     'm': '*',   'l': 'Virtual-Gang'}
-        style['RTG-Synci']  = {'c': 'blue',     'm': '*',   'l': 'Virtual-Gang (Ideal)'}
+        style['RTG-Synci']  = {'c': 'blue',     'm': '*',   'l': 'Virtual-Gang (No Interf.)'}
         style['h2-lnr-hyb'] = {'c': 'green',    'm': '*',   'l': 'Virtual-Gang (Greedy)'}
         style['Threaded']   = {'c': 'cyan',     'm': 's',   'l': 'Threaded'}
-        style['Threadedi']  = {'c': 'cyan',     'm': 's',   'l': 'Threaded (Ideal)'}
+        style['Threadedi']  = {'c': 'cyan',     'm': 's',   'l': 'Threaded (No Interf.)'}
         style['GFTP']       = {'c': 'magenta',  'm': '^',   'l': 'Gang FTP'}
-        style['GFTPi']      = {'c': 'magenta',  'm': '^',   'l': 'Gang FTP (Ideal)'}
+        style['GFTPi']      = {'c': 'magenta',  'm': '^',   'l': 'Gang FTP (No Interf.)'}
 
         if EDGE_PROBABILITY != 0:
             schedulers = ['RTG-Sync', 'h2-lnr-hyb', 'RT-Gang']
@@ -850,10 +850,6 @@ def create_sched_plots(sched_hash, sched_list, clist, slabels, smarks,
     return
 
 def dbg_single_candidate_set():
-    taskset_dir = 'gen_%s/' % (TASKSET_TYPE) + CANDIDATE_SET
-    assert os.path.exists(taskset_dir), ("Taskset directory <%s> "
-            "does not exist in the generated folder" % (taskset_dir))
-
     print "[DEBUG] Starting debug session...\n"
 
     if DEBUG_SEED:
@@ -869,27 +865,36 @@ def dbg_single_candidate_set():
     else:
         parser = Aggregator(TASKSET_TYPE)
         candidate_set = parser.parse_taskset(CANDIDATE_SET, 'real')
-        tsIdx, util, period = parser.parse_taskset_dir(CANDIDATE_SET)
+        tsIdx, util, period = 1, 2, 1499# parser.parse_taskset_dir(CANDIDATE_SET)
 
     banner = "\t" + "-" * 16 + " Candidate Set " + "-" * 18 + "\n"
     print_single_candidate_set(sys.stdout, candidate_set, banner)
 
-    vgc_params = {
-        'stop_interval'     : 1,
-        'timeout'           : 1,
-        'max_timeout'       : 30,
-        'debug'             : True,
-        'verify'            : True,
-        'utilization'       : util,
-        'taskset_index'     : tsIdx,
-        'period'            : period,
-        'num_of_cores'      : NUM_OF_CORES,
-        'candidate_set'     : candidate_set,
-        'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+    # vgc_params = {
+    #     'stop_interval'     : 1,
+    #     'timeout'           : 1,
+    #     'max_timeout'       : 30,
+    #     'debug'             : True,
+    #     'verify'            : True,
+    #     'utilization'       : util,
+    #     'taskset_index'     : tsIdx,
+    #     'period'            : period,
+    #     'num_of_cores'      : NUM_OF_CORES,
+    #     'candidate_set'     : candidate_set,
+    #     'tasks_per_period'  : MAX_TASKS_PER_PERIOD
+    # }
+
+    # vgc = VirtualGangCreator(vgc_params)
+    # virtual_taskset = vgc.run(1)
+
+    h2_params = {
+        'num_of_cores': NUM_OF_CORES
     }
 
-    vgc = VirtualGangCreator(vgc_params)
-    virtual_taskset = vgc.run(1)
+    h2 = H2(h2_params)
+    h2_virtual_taskset = h2.run(candidate_set, "generated")
+    for t in h2_virtual_taskset:
+        print t
 
     print "\n[DEBUG] Debug session ended!"
     sys.exit(1)
