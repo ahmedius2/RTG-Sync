@@ -13,6 +13,25 @@ import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+from colorama import init, Fore, Back, Style
+init(autoreset = True)
+
+def format_str(msg_type):
+    style = {'INFO':   Style.NORMAL + Back.BLACK + Fore.GREEN   + '[ INFO ]',
+             'STATUS': Style.BRIGHT + Back.BLACK + Fore.GREEN   + '[STATUS]',
+             'ERROR':  Style.BRIGHT + Back.RED   + Fore.WHITE   + ' ERROR  ',
+             'WARN':   Style.BRIGHT + Back.BLACK + Fore.YELLOW  + '[ WARN ]',
+             'HINT':   Style.BRIGHT + Back.BLACK + Fore.YELLOW  + '[ HINT ]',
+             'PROMPT': Style.BRIGHT + Back.BLACK + Fore.RED     + '[PROMPT]' + Style.RESET_ALL,
+             'ACTION': Style.NORMAL + Back.BLACK + Fore.RED     + '[ACTION]' + Style.RESET_ALL}
+
+    return style[msg_type]
+
+def print_std_msg(msg_type, msg):
+    print format_str(msg_type), msg
+
+    return
+
 def parse_cli_args():
     parser = argparse.ArgumentParser()
     sim_group = parser.add_mutually_exclusive_group()
@@ -51,12 +70,12 @@ def parse_cli_args():
     args = parser.parse_args()
 
     print "\n************************************************"
-    print "[STATUS] Starting Simulation"
+    print_std_msg("STATUS", "Starting Simulation")
 
     if args.verbose >= 1 or args.demo_mode:
         if args.demo_mode:
-            print "[ INFO ] DEMO MODE ACTIVATED!"
-            print "[ INFO ] CLI parameters will be ignored. Instead, "
+            print_std_msg("INFO", "DEMO MODE ACTIVATED!")
+            print_std_msg("INFO", "CLI parameters will be ignored. Instead, ")
             print "         appropriate values will be used for all "
             print "         parameters.\n"
 
@@ -68,7 +87,7 @@ def parse_cli_args():
             args.edge_probability = 50
             args.taskset_type = 'mixed'
 
-        print "[ INFO ] Input Params:"
+        print_std_msg("INFO", "Input Params:")
         print "           PRISTINE               =", args.pristine
         print "           DEMO_MODE              =", args.demo_mode
         print "           Taskset Type           =", args.taskset_type
@@ -97,7 +116,7 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
 
     taskFactory = Generator(tf_params)
     taskset = taskFactory.create_taskset(args.taskset_type)
-    if args.demo_mode:
+    if args.demo_mode and args.verbose >= 2:
         print "@@@@@ Generated Taskset"
         taskFactory.print_taskset(taskset)
         print
@@ -123,7 +142,7 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
                 'gen_dir'           : gen_dir,
                 'num_of_cores'      : args.core_count,
                 'candidate_set'     : candidate_set,
-                'tasks_per_period'  : args.tasks_per_period 
+                'tasks_per_period'  : args.tasks_per_period
             }
 
             print_progress(tsIdx, args.num_of_tasksets, util,
@@ -139,7 +158,7 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
                         period=%d" % (tsIdx, util, period)
                 sys.exit()
 
-    if args.demo_mode:
+    if args.demo_mode and args.verbose >= 2:
         print "\n\n@@@@@ Virtual Taskset (SMT Solution)"
         taskFactory.print_taskset(virtual_taskset)
 
@@ -149,7 +168,7 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
     return
 
 def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
-    print '[STATUS] Processing Taskset: %4d / %-4d | Utilization: %2d '    \
+    print format_str('STATUS'), 'Processing Taskset: %4d / %-4d | Utilization: %2d '    \
             '/ %-2d | Period: %4d\r' % (cur_taskset, max_tasksets, cur_util, \
                     max_util, period),
 
@@ -162,8 +181,8 @@ def parallel_create_virtual_taskset(args):
     num_of_cores = multiprocessing.cpu_count()
 
     if args.verbose >= 2:
-        print "[ INFO ] Taskset generation will be parallelized on %d-Cores." \
-                % (num_of_cores)
+        print_std_msg("INFO", " Taskset generation will be parallelized on %d-Cores." \
+                % (num_of_cores))
 
     for r in range(1, args.num_of_tasksets + 1, num_of_cores):
         for tsIdx in range(r, min(r + num_of_cores, args.num_of_tasksets + 1)):
@@ -181,21 +200,21 @@ def parallel_create_virtual_taskset(args):
 
 def check_previous_run_data(data_src):
     if os.path.exists(data_src):
-        print "[ WARN ] '%s' directory / file already exists!" % (data_src)
+        print_std_msg("WARN", "'%s' directory / file already exists!" % (data_src))
         print "         There might be stall data from previous run of "
         print "         the simulator which will get over-written by "
         print "         this run."
-        prompt = raw_input("[PROMPT] Remove '%s' directory / file (y/n)? " % \
+        prompt = raw_input(format_str('PROMPT') + " Remove '%s' directory / file (y/n)? " % \
                 (data_src))
 
         if prompt == 'y':
-            print "[ACTION] Deleting '%s' directory / file!\n" % (data_src)
+            print format_str("ACTION"), "Deleting '%s' directory / file!\n" % (data_src)
             if os.path.isdir(data_src):
                 shutil.rmtree(data_src)
             else:
                 os.remove(data_src)
         else:
-            print "[STATUS] You have decided to keep the '%s' " % (data_src)
+            print_std_msg("STATUS", " You have decided to keep the '%s' " % (data_src))
             print "         directory / file. Please move it to a different "
             print "         location before running this program. Exiting!"
             sys.exit()
@@ -257,12 +276,12 @@ def get_sched_data_from_file(sched_hash_file):
 
             return sched_ratio
 
-    print "[ERROR ] You have specified pristine=False which means that "
+    print_std_msg("ERROR", " You have specified pristine=False which means that ")
     print "         the simulator should use data from prev. run to    "
     print "         create sched. plot. However, based on the CLI      "
     print "         params, the respective file containing sched. data "
     print "         from prev. run <%s> does not exist!" % (sched_hash_file)
-    print "[ HINT ] Either perform pristine run or make sure that the  "
+    print format_str("HINT"), "Either perform pristine run or make sure that the  "
     print "         sched. data file is present. Exiting..."
 
     sys.exit()
@@ -281,7 +300,7 @@ def main():
     if not args.pristine:
         sched_ratio = get_sched_data_from_file(sched_hash_file)
         create_sched_plots(args, sched_ratio, schedulers)
-        print "[STATUS] Done!"
+        print_std_msg("STATUS", " Done!")
         sys.exit()
 
     check_previous_run_data("generated")
@@ -295,7 +314,7 @@ def main():
     rta_params = {'num_of_cores': args.core_count}
     rta = RTA(rta_params)
 
-    print "[STATUS] Performing RTA..."
+    print_std_msg("STATUS", " Performing RTA...")
 
     idx = 1
     sched_ratio = {s: {} for s in schedulers}
@@ -309,7 +328,7 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
-                print "[STATUS]   Analyzing: U=%2d | Scheduler=%20s | " \
+                print format_str("STATUS"), "   Analyzing: U=%2d | Scheduler=%20s | " \
                         "Taskset: %5d / %-5d\r" % (u, s, tsIdx + 1,
                                 num_of_tasksets),
 
@@ -327,7 +346,7 @@ def main():
 
     create_sched_plots(args, sched_ratio, schedulers)
 
-    print "[STATUS] Done!"
+    print_std_msg("STATUS", "Done!")
 
     return
 
