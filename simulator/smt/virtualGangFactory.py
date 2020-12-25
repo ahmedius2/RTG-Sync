@@ -125,8 +125,8 @@ class VirtualGangCreator:
 
         # Create directory for all the generated artefacts and debug data for
         # this candidate-set
-        self.gen_dir = os.getcwd() + self.gen_dir + '/ts%d_u%d_p%d' % \
-            (self.taskset_index, self.utilization, self.period)
+        self.gen_dir = os.getcwd() + '/' + self.gen_dir + '/ts%d_u%d_p%d' % \
+                (self.taskset_index, self.utilization, self.period)
         if os.path.exists(self.gen_dir): shutil.rmtree(self.gen_dir)
         os.makedirs(self.gen_dir)
 

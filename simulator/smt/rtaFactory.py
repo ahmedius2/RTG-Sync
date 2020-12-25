@@ -145,22 +145,6 @@ class RTA:
             if scheduler == 'h6-crt-pth':
                 self.__form_virtual_gangs_heuristic_h6(taskset, scheduler, debug)
 
-            # for p in taskset:
-            #     print '-' * 30, 'Period: %d' % (p), '-' * 30
-            #     print '  - Candidate Set:'
-            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p]['Real']])
-            #     print
-            #     print '  - Heuristic Set:'
-            #     print '\n'.join(['    + ' + t.__str__() for t in taskset[p][scheduler]])
-            #     print
-
-            #     print "[DEBUG] Virtual Set:"
-            #     self.__print_pq(taskset[p]['Virtual'])
-
-            #     print "\n[DEBUG] Heuristic Set:"
-            #     self.__print_pq(taskset[p]['RTG-Sync-H1'])
-            #     print "\n" + "-" * 50 + "\n"
-
         if scheduler in ['GFTP', 'GFTPi', 'Threaded', 'Threadedi']:
             if scheduler == 'GFTP' and dry_run:
                 taskset = self.__deep_copy_taskset(taskset)
@@ -256,13 +240,6 @@ class RTA:
         return 1
 
     def __scale_threadset (self, taskset):
-        # with open('tscl.log', 'a') as fdo:
-        #     fdo.write("==== Threaded Scaling\n")
-        #     fdo.write("  - Taskset\n")
-        #     for p in taskset:
-        #         fdo.write('\n'.join('    + %s' % (t) for t in taskset[p]))
-        #         fdo.write('\n')
-
         sorted_tasks = []
         scaling_factors = {}
         temp_taskset = [t for p in taskset for t in taskset[p]]
@@ -290,14 +267,6 @@ class RTA:
             for t in taskset[p]:
                 t.c *= scaling_factors[t]
 
-        # with open('tscl.log', 'a') as fdo:
-        #     fdo.write("  - Scaled Taskset\n")
-        #     for p in taskset:
-        #         fdo.write('\n'.join('    + %s' % (t) for t in taskset[p]))
-        #         fdo.write('\n')
-
-        #     fdo.write('-' * 50 + '\n')
-
         return taskset
 
     def __split_gangs_into_threads(self, taskset):
@@ -321,10 +290,6 @@ class RTA:
         for period in taskset:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
-
-            # if debug:
-            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            #     self.__print_pq(candidate_set)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -364,10 +329,6 @@ class RTA:
                     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
                 candidate_list = self.__score_candidates_path2(tk, candidate_list, graph, critical_length, debug)
-
-                # if debug:
-                #     print 'Ranked Candidates:'
-                #     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
@@ -495,10 +456,6 @@ class RTA:
             total_r = sum([t.r for t in candidate_set])
             avg_r_core = total_r / float(num_cores)
 
-            # if debug:
-            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            #     self.__print_pq(candidate_set)
-
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
             if debug:
@@ -529,10 +486,6 @@ class RTA:
                     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
                 candidate_list = self.__score_candidates_h4(tk, candidate_list, avg_r_core, debug)
-
-                # if debug:
-                #     print 'Ranked Candidates:'
-                #     print '\n'.join(['  + ' + t.__str__() for t in candidate_list])
 
                 while len(candidate_list) != 0:
                     tc = self.__get_best_corunner(tk, candidate_list, graph)
@@ -574,10 +527,6 @@ class RTA:
         for period in taskset:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
-
-            # if debug:
-            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            #     self.__print_pq(candidate_set)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -654,10 +603,6 @@ class RTA:
         for period in taskset:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
-
-            # if debug:
-            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            #     self.__print_pq(candidate_set)
 
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
@@ -825,9 +770,6 @@ class RTA:
             penalty = self.__calc_penalty(paths, critical_length)
             score = tp.c - penalty
 
-            # print '    # tc:', tc.__str__()
-            # print '    # tg:', tmp_gang.__str__(), ' |', score
-
             while score in score_hash:
                 score -= 0.001
 
@@ -898,19 +840,12 @@ class RTA:
             tmp_gang = self.__tmp_create_virtual_task(tk_copy, tc_copy, tmp_vidx, tmp_graph)
             score = self.__calc_crit_path(tmp_gang, tmp_graph)
 
-            # print '    # tc:', tc.__str__()
-            # print '    # tg:', tmp_gang.__str__(), ' |', score
-
             while score in score_hash:
                 score += 1
 
             score_hash[score] = tc
 
         sorted_scores = sorted(score_hash.keys())
-
-        # print '  * Candidate Scores:'
-        # for sc in sorted_scores:
-        #     print '    > score=%d | %s' % (sc, score_hash[sc])
 
         scored_candidate_list = [score_hash[sc] for sc in sorted_scores]
 
@@ -926,21 +861,11 @@ class RTA:
         right_path = self.__calc_right_crit_path(node, graph, True)
         crit_path_len = node.c +  left_path + right_path
 
-        # print '    # Graph:'
-        # for v in graph:
-        #     print '      > %s' % (v)
-
-        # print '        @  left path:', left_path
-        # print '        @ right path:', right_path
-
         return crit_path_len
 
     def __calc_left_crit_path(self, node, graph, first = False):
         max_path_length = 0
         predecessors = self.__get_predecessors(node.tid, graph)
-
-        # print '          - Left Path Debug: node =', node.__str__()
-        # print '          -    Predecessors: node =', predecessors
 
         for p in predecessors:
             pt = self.__get_task_by_tid(p, graph)
@@ -1050,10 +975,6 @@ class RTA:
             virtual_taskset = []
             candidate_set = taskset[period]['Real']
 
-            # if debug:
-            #     print "[DEBUG]<%s> Candidate Set:" % (heuristic)
-            #     self.__print_pq(candidate_set)
-
             pq, graph = self.__create_heuristic_pq(candidate_set, heuristic)
 
             if debug:
@@ -1114,17 +1035,13 @@ class RTA:
     def __are_related(self, ti, tj, taskset, debug = False):
         if debug: print '*' * 50
 
-        # ti_family = self.__get_family(ti.tid, taskset)
         tj_family = self.__get_family(tj.tid, taskset, debug)
 
         if debug:
-            # print 'ti=%s' % (ti.tid), 'ti_family:', ti_family
             print 'tj=%s' % (tj.tid), 'tj_family:', tj_family
             print '\n'.join(['  + ' + t.__str__() for t in taskset])
 
-        # common_members = [t for t in ti_family if t in tj_family]
-
-        if ti.tid in tj_family: # or tj.tid in ti_family or common_members:
+        if ti.tid in tj_family:
             return True
 
         return False
@@ -1297,12 +1214,6 @@ class RTA:
                     'h4-mlt-scr', 'h5-lnr-hyb', 'h6-crt-pth']:
                 # Higher 'C', higher priority
                 return ti.c <= tj.c
-
-            # if heuristic == 'h3-crt-pth':
-            #     if len(ti.e) != len(tj.e):
-            #         return len(ti.e) < len(tj.e)
-            #     else:
-            #         return ti.c <= tj.c
 
         except:
             raise ValueError, ('Invalid task(s)!\n  ti: %s\n  tj: %s' %

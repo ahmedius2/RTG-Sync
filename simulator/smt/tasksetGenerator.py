@@ -6,10 +6,9 @@ from taskFactory import Task
 class Generator:
     def __init__ (self, params):
         required_params = ['edge_prob', 'num_of_cores', 'utils', 'seed',
-                'demand_type']
+                'demand_type', 'tasks_per_period']
 
         default_optional_params = {
-            'tasks_per_period'  : None,
             'length_interval'   : (10, 5),
             'demand_interval'   : (1, 100),
             'period_interval'   : (10, 1500)
@@ -58,11 +57,6 @@ class Generator:
                     continue
 
                 taskset[u][T] = []
-
-                # Randomly select the number of tasks to generate for the
-                # current period
-                if not self.tasks_per_period:
-                    self.tasks_per_period = random.randint(2, self.num_of_cores)
 
                 while (tid % self.tasks_per_period):
                     task, remUtil, stop = self.gen_task_params(tasksetType,
@@ -168,13 +162,12 @@ class Generator:
     def print_taskset(self, taskset):
         tidx = 1
         for u in taskset:
-            print '=' * 100
+            print '=' * 20 + ' Util. Point = %d' % (u)
             v = 0
-            print
             for p in taskset[u]:
-                print '*' * 57
                 for t in taskset[u][p]:
                     v += (t.c * t.h / float(p))
-                    print "v = %1.3f | " % (v), t
+                    print "[U=%1.3f]" % (v), t
+                print '*' * 60
 
         return

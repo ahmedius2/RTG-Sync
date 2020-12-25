@@ -6,7 +6,8 @@ class Aggregator:
         self.gen_dir = gen_dir
 
         assert os.path.exists(self.gen_dir), ("Directory of generated data "
-            "<%s> does not exists in the current folder." % (self.gen_dir))
+            "<%s> does not exists in the current folder. Try pristine run!" %
+            (self.gen_dir))
 
         return
 
@@ -25,7 +26,7 @@ class Aggregator:
             if max_ts and tsIdx > max_ts: continue
             debug = False
 
-            print "[PROGRESS] %4d / %4d | Parsing: <%20s>\r" % (idx,
+            print "[PARSER] %4d / %4d | Parsing: <%20s>\r" % (idx,
                     len(generated_taskset_dirs), ts),
 
             sys.stdout.flush()
@@ -60,7 +61,7 @@ class Aggregator:
                 print
 
         if not max_ts: print
-        if not max_ts: print "[PROGRESS] Parsing Complete!"
+        if not max_ts: print "[PARSER] Parsing Complete!"
         return tasksets
 
     def parse_taskset(self, taskset_dir, nature, debug = False):
