@@ -19,15 +19,13 @@ try:
     colored = True
 except:
     colored = False
-    print "[ INFO ] colorama module not found. Uncolored messages will be\n", \
-          "         printed on the console!"
 
 l = multiprocessing.Lock()
 
 def format_str(msg_type):
     text = {'INFO':   '[ INFO ]',
             'STATUS': '[STATUS]',
-            'ERROR':  ' ERROR  ',
+            'ERROR':  '[ERROR ]',
             'WARN':   '[ WARN ]',
             'HINT':   '[ HINT ]',
             'PROMPT': '[PROMPT]',
@@ -120,7 +118,7 @@ def parse_cli_args():
 
     return args
 
-def virtual_gang_generator_thread_entry(tsIdx, args):
+def virtual_gang_generator_thread_entry(tsIdx, gen_dir, args):
     if args.verbose >= 3:
         print "[THRD-%d] Starting..." % (tsIdx)
 
@@ -146,9 +144,6 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
         virtual_taskset[util] = {}
 
         for period, candidate_set in taskset[util].items():
-            gen_dir = 'generated/%s_e%d_r%s' % (args.taskset_type,
-                    args.edge_probability, args.demand_type)
-
             vgc_params = {
                 'stop_interval'     : 1,
                 'timeout'           : 2,
@@ -195,7 +190,7 @@ def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
 
     return
 
-def parallel_create_virtual_taskset(args):
+def parallel_create_virtual_taskset(args, gen_dir):
     processes = {}
     num_of_cores = multiprocessing.cpu_count()
 
@@ -207,7 +202,8 @@ def parallel_create_virtual_taskset(args):
     for r in range(1, args.num_of_tasksets + 1, num_of_cores):
         for tsIdx in range(r, min(r + num_of_cores, args.num_of_tasksets + 1)):
             processes[tsIdx] = multiprocessing.Process(target = \
-                    virtual_gang_generator_thread_entry, args = (tsIdx, args,))
+                    virtual_gang_generator_thread_entry,
+                    args = (tsIdx, gen_dir, args,))
 
             processes[tsIdx].start()
 
@@ -234,9 +230,10 @@ def check_previous_run_data(data_src):
             else:
                 os.remove(data_src)
         else:
-            print_std_msg("STATUS", "You have decided to keep the '%s' " % (data_src))
+            print_std_msg("HINT", "You have decided to keep the '%s' " % (data_src))
             print "         (directory/file). Please move it to a different "
-            print "         location before running this program. Exiting!"
+            print "         location before running this program. Or try running "
+            print "         the simulator without -p flag. Exiting!"
             sys.exit()
 
     return
@@ -248,10 +245,12 @@ def stratify_data(args, data):
     return x, y
 
 def create_sched_plots(args, sched_hash, sched_list):
-    plot_file = 'figures/%s_e%d_r%s.png' % (args.taskset_type,
-        args.edge_probability, args.demand_type)
+    plot_file = 'figures/%s_n%d_e%d_r%s_m%d_N%d.pdf' % \
+            (args.taskset_type, args.num_of_tasksets, args.edge_probability,
+             args.demand_type, args.core_count, args.tasks_per_period)
 
-    fig = plt.subplots(1, 1, figsize = (10, 8))
+
+    fig = plt.subplots(1, 1, figsize = (5, 4))
     style = {'RT-Gang':    {'clr': 'red',     'mrk': 'o', 'lbl': 'RT-Gang'                  },
              'RTG-Sync':   {'clr': 'blue',    'mrk': '*', 'lbl': 'Virtual-Gang'             },
              'RTG-SYNCi':  {'clr': 'blue',    'mrk': '*', 'lbl': 'Virtual-Gang (No-Interf.)'},
@@ -265,28 +264,24 @@ def create_sched_plots(args, sched_hash, sched_list):
         ls = '--' if s[-1] == 'i' else '-'
         x, y = stratify_data(args, sched_hash[s])
 
-        plt.plot(x, y, lw = 1.5, color = style[s]['clr'], marker = style[s]['mrk'],
+        plt.plot(x, y, lw = 1.0, color = style[s]['clr'], marker = style[s]['mrk'],
                 label = style[s]['lbl'], linestyle = ls)
 
+    plt.grid(True, ls = '--', color = 'gray')
     plt.xlim([0.5, args.core_count + 0.5])
     plt.ylim([0, args.num_of_tasksets * 1.05])
-    plt.xlabel('Utilizations', fontsize = 'x-large', fontweight = 'bold')
-    plt.ylabel('Schedulable Tasksets', fontsize = 'x-large',
-            fontweight = 'bold')
+    plt.xlabel('Utilizations', fontweight = 'bold')
+    plt.ylabel('Schedulable Tasksets', fontweight = 'bold')
 
-    plt.title(args.taskset_type.capitalize(), fontsize = 'xx-large',
-            fontweight = 'bold')
-
-    if args.taskset_type == 'mixed': plt.legend(fontsize = 'x-large')
-
+    plt.legend(fontsize = 'xx-small')
     if not os.path.isdir("figures"): os.makedirs("figures")
-    plt.savefig(plot_file)
+    plt.savefig(plot_file, bbox_inches = 'tight')
 
     if colored:
         print Back.GREEN + Fore.WHITE + Style.BRIGHT + \
-            "Plot can be seen here: ", Style.BRIGHT + plot_file
+            "Plot can be seen here:", Style.BRIGHT + plot_file
     else:
-        print "Plot can be seen here: ", plot_file
+        print "Plot can be seen here:", plot_file
 
     return plot_file
 
@@ -305,7 +300,7 @@ def get_sched_data_from_file(sched_hash_file):
 
             return sched_ratio
 
-    print_std_msg("ERROR", " You have specified pristine=False which means that ")
+    print_std_msg("ERROR", "You have specified pristine=False which means that ")
     print "         the simulator should use data from prev. run to    "
     print "         create sched. plot. However, based on the CLI      "
     print "         params, the respective file containing sched. data "
@@ -317,14 +312,18 @@ def get_sched_data_from_file(sched_hash_file):
 
 def main():
     args = parse_cli_args()
-    sched_hash_file = 'data_hashes/%s_e%d_r%s.json' % (args.taskset_type,
-            args.edge_probability, args.demand_type)
+    run_identifier = '%s_n%d_e%d_r%s_m%d_N%d' % (args.taskset_type,
+            args.num_of_tasksets, args.edge_probability, args.demand_type,
+            args.core_count, args.tasks_per_period)
+
+    sched_hash_file = 'data_hashes/%s.json' % (run_identifier)
+    gen_dir = 'generated/' + run_identifier
 
     schedulers = ['RT-Gang', 'RTG-Sync', 'h2-lnr-hyb']
     supp_scheds = ['GFTP', 'GFTPi', 'Threaded', 'Threadedi']
 
     if args.edge_probability == 0:
-        schedulers = schedulers[:-1] + supp_scheds
+        schedulers += supp_scheds
 
     if not args.pristine:
         sched_ratio = get_sched_data_from_file(sched_hash_file)
@@ -332,10 +331,8 @@ def main():
         print_std_msg("STATUS", " Done!")
         sys.exit()
 
-    check_previous_run_data("generated")
-    parallel_create_virtual_taskset(args)
-    gen_dir = 'generated/%s_e%d_r%s' % (args.taskset_type,
-            args.edge_probability, args.demand_type)
+    check_previous_run_data(gen_dir)
+    parallel_create_virtual_taskset(args, gen_dir)
 
     print_std_msg("STATUS", "Parsing execution data")
     aggregator = Aggregator(gen_dir, debug = (args.verbose >= 2))
@@ -361,11 +358,9 @@ def main():
                 print format_str("STATUS"), "\tAnalyzing: U=%2d | Policy=%-10s | " \
                         "Taskset: %5d / %-5d\r" % (u, s, tsIdx, num_of_tasksets),
 
-                gen_dir = 'generated/%s_e%d_r%s/ts%d_u%d_p' % \
-                    (args.taskset_type, args.edge_probability,
-                            args.demand_type, tsIdx, u)
+                gen_dir_rta = gen_dir + '/ts%d_u%d_p' % (tsIdx, u)
 
-                schedulable = rta.run(ts, s, gen_dir)
+                schedulable = rta.run(ts, s, gen_dir_rta)
                 sched_ratio[s][u] += schedulable
 
     print "\n"
