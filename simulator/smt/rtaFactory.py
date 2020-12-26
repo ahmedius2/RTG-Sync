@@ -120,7 +120,7 @@ class RTA:
 
         return gftp_taskset
 
-    def run(self, taskset, scheduler, gen_dir = '', dry_run = False, debug = False):
+    def run(self, taskset, scheduler, gen_dir = '', debug = False):
         pq = []
         self.__check_scheduler(scheduler)
 
@@ -146,7 +146,7 @@ class RTA:
                 self.__form_virtual_gangs_heuristic_h6(taskset, scheduler, debug)
 
         if scheduler in ['GFTP', 'GFTPi', 'Threaded', 'Threadedi']:
-            if scheduler == 'GFTP' and dry_run:
+            if scheduler == 'GFTP':
                 taskset = self.__deep_copy_taskset(taskset)
                 taskset = self.__scale_taskset(taskset)
 
@@ -165,11 +165,6 @@ class RTA:
                         fdo.write('======== Scaled GFTP Taskset =============\n')
                         fdo.write('\n'.join([t.__str__() for t in taskset[p]]))
                         fdo.write('\n')
-
-                return 0
-
-            if scheduler == 'GFTP':
-                taskset = self.__get_gftp_scaled_taskset(taskset)
             else:
                 taskset = self.__deep_copy_taskset(taskset)
 

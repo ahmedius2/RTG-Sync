@@ -296,7 +296,7 @@ def main():
             args.edge_probability, args.demand_type)
 
     schedulers = ['RT-Gang', 'RTG-Sync', 'h2-lnr-hyb']
-    supp_scheds = ['RTG-Synci', 'GFTP', 'GFTPi', 'Threaded', 'Threadedi']
+    supp_scheds = ['GFTP', 'GFTPi', 'Threaded', 'Threadedi']
 
     if args.edge_probability == 0:
         schedulers = schedulers[:-1] + supp_scheds
@@ -314,7 +314,7 @@ def main():
 
     print_std_msg("STATUS", "Parsing execution data")
     aggregator = Aggregator(gen_dir, debug = (args.verbose >= 2))
-    tasksets = aggregator.run(gftp = (args.edge_probability == 0))
+    tasksets = aggregator.run(gftp = False)
 
     rta_params = {'num_of_cores': args.core_count}
     rta = RTA(rta_params)
@@ -341,7 +341,7 @@ def main():
                     (args.taskset_type, args.edge_probability,
                             args.demand_type, tsIdx, u)
 
-                schedulable = rta.run(ts, s, gen_dir, True)
+                schedulable = rta.run(ts, s, gen_dir)
                 sched_ratio[s][u] += schedulable
 
     print "\n"
