@@ -116,7 +116,7 @@ index fb499510fcec..b00a0e67f03e 100644
 +obj-$(CONFIG_SCHED_RTGANG) += rtgang.o
 +obj-$(CONFIG_SCHED_THROTTLE) += throttle.o
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 04e8fc2225fd..81b9538e8515 100644
+index 04e8fc2225fd..7faa7455afcb 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -94,6 +94,10 @@
@@ -130,7 +130,7 @@ index 04e8fc2225fd..81b9538e8515 100644
  DEFINE_MUTEX(sched_domains_mutex);
  DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
  
-@@ -528,6 +532,35 @@ void resched_cpu(int cpu)
+@@ -528,6 +532,29 @@ void resched_cpu(int cpu)
  	raw_spin_unlock_irqrestore(&rq->lock, flags);
  }
  
@@ -141,16 +141,10 @@ index 04e8fc2225fd..81b9538e8515 100644
 + * target CPU's rq lock and sends a rescheduling interrupt without protection
 + * if need be. It is used exclusively in RT-Gang related code.
 + */
-+void resched_cpu_force (int cpu)
++void resched_cpu_force (int cpu, struct task_struct *curr)
 +{
-+	struct rq *rq = cpu_rq(cpu);
-+	struct task_struct *curr = rq->curr;
-+
-+	if (cpu == smp_processor_id()) {
-+		set_tsk_need_resched(curr);
-+		set_preempt_need_resched();
-+		return;
-+	}
++	if (curr == NULL)
++		curr = cpu_rq(cpu)->curr;
 +
 +	if (set_nr_and_not_polling(curr))
 +		smp_send_reschedule(cpu);
@@ -166,7 +160,7 @@ index 04e8fc2225fd..81b9538e8515 100644
  #ifdef CONFIG_SMP
  #ifdef CONFIG_NO_HZ_COMMON
  /*
-@@ -3373,6 +3406,7 @@ static inline struct task_struct *
+@@ -3373,6 +3400,7 @@ static inline struct task_struct *
  pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie)
  {
  	const struct sched_class *class = &fair_sched_class;
@@ -174,7 +168,7 @@ index 04e8fc2225fd..81b9538e8515 100644
  	struct task_struct *p;
  
  	/*
-@@ -3396,9 +3430,16 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie
+@@ -3396,9 +3424,16 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct pin_cookie cookie
  	for_each_class(class) {
  		p = class->pick_next_task(rq, prev, cookie);
  		if (p) {
@@ -193,7 +187,7 @@ index 04e8fc2225fd..81b9538e8515 100644
  		}
  	}
  
-@@ -4589,6 +4630,39 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
+@@ -4589,6 +4624,39 @@ static int sched_copy_attr(struct sched_attr __user *uattr,
  	return -E2BIG;
  }
  
@@ -376,10 +370,10 @@ index e69de29bb2d1..96fd371a5524 100644
 +
 +#endif /* __RTG_THROTTLE_H__ */
 diff --git a/kernel/sched/rtgang.c b/kernel/sched/rtgang.c
-index e69de29bb2d1..c48f4a4aec2d 100644
+index e69de29bb2d1..034e354aeb70 100644
 --- a/kernel/sched/rtgang.c
 +++ b/kernel/sched/rtgang.c
-@@ -0,0 +1,410 @@
+@@ -0,0 +1,409 @@
 +/*
 + * kernel/sched/rtgang.c
 + *
@@ -449,7 +443,7 @@ index e69de29bb2d1..c48f4a4aec2d 100644
 +		if (cpu == this_cpu)
 +			continue;
 +
-+		resched_cpu_force(cpu);
++		resched_cpu_force(cpu, NULL);
 +	}
 +
 +	return;
@@ -470,7 +464,7 @@ index e69de29bb2d1..c48f4a4aec2d 100644
 +		WARN_ON(rtg_lock->gthreads [cpu] == NULL);
 +
 +		if (cpu != this_cpu)
-+			resched_cpu_force(cpu);
++			resched_cpu_force(cpu, rtg_lock->gthreads[cpu]);
 +
 +		rtg_trace_printk(RTG_LEVEL_SUBSTATE, "  event=preempt_thread "
 +				"on_cpu=%d comm=%s " "pid=%d tgid=%d rtgid=%d "
@@ -653,7 +647,6 @@ index e69de29bb2d1..c48f4a4aec2d 100644
 +		}
 +
 +		rtg_log_event(RTG_LEVEL_STATE, next, "preemption");
-+
 +		do_gang_preemption(next);
 +
 +		/*
@@ -899,7 +892,7 @@ index e69de29bb2d1..a94b25ac4c30 100644
 +
 +#endif /* __RTGANG_H__ */
 diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index a2e94a076e7f..0a528cb40ccf 100644
+index a2e94a076e7f..1afe67d1da03 100644
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
 @@ -1276,6 +1276,7 @@ extern const u32 sched_prio_to_wmult[40];
@@ -915,7 +908,7 @@ index a2e94a076e7f..0a528cb40ccf 100644
  extern void resched_cpu(int cpu);
  
 +#ifdef CONFIG_SCHED_RTGANG
-+extern void resched_cpu_force(int cpu);
++extern void resched_cpu_force(int cpu, struct task_struct *curr);
 +#endif
 +
  extern struct rt_bandwidth def_rt_bandwidth;
