@@ -34,7 +34,7 @@ def format_str(msg_type):
     if not colored:
         return text[msg_type]
 
-    color = {'INFO':   Style.NORMAL + Back.BLACK + Fore.MAGENTA,
+    color = {'INFO':   Style.BRIGHT + Back.BLACK + Fore.MAGENTA,
              'STATUS': Style.BRIGHT + Back.BLACK + Fore.GREEN  ,
              'ERROR':  Style.BRIGHT + Back.RED   + Fore.WHITE  ,
              'WARN':   Style.BRIGHT + Back.BLACK + Fore.YELLOW ,
@@ -64,25 +64,25 @@ def parse_cli_args():
             action = "count", default = 0)
 
     parser.add_argument('-t', '--taskset_type', help = "type of taskset",
-            choices = ['light', 'mixed', 'heavy'], default = 'light')
+            choices = ['light', 'mixed', 'heavy'], default = 'mixed')
 
     parser.add_argument('-n', '--num_of_tasksets', help = "number of tasksets \
             to generate for each util. point", type = int, choices = [1, 10,
-                100, 1000], default = 4)
+                100, 1000], default = 10)
 
     parser.add_argument('-e', '--edge_probability', help = "edge probability in \
             generated tasksets", type = int, choices = [0, 25, 50, 75],
-            default = 0)
+            default = 25)
 
     parser.add_argument('-r', '--demand_type', help = "type of resource \
             demand", choices = ['0', 'r'], default = 'r')
 
     parser.add_argument('-m', '--core_count', help = "number of cores 'm' for \
-            the simulation", type = int, choices = [4, 8, 16, 32], default = 4)
+            the simulation", type = int, choices = [4, 8, 16, 32], default = 8)
 
     parser.add_argument('-N', '--tasks_per_period', help = "max. number of tasks \
             in any candidate-set", type = int,
-            choices = [4, 8, 10, 12], default = 6)
+            choices = [4, 8, 10, 12], default = 8)
 
     args = parser.parse_args()
 
@@ -96,12 +96,13 @@ def parse_cli_args():
             print "         appropriate values will be used for all "
             print "         parameters.\n"
 
+            args.verbose = 1
             args.core_count = 8
             args.pristine = True
             args.demand_type = 'r'
-            args.num_of_tasksets = 1
-            args.tasks_per_period = 4
-            args.edge_probability = 50
+            args.num_of_tasksets = 10
+            args.tasks_per_period = 8
+            args.edge_probability = 0
             args.taskset_type = 'mixed'
 
         print_std_msg("INFO", "Simulation Params:")

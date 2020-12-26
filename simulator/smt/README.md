@@ -4,7 +4,7 @@ Python-3.
 
 ## Required Packages
 The following packages are required to run the simulator:
-  - z3 v4.8.8 - 64 bit (sudo apt install z3)
+  - z3 v4.8.9 - 64 bit (Download from: https://github.com/Z3Prover/z3/releases)
   - matplotlib (sudo apt install python-matplotlib)
   - colorama (pip2 install colorama)
 
