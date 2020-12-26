@@ -738,6 +738,3 @@ def dbg_dump_vgang_info(tasksets):
             fdo.write('\n')
 
     return
-
-if __name__ == '__main__':
-    main()

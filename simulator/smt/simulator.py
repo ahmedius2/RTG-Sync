@@ -13,19 +13,38 @@ import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from colorama import init, Fore, Back, Style
-init(autoreset = True)
+try:
+    from colorama2 import init, Fore, Back, Style
+    init(autoreset = True)
+    colored = True
+except:
+    colored = False
+    print "[ INFO ] colorama module not found. Uncolored messages will be\n", \
+          "         printed on the console!"
+
+l = multiprocessing.Lock()
 
 def format_str(msg_type):
-    style = {'INFO':   Style.NORMAL + Back.BLACK + Fore.GREEN   + '[ INFO ]',
-             'STATUS': Style.BRIGHT + Back.BLACK + Fore.GREEN   + '[STATUS]',
-             'ERROR':  Style.BRIGHT + Back.RED   + Fore.WHITE   + ' ERROR  ',
-             'WARN':   Style.BRIGHT + Back.BLACK + Fore.YELLOW  + '[ WARN ]',
-             'HINT':   Style.BRIGHT + Back.BLACK + Fore.YELLOW  + '[ HINT ]',
-             'PROMPT': Style.BRIGHT + Back.BLACK + Fore.RED     + '[PROMPT]' + Style.RESET_ALL,
-             'ACTION': Style.NORMAL + Back.BLACK + Fore.RED     + '[ACTION]' + Style.RESET_ALL}
+    text = {'INFO':   '[ INFO ]',
+            'STATUS': '[STATUS]',
+            'ERROR':  ' ERROR  ',
+            'WARN':   '[ WARN ]',
+            'HINT':   '[ HINT ]',
+            'PROMPT': '[PROMPT]',
+            'ACTION': '[ACTION]'}
 
-    return style[msg_type]
+    if not colored:
+        return text[msg_type]
+
+    color = {'INFO':   Style.NORMAL + Back.BLACK + Fore.MAGENTA,
+             'STATUS': Style.BRIGHT + Back.BLACK + Fore.GREEN  ,
+             'ERROR':  Style.BRIGHT + Back.RED   + Fore.WHITE  ,
+             'WARN':   Style.BRIGHT + Back.BLACK + Fore.YELLOW ,
+             'HINT':   Style.BRIGHT + Back.BLACK + Fore.YELLOW ,
+             'PROMPT': Style.BRIGHT + Back.BLACK + Fore.RED    ,
+             'ACTION': Style.NORMAL + Back.BLACK + Fore.RED    }
+
+    return color[msg_type] + text[msg_type] + Style.RESET_ALL
 
 def print_std_msg(msg_type, msg):
     print format_str(msg_type), msg
@@ -168,11 +187,11 @@ def virtual_gang_generator_thread_entry(tsIdx, args):
     return
 
 def print_progress(cur_taskset, max_tasksets, cur_util, max_util, period):
-    print format_str('STATUS'), 'Processing Taskset: %4d / %-4d | Utilization: %2d '    \
-            '/ %-2d | Period: %4d\r' % (cur_taskset, max_tasksets, cur_util, \
-                    max_util, period),
-
+    l.acquire()
+    print format_str('STATUS'), '\tU=%2d | Period=%-4d | Taskset: %5d / %-5d\r' \
+            % (cur_util, period, cur_taskset, max_tasksets),
     sys.stdout.flush()
+    l.release()
 
     return
 
@@ -180,10 +199,11 @@ def parallel_create_virtual_taskset(args):
     processes = {}
     num_of_cores = multiprocessing.cpu_count()
 
-    if args.verbose >= 2:
+    if args.verbose >= 1:
         print_std_msg("INFO", " Taskset generation will be parallelized on %d-Cores." \
                 % (num_of_cores))
 
+    print format_str('STATUS'), 'Processing Tasksets'
     for r in range(1, args.num_of_tasksets + 1, num_of_cores):
         for tsIdx in range(r, min(r + num_of_cores, args.num_of_tasksets + 1)):
             processes[tsIdx] = multiprocessing.Process(target = \
@@ -259,9 +279,14 @@ def create_sched_plots(args, sched_hash, sched_list):
 
     if args.taskset_type == 'mixed': plt.legend(fontsize = 'x-large')
 
+    if not os.path.isdir("figures"): os.makedirs("figures")
     plt.savefig(plot_file)
-    print Back.GREEN + Fore.WHITE + Style.BRIGHT + \
+
+    if colored:
+        print Back.GREEN + Fore.WHITE + Style.BRIGHT + \
             "Plot can be seen here: ", Style.BRIGHT + plot_file
+    else:
+        print "Plot can be seen here: ", plot_file
 
     return plot_file
 
@@ -292,7 +317,7 @@ def get_sched_data_from_file(sched_hash_file):
 
 def main():
     args = parse_cli_args()
-    sched_hash_file = 'sim_data/%s_e%d_r%s.json' % (args.taskset_type,
+    sched_hash_file = 'data_hashes/%s_e%d_r%s.json' % (args.taskset_type,
             args.edge_probability, args.demand_type)
 
     schedulers = ['RT-Gang', 'RTG-Sync', 'h2-lnr-hyb']
@@ -333,9 +358,8 @@ def main():
                 if not sched_ratio[s].has_key(u):
                     sched_ratio[s][u] = 0
 
-                print format_str("STATUS"), "   Analyzing: U=%2d | Scheduler=%20s | " \
-                        "Taskset: %5d / %-5d\r" % (u, s, tsIdx + 1,
-                                num_of_tasksets),
+                print format_str("STATUS"), "\tAnalyzing: U=%2d | Policy=%-10s | " \
+                        "Taskset: %5d / %-5d\r" % (u, s, tsIdx, num_of_tasksets),
 
                 gen_dir = 'generated/%s_e%d_r%s/ts%d_u%d_p' % \
                     (args.taskset_type, args.edge_probability,
@@ -346,6 +370,8 @@ def main():
 
     print "\n"
     check_previous_run_data(sched_hash_file)
+
+    if not os.path.isdir("data_hashes"): os.makedirs("data_hashes")
     with open(sched_hash_file, 'w') as fdi:
         json.dump(sched_ratio, fdi)
 
