@@ -1,0 +1,8 @@
+
+============== Virtual Set ==============
+Task:  1 | C=  2.00 P=  70 h= 7 r=100 u= 0.200 m=t4
+Task:  2 | C= 12.00 P=  70 h= 8 r=100 u= 1.371 m=t2+t1
+Task:  3 | C=  7.00 P=  70 h= 5 r=100 u= 0.500 m=t3
+
+=== Optimal solution obtained in: 0.364 secs!
+

@@ -1,0 +1,7 @@
+
+============== Virtual Set ==============
+Task:  8 | C=  9.00 P=  47 h= 3 r=100 u= 0.574 m=t9+t12
+Task:  9 | C=  8.00 P=  47 h= 6 r=100 u= 1.021 m=t10+t11
+
+=== Optimal solution obtained in: 0.263 secs!
+

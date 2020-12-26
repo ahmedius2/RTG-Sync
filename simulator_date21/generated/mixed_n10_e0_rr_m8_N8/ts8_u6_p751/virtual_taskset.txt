@@ -1,0 +1,9 @@
+
+============== Virtual Set ==============
+Task:  4 | C=149.00 P= 751 h= 7 r=100 u= 1.389 m=t6+t7
+Task:  5 | C=131.25 P= 751 h= 5 r=125 u= 0.874 m=t8+t3
+Task:  6 | C=123.05 P= 751 h= 8 r=115 u= 1.311 m=t2+t4
+Task:  7 | C=139.00 P= 751 h= 5 r=100 u= 0.925 m=t5+t1
+
+=== Optimal solution obtained in: 31.004 secs!
+

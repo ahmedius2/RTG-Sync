@@ -1,0 +1,11 @@
+
+============== Virtual Set ==============
+Task:  1 | C=122.00 P= 829 h= 7 r=100 u= 1.030 m=t5+t4
+Task:  2 | C=156.00 P= 829 h= 8 r=100 u= 1.505 m=t3
+Task:  3 | C= 10.00 P= 829 h= 5 r=100 u= 0.060 m=t8
+Task:  4 | C=156.00 P= 829 h= 7 r=100 u= 1.317 m=t1
+Task:  5 | C=129.00 P= 829 h= 8 r=100 u= 1.245 m=t7
+Task:  6 | C=105.00 P= 829 h= 8 r=100 u= 1.013 m=t6+t2
+
+=== Optimal solution obtained in: 6.579 secs!
+

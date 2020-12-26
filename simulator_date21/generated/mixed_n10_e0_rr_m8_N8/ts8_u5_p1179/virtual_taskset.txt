@@ -1,0 +1,6 @@
+
+============== Virtual Set ==============
+Task:  5 | C= 70.00 P=1179 h= 7 r= 81 u= 0.416 m=t9
+
+=== Optimal solution obtained in: 0.018 secs!
+

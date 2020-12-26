@@ -1,0 +1,10 @@
+
+============== Virtual Set ==============
+Task:  1 | C=105.00 P= 962 h= 5 r= 18 u= 0.546 m=t1
+Task:  2 | C=155.00 P= 962 h= 8 r=  6 u= 1.289 m=t2
+Task:  3 | C=149.00 P= 962 h= 5 r= 15 u= 0.774 m=t3
+Task:  4 | C=122.00 P= 962 h= 8 r=100 u= 1.015 m=t4
+Task:  5 | C= 60.00 P= 962 h= 6 r= 96 u= 0.374 m=t5
+
+=== Optimal solution obtained in: 0.027 secs!
+
