@@ -87,7 +87,7 @@ def parse_cli_args():
             args.edge_probability = 50
             args.taskset_type = 'mixed'
 
-        print_std_msg("INFO", "Input Params:")
+        print_std_msg("INFO", "Simulation Params:")
         print "           PRISTINE               =", args.pristine
         print "           DEMO_MODE              =", args.demo_mode
         print "           Taskset Type           =", args.taskset_type
@@ -194,28 +194,28 @@ def parallel_create_virtual_taskset(args):
         for tsIdx in range(r, min(r + num_of_cores, args.num_of_tasksets + 1)):
             processes[tsIdx].join()
 
-    print '\n'
+    print
 
     return
 
 def check_previous_run_data(data_src):
     if os.path.exists(data_src):
-        print_std_msg("WARN", "'%s' directory / file already exists!" % (data_src))
+        print_std_msg("WARN", "'%s' (directory/file) already exists!" % (data_src))
         print "         There might be stall data from previous run of "
         print "         the simulator which will get over-written by "
         print "         this run."
-        prompt = raw_input(format_str('PROMPT') + " Remove '%s' directory / file (y/n)? " % \
+        prompt = raw_input(format_str('PROMPT') + " Remove '%s' (directory/file) [y/n]? " % \
                 (data_src))
 
         if prompt == 'y':
-            print format_str("ACTION"), "Deleting '%s' directory / file!\n" % (data_src)
+            print format_str("ACTION"), "Deleting '%s' (directory/file)!\n" % (data_src)
             if os.path.isdir(data_src):
                 shutil.rmtree(data_src)
             else:
                 os.remove(data_src)
         else:
-            print_std_msg("STATUS", " You have decided to keep the '%s' " % (data_src))
-            print "         directory / file. Please move it to a different "
+            print_std_msg("STATUS", "You have decided to keep the '%s' " % (data_src))
+            print "         (directory/file). Please move it to a different "
             print "         location before running this program. Exiting!"
             sys.exit()
 
@@ -228,6 +228,9 @@ def stratify_data(args, data):
     return x, y
 
 def create_sched_plots(args, sched_hash, sched_list):
+    plot_file = 'figures/%s_e%d_r%s.png' % (args.taskset_type,
+        args.edge_probability, args.demand_type)
+
     fig = plt.subplots(1, 1, figsize = (10, 8))
     style = {'RT-Gang':    {'clr': 'red',     'mrk': 'o', 'lbl': 'RT-Gang'                  },
              'RTG-Sync':   {'clr': 'blue',    'mrk': '*', 'lbl': 'Virtual-Gang'             },
@@ -256,10 +259,11 @@ def create_sched_plots(args, sched_hash, sched_list):
 
     if args.taskset_type == 'mixed': plt.legend(fontsize = 'x-large')
 
-    plt.savefig('figures/%s_e%d_r%s.png' % (args.taskset_type,
-        args.edge_probability, args.demand_type))
+    plt.savefig(plot_file)
+    print Back.GREEN + Fore.WHITE + Style.BRIGHT + \
+            "Plot can be seen here: ", Style.BRIGHT + plot_file
 
-    return
+    return plot_file
 
 def get_sched_data_from_file(sched_hash_file):
     if os.path.exists(sched_hash_file):
@@ -308,13 +312,14 @@ def main():
     gen_dir = 'generated/%s_e%d_r%s' % (args.taskset_type,
             args.edge_probability, args.demand_type)
 
-    aggregator = Aggregator(gen_dir)
+    print_std_msg("STATUS", "Parsing execution data")
+    aggregator = Aggregator(gen_dir, debug = (args.verbose >= 2))
     tasksets = aggregator.run(gftp = (args.edge_probability == 0))
 
     rta_params = {'num_of_cores': args.core_count}
     rta = RTA(rta_params)
 
-    print_std_msg("STATUS", " Performing RTA...")
+    print_std_msg("STATUS", "Performing RTA")
 
     idx = 1
     sched_ratio = {s: {} for s in schedulers}

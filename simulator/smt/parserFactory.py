@@ -2,8 +2,9 @@ import os, re, sys
 from taskFactory import Task
 
 class Aggregator:
-    def __init__(self, gen_dir):
+    def __init__(self, gen_dir, debug = False):
         self.gen_dir = gen_dir
+        self.debug = debug
 
         assert os.path.exists(self.gen_dir), ("Directory of generated data "
             "<%s> does not exists in the current folder. Try pristine run!" %
@@ -26,8 +27,9 @@ class Aggregator:
             if max_ts and tsIdx > max_ts: continue
             debug = False
 
-            print "[PARSER] %4d / %4d | Parsing: <%20s>\r" % (idx,
-                    len(generated_taskset_dirs), ts),
+            if self.debug:
+                print "[PARSER] %4d / %4d | Parsing: <%20s>\r" % (idx,
+                        len(generated_taskset_dirs), ts),
 
             sys.stdout.flush()
 
@@ -60,8 +62,10 @@ class Aggregator:
                 print "   ", '\n    '.join([t.__str__() for t in tasksets[tsIdx][util][period]['Virtual']])
                 print
 
-        if not max_ts: print
-        if not max_ts: print "[PARSER] Parsing Complete!"
+        if not max_ts and self.debug:
+            print
+            print "[PARSER] Parsing Complete!"
+
         return tasksets
 
     def parse_taskset(self, taskset_dir, nature, debug = False):
