@@ -14,7 +14,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 try:
-    from colorama2 import init, Fore, Back, Style
+    from colorama import init, Fore, Back, Style
     init(autoreset = True)
     colored = True
 except:
@@ -200,7 +200,7 @@ def parallel_create_virtual_taskset(args):
     num_of_cores = multiprocessing.cpu_count()
 
     if args.verbose >= 1:
-        print_std_msg("INFO", " Taskset generation will be parallelized on %d-Cores." \
+        print_std_msg("INFO", "Simulation will be parallelized on %d-Cores." \
                 % (num_of_cores))
 
     print format_str('STATUS'), 'Processing Tasksets'
