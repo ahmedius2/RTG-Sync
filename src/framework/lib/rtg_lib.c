@@ -11,9 +11,16 @@
  * 2019-05-20	Use virtual gang ID value for managing runtime resources
  * 2019-05-21	Add kernel interface management during virtual gang setup
  */
+
 #include <errno.h>
 #include <unistd.h>
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 #ifdef RTG_SYNCH_DEBUG
 static int mark_fd = -1;
@@ -31,7 +38,7 @@ static int open_shared_file (char* shared_file, int flags)
 {
 	int fd;
 
-	fd = open (shared_file, flags);
+    fd = open (shared_file, flags, S_IRWXU);
 	rtg_assert (fd >= 0, "Failed to open shared file");
 
 	return fd;
@@ -455,3 +462,8 @@ void rtg_member_sync (pthread_barrier_t* barrier)
 
 	return;
 }
+
+#ifdef __cplusplus
+}
+#endif
+

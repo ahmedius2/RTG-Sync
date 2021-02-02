@@ -1,6 +1,11 @@
 #ifndef __RTG_LIB_H__
 #define __RTG_LIB_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -126,4 +131,9 @@ void debug_setup_ftrace (void);
 void ftrace_write(const char *fmt, ...);
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __RTG_LIB_H__ */
+

@@ -27,7 +27,7 @@
 #include <sys/syscall.h>
 #include <sys/resource.h>
 
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 
 /**************************************************************************
  * Public Definitions
@@ -245,8 +245,8 @@ static inline void perform_memory_accesses(void)
 static inline void setup_virtual_gang (void)
 {
 	globals.sched.barrier = rtg_member_setup(globals.sched.vid,
-			globals.cmask, globals.sched.mem_read_budget,
-			globals.sched.mem_write_budget);
+			globals.cmask, globals.sched.mem_read_budget);
+	//,globals.sched.mem_write_budget);
 
 	return;
 }

@@ -35,7 +35,7 @@
 #include <getopt.h>
 #include <time.h>
 #include <pthread.h>
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 
 /**************************************************************************
  * Public Definitions

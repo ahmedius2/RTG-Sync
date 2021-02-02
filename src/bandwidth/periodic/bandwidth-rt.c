@@ -25,7 +25,7 @@
 #include <sys/syscall.h>
 
 /* For RT-Gang management framework */
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 pthread_barrier_t *barrier = NULL;
 
 /**************************************************************************

@@ -120,7 +120,7 @@ The last command should print the ID value of the virtual gang if it was created
 #include <...>
 
 /* Include RTG-Sync library header to use the APIs */
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 
 int main (void)
 {

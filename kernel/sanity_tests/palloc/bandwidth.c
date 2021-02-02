@@ -35,7 +35,7 @@
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
 #include <asm/unistd.h>
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 
 /* Import process address map parsing function into this file */
 extern void pagetype(char* pid_s);

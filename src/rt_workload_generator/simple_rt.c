@@ -24,7 +24,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include "rtg_lib.h"
+#include "rtg_sync_framework/rtg_lib.h"
 
 #define WARN			(1U)
 #define INFO			(2U)
