@@ -60,20 +60,20 @@ struct periodic_info
 };
 
 struct sched_attr {
-       __u32 size;
-       __u32 sched_policy;
-       __u64 sched_flags;
+       uint32_t size;
+       uint32_t sched_policy;
+       uint64_t sched_flags;
 
        /* SCHED_NORMAL, SCHED_BATCH */
-       __s32 sched_nice;
+       int32_t sched_nice;
 
        /* SCHED_FIFO, SCHED_RR */
-       __u32 sched_priority;
+       uint32_t sched_priority;
 
        /* SCHED_DEADLINE (nsec) */
-       __u64 sched_runtime;
-       __u64 sched_deadline;
-       __u64 sched_period;
+       uint64_t sched_runtime;
+       uint64_t sched_deadline;
+       uint64_t sched_period;
 };
 
 /**************************************************************************
